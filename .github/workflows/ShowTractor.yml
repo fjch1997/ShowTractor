@@ -93,7 +93,7 @@ jobs:
     - name: Decode the pfx
       run: |
         $pfx_cert_byte = [System.Convert]::FromBase64String("${{ secrets.Base64_Encoded_Pfx }}")
-        $certificatePath GitHubActionsWorkflow.pfx
+        $certificatePath = 'GitHubActionsWorkflow.pfx'
         [IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
         Import-PfxCertificate -FilePath certificatePath -CertStoreLocation cert:\\CurrentUser\My -Password ${{ secrets.Pfx_Key }}
 
