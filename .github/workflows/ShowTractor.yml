@@ -57,9 +57,6 @@ jobs:
 
     env:
       Solution_Name: ShowTractor.sln
-      Test_Project_Path: ShowTractor.Tests\ShowTractor.Tests.csproj
-      Wap_Project_Directory: ShowTractor.WinUI\ShowTractor.WinUI (Package)
-      Wap_Project_Path: ShowTractor.WinUI\ShowTractor.WinUI (Package)\ShowTractor.WinUI (Package).wapproj
 
     steps:
     - name: Checkout
@@ -96,7 +93,7 @@ jobs:
     - name: Decode the pfx
       run: |
         $pfx_cert_byte = [System.Convert]::FromBase64String("${{ secrets.Base64_Encoded_Pfx }}")
-        $certificatePath = Join-Path -Path $env:Solution_Name -ChildPath GitHubActionsWorkflow.pfx
+        $certificatePath GitHubActionsWorkflow.pfx
         [IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
         Import-PfxCertificate -FilePath certificatePath -CertStoreLocation cert:\\CurrentUser\My -Password ${{ secrets.Pfx_Key }}
 
@@ -109,7 +106,7 @@ jobs:
 
     # Remove the pfx
     - name: Remove the pfx
-      run: Remove-Item -path $env:Solution_Name\$env:Signing_Certificate
+      run: Remove-Item -path GitHubActionsWorkflow.pfx
 
     # Upload the MSIX package: https://github.com/marketplace/actions/upload-artifact
     - name: Upload build artifacts
