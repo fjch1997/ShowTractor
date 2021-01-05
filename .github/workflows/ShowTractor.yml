@@ -71,7 +71,7 @@ jobs:
     - name: Install .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 3.1.101
+        dotnet-version: 5.0.1
     
     - name: Setup NuGet.exe for use with actions
       uses: NuGet/setup-nuget@v1.0.5
@@ -82,7 +82,7 @@ jobs:
 
     # Restore the application to populate the obj folder with RuntimeIdentifiers
     - name: Restore the application
-      run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration /p:Platform=x86
+      run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration /p:Platform=x64
       env:
         Configuration: ${{ matrix.configuration }}
 
