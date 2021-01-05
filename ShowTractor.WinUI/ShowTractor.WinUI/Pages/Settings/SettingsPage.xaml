@@ -1,0 +1,49 @@
+﻿<Page
+    x:Class="ShowTractor.WinUI.Pages.Settings.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:e="using:ShowTractor.WinUI.Extensions"
+    xmlns:s="using:ShowTractor.WinUI.Pages.Settings"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <NavigationView 
+        x:Name="navigationView" 
+        PaneDisplayMode="LeftCompact" 
+        IsBackButtonVisible="Collapsed" 
+        IsSettingsVisible="False" 
+        IsPaneToggleButtonVisible="False"
+        e:NavigationExtensions.Frame="{x:Bind frame}"
+        SelectedItem="{x:Bind general}">
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{x:Bind navigationView.CompactModeThresholdWidth}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="navigationView.PaneDisplayMode" Value="Left" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups >
+        <NavigationView.MenuItems>
+            <NavigationViewItemHeader>Settings</NavigationViewItemHeader>
+            <NavigationViewItem x:Name="general" Content="General" Icon="Setting" e:NavigationExtensions.PageType="s:GeneralSettingsPage"/>
+            <NavigationViewItem Content="Plugins" e:NavigationExtensions.PageType="s:PluginSettingsPage">
+                <NavigationViewItem.Icon>
+                    <FontIcon Glyph="&#xEA86;"/>
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+            <!--To be implemented-->
+            <NavigationViewItem Content="Plugin Settings" Icon="SetTile" SelectsOnInvoked="False" Visibility="Collapsed">
+                <NavigationViewItem.MenuItems>
+                    <NavigationViewItem Content="TMDB"/>
+                    <NavigationViewItem Content="IMDB"/>
+                </NavigationViewItem.MenuItems>
+            </NavigationViewItem>
+        </NavigationView.MenuItems>
+        <Frame x:Name="frame" SourcePageType="s:GeneralSettingsPage"/>
+    </NavigationView>
+</Page>

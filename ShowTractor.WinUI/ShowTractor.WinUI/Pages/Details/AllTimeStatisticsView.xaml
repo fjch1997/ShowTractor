@@ -1,0 +1,32 @@
+﻿<UserControl
+    x:Class="ShowTractor.WinUI.Pages.Details.AllTimeStatisticsView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:e="using:ShowTractor.WinUI.Extensions"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="using:ShowTractor.Pages.Details"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    d:DataContext="{d:DesignInstance Type=vm:AllTimeStatisticsViewModel}"
+    mc:Ignorable="d">
+    <UserControl.Resources>
+        <e:ScopedServiceProvider x:Key="ScopedServiceProvider" ParentProvider="{StaticResource ServiceProvider}"/>
+    </UserControl.Resources>
+    <UserControl.DataContext>
+        <e:FromServiceProviderExtension TypeName="ShowTractor.Pages.Details.AllTimeStatisticsViewModel, ShowTractor" ServiceProvider="{StaticResource ScopedServiceProvider}"/>
+    </UserControl.DataContext>
+    <StackPanel Margin="8 0 8 8">
+        <StackPanel Orientation="Horizontal">
+            <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0 0 3 0" Text="To date, you have watched"/>
+            <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0 0 3 0" FontWeight="Bold" Text="{x:Bind ((vm:AllTimeStatisticsViewModel)DataContext).TotalWatched, Mode=OneWay}"/>
+            <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0 0 3 0" FontWeight="Bold" Text="out of"/>
+            <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0 0 3 0" FontWeight="Bold" Text="{x:Bind ((vm:AllTimeStatisticsViewModel)DataContext).TotalFollowing, Mode=OneWay}"/>
+            <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0 0 3 0" Text="episodes."/>
+        </StackPanel>
+        <ProgressBar Height="20" Value="{x:Bind ((vm:AllTimeStatisticsViewModel)DataContext).PercentageWatched}" Margin="0 3"/>
+        <StackPanel Orientation="Horizontal" Visibility="{x:Bind ((vm:AllTimeStatisticsViewModel)DataContext).TotalTimeWatchedDisplayText, Mode=OneWay, Converter={StaticResource StringVisibilityConverter}}">
+            <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0 0 3 0">You have spent about</TextBlock>
+            <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0 0 3 0" FontWeight="Bold" Text="{x:Bind ((vm:AllTimeStatisticsViewModel)DataContext).TotalTimeWatchedDisplayText, Mode=OneWay}"/>
+            <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0 0 3 0">watching TV shows.</TextBlock>
+        </StackPanel>
+    </StackPanel>
+</UserControl>

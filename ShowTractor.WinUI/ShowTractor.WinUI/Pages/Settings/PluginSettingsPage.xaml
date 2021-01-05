@@ -1,0 +1,130 @@
+﻿<Page
+    x:Class="ShowTractor.WinUI.Pages.Settings.PluginSettingsPage"
+    x:Name="root"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:e="using:ShowTractor.WinUI.Extensions"
+    xmlns:vm="using:ShowTractor.Pages.Settings"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:s="using:ShowTractor.WinUI.Pages.Settings"
+    mc:Ignorable="d" 
+    d:DataContext="{d:DesignInstance Type=vm:PluginSettingsPageViewModel}"
+    DataContext="{e:FromServiceProvider TypeName='ShowTractor.Pages.Settings.PluginSettingsPageViewModel, ShowTractor', ServiceProvider={StaticResource ServiceProvider}}"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Page.Resources>
+        <ResourceDictionary>
+            <SwipeItems x:Key="SwipeItems">
+                <SwipeItem Text="Remove" BehaviorOnInvoked="Close">
+                    <SwipeItem.IconSource>
+                        <FontIconSource Glyph="&#xE74D;"/>
+                    </SwipeItem.IconSource>
+                </SwipeItem>
+            </SwipeItems>
+            <DataTemplate x:Key="PluginTemplate" x:DataType="vm:PluginViewModel">
+                <SwipeControl RightItems="{StaticResource SwipeItems}" d:DataContext="{d:DesignInstance Type=vm:PluginViewModel}">
+                    <Grid HorizontalAlignment="Stretch">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="30"/>
+                            <ColumnDefinition Width="60"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <CheckBox Width="80" IsChecked="{x:Bind Enabled, Mode=OneWay}"/>
+                        <Image Grid.Column="1" Source="{x:Bind Icon, Converter={StaticResource ArtworkToImageSourceConverter}}"/>
+                        <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="6 0">
+                            <TextBlock Text="{x:Bind Name}" Style="{StaticResource BaseTextBlockStyle}"/>
+                            <ItemsControl ItemsSource="{Binding Descriptions}">
+                                <TextBlock Text="{x:Bind}" Style="{StaticResource CaptionTextBlockStyle}"/>
+                            </ItemsControl>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Grid.Column="3">
+                            <StackPanel.Resources>
+                                <SolidColorBrush x:Key="ButtonBackground" Color="#00ffffff"/>
+                                <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="#00ffffff"/>
+                                <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="#00ffffff"/>
+                            </StackPanel.Resources>
+                            <Button Padding="1" ToolTipService.ToolTip="Settings" Visibility="{x:Bind Plugin.PluginSettingsDescriptions, Converter={StaticResource ObjectToVisibilityConverter}}">
+                                <Button.Resources>
+                                    <SolidColorBrush x:Key="ButtonForegroundPointerOver" Color="Green"/>
+                                    <SolidColorBrush x:Key="ButtonForegroundPressed" Color="Green"/>
+                                </Button.Resources>
+                                <FontIcon Glyph="&#xF259;" FontSize="16"/>
+                                <Button.Flyout>
+                                    <Flyout>
+                                        <s:PluginSettingsView DataContext="{x:Bind Plugin.PluginSettingsDescriptions}"/>
+                                    </Flyout>
+                                </Button.Flyout>
+                            </Button>
+                            <Button Padding="1" ToolTipService.ToolTip="Remove" Command="{Binding DataContext.RemoveCommand, ElementName=root}" CommandParameter="{x:Bind}">
+                                <Button.Resources>
+                                    <SolidColorBrush x:Key="ButtonForegroundPointerOver" Color="Red"/>
+                                    <SolidColorBrush x:Key="ButtonForegroundPressed" Color="Red"/>
+                                </Button.Resources>
+                                <FontIcon Glyph="&#xE74D;" FontSize="16"/>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </SwipeControl>
+            </DataTemplate>
+            <Style x:Key="PluginListViewStyle" TargetType="ListView">
+                <Setter Property="ItemContainerStyle">
+                    <Setter.Value>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                            <Setter Property="Margin" Value="0 2"/>
+                        </Style>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="Margin" Value="0 8"/>
+                <Setter Property="Height" Value="200"/>
+                <Setter Property="Width" Value="400"/>
+                <Setter Property="HorizontalAlignment" Value="Left"/>
+                <Setter Property="SelectionMode" Value="None"/>
+                <Setter Property="ReorderMode" Value="Enabled"/>
+                <Setter Property="CanReorderItems" Value="True"/>
+                <Setter Property="AllowDrop" Value="True"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="BorderBrush" Value="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"/>
+            </Style>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Styles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Page.Resources>
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <TextBlock Style="{StaticResource TitleTextBlockStyle}">Plugin Settings</TextBlock>
+        <ScrollViewer Grid.Row="1" x:Name="scrollViewer">
+            <StackPanel>
+                <TextBlock Style="{StaticResource SettingsSubtitleStyle}">Metadata Providers</TextBlock>
+                <TextBlock Style="{StaticResource BodyStyle}">Metadata provider downloads TV show description, artwork, episode guides, and other information. They also enable searching to follow new shows. Only one Metadata Provider can be enabled at a time.</TextBlock>
+                <ListView 
+                    Style="{StaticResource PluginListViewStyle}" 
+                    ItemsSource="{x:Bind ((vm:PluginSettingsPageViewModel)DataContext).MetadataProviders}"
+                    ItemTemplate="{StaticResource PluginTemplate}"/>
+                <Button Command="{x:Bind ((vm:PluginSettingsPageViewModel)DataContext).LoadMetadataProviderCommand}">Load</Button>
+
+                <TextBlock Style="{StaticResource SettingsSubtitleStyle}">Media Source Providers</TextBlock>
+                <TextBlock Style="{StaticResource BodyStyle}">Media Source Providers search for ways to download or stream episodes, and pass them along to Download Managers (for downloads) or Vidoe Players (for streams). You may enable multiple providers and adjust their priority by reordering them in the list below.</TextBlock>
+                <ListView Style="{StaticResource PluginListViewStyle}">
+                </ListView>
+                <Button>Load</Button>
+
+                <TextBlock Style="{StaticResource SettingsSubtitleStyle}">Download Managers</TextBlock>
+                <TextBlock Style="{StaticResource BodyStyle}">Download managers take media sources of a particular type, and download them. Each download manager support only certain types of sources(e.g. HTTP, SMB, Torrent). You may enable multiple providers and adjust their priority by reordering them in the list below.</TextBlock>
+                <ListView Style="{StaticResource PluginListViewStyle}">
+                </ListView>
+                <Button>Load</Button>
+
+                <TextBlock Style="{StaticResource SettingsSubtitleStyle}">Media Players</TextBlock>
+                <TextBlock Style="{StaticResource BodyStyle}">Media Players enable playback of downlaoded media, or stream from an online source (typically in the browser). You may enable multiple providers and adjust their priority by reordering them in the list below.</TextBlock>
+                <ListView Style="{StaticResource PluginListViewStyle}">
+                </ListView>
+                <Button>Load</Button>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>

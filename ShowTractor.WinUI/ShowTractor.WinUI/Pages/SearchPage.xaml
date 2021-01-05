@@ -1,0 +1,41 @@
+﻿<c:NavigationPage
+    x:Class="ShowTractor.WinUI.Pages.SearchPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:c="using:ShowTractor.WinUI.Controls"
+    xmlns:de="using:ShowTractor.WinUI.Pages.Details"
+    xmlns:e="using:ShowTractor.WinUI.Extensions"
+    xmlns:vm="using:ShowTractor.Pages"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DataContext="{d:DesignInstance Type=vm:SearchPageViewModel}"
+    DataContext="{e:FromServiceProvider TypeName='ShowTractor.Pages.SearchPageViewModel, ShowTractor', ServiceProvider={StaticResource ServiceProvider}}"
+    Background="{ThemeResource NavigationViewTopPaneBackground}">
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <TextBlock Margin="12 0 0 12" Style="{StaticResource SubheaderTextBlockStyle}" Text="{x:Bind ((vm:SearchPageViewModel)DataContext).Title, Mode=OneWay}"/>
+        <de:LibraryView 
+            Grid.Row="1" 
+            DataContext="{x:Bind Path=((vm:SearchPageViewModel)DataContext).LibraryViewModel, Mode=OneWay}"
+            Visibility="{x:Bind ((vm:SearchPageViewModel)DataContext).ErrorMessage, Converter={StaticResource StringVisibilityConverter}, ConverterParameter=true}"/>
+        <TextBlock 
+            Grid.RowSpan="2" 
+            Text="{x:Bind ((vm:SearchPageViewModel)DataContext).ErrorMessage, Mode=OneWay}" 
+            Style="{StaticResource SubtitleTextBlockStyle}" 
+            HorizontalAlignment="Center" 
+            VerticalAlignment="Center"
+            Visibility="{x:Bind ((vm:SearchPageViewModel)DataContext).ErrorMessage, Converter={StaticResource StringVisibilityConverter}}"/>
+        <ProgressRing
+            Width="50"
+            Height="50"
+            IsActive="True"
+            Grid.RowSpan="2"
+            HorizontalAlignment="Center" 
+            VerticalAlignment="Center"
+            Visibility="{x:Bind ((vm:SearchPageViewModel)DataContext).Loading, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"/>
+    </Grid>
+</c:NavigationPage>

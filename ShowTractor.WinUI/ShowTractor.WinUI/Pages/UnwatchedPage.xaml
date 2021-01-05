@@ -1,0 +1,39 @@
+﻿<Page
+    x:Name="root"
+    x:Class="ShowTractor.WinUI.Pages.UnwatchedPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:de="using:ShowTractor.WinUI.Pages.Details"
+    xmlns:e="using:ShowTractor.WinUI.Extensions"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:vm="using:ShowTractor.Pages"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DataContext="{d:DesignInstance Type=vm:UnwatchedPageViewModel}"
+    Background="{ThemeResource NavigationViewTopPaneBackground}">
+    <Page.Resources>
+        <e:ScopedServiceProvider x:Key="ScopedServiceProvider" ParentProvider="{StaticResource ServiceProvider}"/>
+    </Page.Resources>
+    <Page.DataContext>
+        <e:FromServiceProviderExtension ServiceProvider="{StaticResource ScopedServiceProvider}" TypeName="ShowTractor.Pages.UnwatchedPageViewModel, ShowTractor"/>
+    </Page.DataContext>
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Margin="6 0">
+            <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0 0 2 0">Total Episodes Unwatched:</TextBlock>
+            <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="2 0" FontWeight="Bold" Text="{x:Bind ((vm:UnwatchedPageViewModel)root.DataContext).TotalUnwatched, Mode=OneWay}"/>
+            <TextBlock 
+                Style="{StaticResource BodyTextBlockStyle}" 
+                Margin="12 0 2 0" 
+                Visibility="{x:Bind ((vm:UnwatchedPageViewModel)root.DataContext).TotalTimeUnwatchedDisplayText, Mode=OneWay, Converter={StaticResource StringVisibilityConverter}}"
+                Text="Estimated time to complete:"/>
+            <TextBlock 
+                Style="{StaticResource BodyTextBlockStyle}" Margin="2 0" FontWeight="Bold" 
+                Text="{x:Bind ((vm:UnwatchedPageViewModel)root.DataContext).TotalTimeUnwatchedDisplayText, Mode=OneWay}"/>
+        </StackPanel>
+        <de:LibraryView Grid.Row="1" DataContext="{x:Bind ((vm:UnwatchedPageViewModel)root.DataContext).LibraryViewModel}"/>
+    </Grid>
+</Page>

@@ -1,0 +1,41 @@
+﻿<Application
+    x:Class="ShowTractor.WinUI.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ShowTractor.WinUI"
+    xmlns:c2="using:Microsoft.Toolkit.Uwp.UI.Converters"
+    xmlns:c="using:ShowTractor.WinUI.Converters">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+            </ResourceDictionary.MergedDictionaries>
+            <local:AppServiceProvider x:Key="ServiceProvider" x:Name="serviceProvider"/>
+            <c2:StringVisibilityConverter x:Key="StringVisibilityConverter"/>
+            <c2:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+            <c2:EmptyObjectToObjectConverter x:Key="ObjectToVisibilityConverter">
+                <c2:EmptyObjectToObjectConverter.EmptyValue>
+                    <Visibility>
+                        Collapsed
+                    </Visibility>
+                </c2:EmptyObjectToObjectConverter.EmptyValue>
+                <c2:EmptyObjectToObjectConverter.NotEmptyValue>
+                    <Visibility>
+                        Visible
+                    </Visibility>
+                </c2:EmptyObjectToObjectConverter.NotEmptyValue>
+            </c2:EmptyObjectToObjectConverter>
+            <c:ArtworkToImageSourceConverter x:Key="ArtworkToImageSourceConverter"/>
+            <c:ObjectToCollectionViewConverter x:Key="ObjectToCollectionViewConverter"/>
+            <c:EnumToStringConverter x:Key="EnumToStringConverter"/>
+            <c2:BoolToObjectConverter x:Key="InverseBooleanConverter">
+                <c2:BoolToObjectConverter.TrueValue>
+                    <x:Boolean>False</x:Boolean>
+                </c2:BoolToObjectConverter.TrueValue>
+                <c2:BoolToObjectConverter.FalseValue>
+                    <x:Boolean>True</x:Boolean>
+                </c2:BoolToObjectConverter.FalseValue>
+            </c2:BoolToObjectConverter>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

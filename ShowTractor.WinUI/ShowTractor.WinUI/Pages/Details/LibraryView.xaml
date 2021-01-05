@@ -1,0 +1,75 @@
+﻿<UserControl
+    x:Class="ShowTractor.WinUI.Pages.Details.LibraryView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ShowTractor.WinUI.Pages.Details"
+    xmlns:b="using:ShowTractor.WinUI.Behaviors"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:vm="using:ShowTractor.Pages.Details"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d" d:DataContext="{d:DesignInstance Type=vm:LibraryViewModel}">
+    <UserControl.Resources>
+        <CollectionViewSource x:Name="view" Source="{x:Bind ((vm:LibraryViewModel)DataContext).View, Mode=OneWay}" IsSourceGrouped="{x:Bind ((vm:LibraryViewModel)DataContext).ViewGrouped, Mode=OneWay}" x:Key="CollectionViewSource"/>
+    </UserControl.Resources>
+    <Grid>
+        <SemanticZoom Visibility="{x:Bind ((vm:LibraryViewModel)DataContext).ErrorMessage, Converter={StaticResource StringVisibilityConverter}, ConverterParameter=true, Mode=OneWay}">
+            <SemanticZoom.ZoomedInView>
+                <GridView x:Name="gridView" SelectionMode="None" IsItemClickEnabled="True" ItemsSource="{x:Bind view.View, Mode=OneWay}">
+                    <i:Interaction.Behaviors>
+                        <core:EventTriggerBehavior EventName="ItemClick">
+                            <b:NavigateToPageAction TargetPageType="local:TvSeasonPage"/>
+                        </core:EventTriggerBehavior>
+                    </i:Interaction.Behaviors>
+                    <GridView.HeaderTemplate>
+                        <DataTemplate x:DataType="vm:LibraryViewModel">
+                            <StackPanel Orientation="Horizontal" Margin="5 0 0 0" Visibility="{x:Bind ShowSorts, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <TextBlock VerticalAlignment="Center" Margin="6 0 6 0">Sort by:</TextBlock>
+                                <ComboBox
+                                    ItemsSource="{x:Bind AvailableSorts}"
+                                    SelectedItem="{x:Bind SortByEnumItem, Mode=TwoWay}"
+                                    DisplayMemberPath="DisplayText"
+                                    SelectedValuePath="Value"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </GridView.HeaderTemplate>
+                    <GridView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:PosterViewModel">
+                            <local:ShowPoster DataContext="{x:Bind}"/>
+                        </DataTemplate>
+                    </GridView.ItemTemplate>
+                    <GridView.ItemContainerStyle>
+                        <Style TargetType="GridViewItem">
+                            <Setter Property="Margin" Value="6 12 6 12"/>
+                        </Style>
+                    </GridView.ItemContainerStyle>
+                    <GridView.GroupStyle>
+                        <GroupStyle>
+                            <GroupStyle.HeaderTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Key}" Foreground="{ThemeResource ApplicationForegroundThemeBrush}" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                                </DataTemplate>
+                            </GroupStyle.HeaderTemplate>
+                        </GroupStyle>
+                    </GridView.GroupStyle>
+                </GridView>
+            </SemanticZoom.ZoomedInView>
+
+            <SemanticZoom.ZoomedOutView>
+                <ListView HorizontalAlignment="Stretch" SelectionMode="None" ItemsSource="{x:Bind view.View.CollectionGroups, Mode=OneWay}">
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="ICollectionViewGroup">
+                            <TextBlock Text="{Binding Group.Key}" Style="{StaticResource SubtitleTextBlockStyle}" TextWrapping="Wrap"/>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </SemanticZoom.ZoomedOutView>
+        </SemanticZoom>
+        <TextBlock
+            HorizontalAlignment="Stretch" VerticalAlignment="Center" TextAlignment="Center"
+            Style="{StaticResource SubtitleTextBlockStyle}"
+            Visibility="{x:Bind ((vm:LibraryViewModel)DataContext).ErrorMessage, Converter={StaticResource StringVisibilityConverter}, Mode=OneWay}"
+            Text="{x:Bind ((vm:LibraryViewModel)DataContext).ErrorMessage, Mode=OneWay}"/>
+    </Grid>
+</UserControl>
