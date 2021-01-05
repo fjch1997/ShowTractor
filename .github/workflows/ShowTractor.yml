@@ -86,9 +86,11 @@ jobs:
       env:
         Configuration: ${{ matrix.configuration }}
 
-    # Execute all unit tests in the solution
     - name: Execute unit tests
-      run: dotnet test
+      run: dotnet test ShowTractor.Tests
+
+    - name: Execute unit tests
+      run: dotnet test ShowTractor.Plugins.Tmdb.Tests
 
     # Decode the base 64 encoded pfx, save the Signing_Certificate, and import to Windows Certificate Store
     - name: Decode the pfx
