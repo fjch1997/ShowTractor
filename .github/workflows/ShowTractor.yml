@@ -111,3 +111,10 @@ jobs:
         name: ShowTractor.WinUI_x86
         path: ShowTractor.WinUI\ShowTractor.WinUI (Package)\AppPackages\*\*x86.msix
         if-no-files-found: error
+        
+    - name: Upload build artifacts (ShowTractor.Plugins.Tmdb)
+      uses: actions/upload-artifact@v2
+      with:
+        name: ShowTractor.Plugins.Tmdb
+        path: ShowTractor.Plugins.Tmdb\bin\Release\netstandard2.1\ShowTractor.Plugins.Tmdb.*
+        if-no-files-found: error
