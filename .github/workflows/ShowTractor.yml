@@ -75,6 +75,7 @@ jobs:
       
     # Decode the base 64 encoded pfx, save the Signing_Certificate, and import to Windows Certificate Store
     - name: Decode the pfx
+      if: github.ref == 'refs/heads/master'
       run: |
         $pfx_cert_byte = [System.Convert]::FromBase64String("${{ secrets.Base64_Encoded_Pfx }}")
         $certificatePath = 'GitHubActionsWorkflow.pfx'
@@ -85,9 +86,11 @@ jobs:
       run: .\build.ps1
       
     - name: sign.ps1
+      if: github.ref == 'refs/heads/master'
       run: .\sign.ps1
       
     - name: Remove the pfx
+      if: github.ref == 'refs/heads/master'
       run: |
         Remove-Item -path GitHubActionsWorkflow.pfx
         Get-Item cert:\\CurrentUser\My\* -CodeSigning | Remove-Item
