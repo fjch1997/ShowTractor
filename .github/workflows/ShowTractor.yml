@@ -89,7 +89,9 @@ jobs:
       run: .\sign.ps1
       
     - name: Remove the pfx
-      run: Remove-Item -path GitHubActionsWorkflow.pfx
+      run: |
+        Remove-Item -path GitHubActionsWorkflow.pfx
+        Get-Item cert:\\CurrentUser\My\* -CodeSigning | Remove-Item
       
     - name: Upload build artifacts (arm64)
       uses: actions/upload-artifact@v2
