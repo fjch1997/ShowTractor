@@ -91,8 +91,21 @@ jobs:
     - name: Remove the pfx
       run: Remove-Item -path GitHubActionsWorkflow.pfx
       
-    - name: Upload build artifacts
+    - name: Upload build artifacts (arm64)
       uses: actions/upload-artifact@v2
       with:
-        name: MSIX Package
-        path: ShowTractor.WinUI\ShowTractor.WinUI (Package)\AppPackages\*\*.msix
+        name: arm64
+        path: ShowTractor.WinUI\ShowTractor.WinUI (Package)\AppPackages\*\*arm64.msix
+    
+    - name: Upload build artifacts (x64)
+      uses: actions/upload-artifact@v2
+      with:
+        name: arm64
+        path: ShowTractor.WinUI\ShowTractor.WinUI (Package)\AppPackages\*\*x64.msix
+    
+    - name: Upload build artifacts (x86)
+      uses: actions/upload-artifact@v2
+      with:
+        name: arm64
+        path: ShowTractor.WinUI\ShowTractor.WinUI (Package)\AppPackages\*\*x86.msix
+  
