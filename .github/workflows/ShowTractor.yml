@@ -47,11 +47,7 @@ on:
 jobs:
 
   build:
-
-    strategy:
-      matrix:
-        configuration: [Release]
-
+  
     runs-on: windows-latest  # For a list of available runner types, refer to
                              # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
 
@@ -76,19 +72,7 @@ jobs:
     # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
     - name: Setup MSBuild.exe
       uses: microsoft/setup-msbuild@v1
-
-    # Restore the application to populate the obj folder with RuntimeIdentifiers
-    - name: Restore the application
-      run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration /p:Platform=x64
-      env:
-        Configuration: ${{ matrix.configuration }}
-
-    - name: Execute unit tests
-      run: dotnet test ShowTractor.Tests
-
-    - name: Execute unit tests
-      run: dotnet test ShowTractor.Plugins.Tmdb.Tests
-
+      
     # Decode the base 64 encoded pfx, save the Signing_Certificate, and import to Windows Certificate Store
     - name: Decode the pfx
       run: |
@@ -96,21 +80,18 @@ jobs:
         $certificatePath = 'GitHubActionsWorkflow.pfx'
         [IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
         Import-PfxCertificate -FilePath $certificatePath -CertStoreLocation cert:\\CurrentUser\My -Password (ConvertTo-SecureString '${{ secrets.Pfx_Key }}' -AsPlainText -Force)
+        
+    - name: build.ps1
+      run: .\build.ps1
 
-    # Create the app package by building and packaging the Windows Application Packaging project
-    # The solution must already be setup to generate msix packages.
-    - name: Create the app package
-      run: msbuild $env:Solution_Name /p:Configuration=$env:Configuration
-      env:
-        Configuration: ${{ matrix.configuration }}
-
-    # Remove the pfx
+    - name: sign.ps1
+      run: .\sign.ps1
+      
     - name: Remove the pfx
       run: Remove-Item -path GitHubActionsWorkflow.pfx
-
-    # Upload the MSIX package: https://github.com/marketplace/actions/upload-artifact
+      
     - name: Upload build artifacts
       uses: actions/upload-artifact@v2
       with:
         name: MSIX Package
-        path: ${{ env.Wap_Project_Directory }}\AppPackages
+        path: ShowTractor.WinUI\ShowTractor.WinUI (Package)\AppPackages
