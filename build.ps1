@@ -1,4 +1,5 @@
-﻿Import-Module "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
+﻿$ErrorActionPreference = "Stop"
+Import-Module "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
 Enter-VsDevShell -VsInstallPath "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise" -SkipAutomaticLocation
 msbuild ShowTractor.sln /t:Restore /p:Configuration=Release
 dotnet test ShowTractor.Tests

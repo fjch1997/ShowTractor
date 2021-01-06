@@ -17,6 +17,8 @@ foreach ($msixFile in Get-ChildItem "ShowTractor.WinUI\ShowTractor.WinUI (Packag
         Write-Host "Signing $exeName"
         Set-AuthenticodeSignature -Certificate $certificate -FilePath $exePath -TimestampServer http://timestamp.sectigo.com
     }
+    # Change the package identity name so as to not conflict with debug installation.
+    (Get-Content "$unpackedPath\AppxManifest.xml").Replace("f0d5fe17-7d4a-4795-9ab2-55b4be65317e", "ff67f6ff-3707-446e-a79d-3e95f4d04f68") | Out-File "$unpackedPath\AppxManifest.xml" -Encoding utf8
     MakeAppx pack /d $unpackedPath /p $msixPath /o
     SignTool sign /a /v /fd SHA256 /tr http://timestamp.sectigo.com /td SHA256 /sha1 $certificate.Thumbprint $msixPath
 }

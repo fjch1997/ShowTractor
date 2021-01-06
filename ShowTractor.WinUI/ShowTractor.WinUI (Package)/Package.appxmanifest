@@ -12,7 +12,7 @@
     Version="1.0.0.0" />
 
   <Properties>
-    <DisplayName>ShowTractor.WinUI (Package)</DisplayName>
+    <DisplayName>ShowTractor.WinUI</DisplayName>
     <PublisherDisplayName>Jingchao Feng</PublisherDisplayName>
     <Logo>Images\StoreLogo.png</Logo>
   </Properties>
