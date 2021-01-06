@@ -94,18 +94,20 @@ jobs:
     - name: Upload build artifacts (arm64)
       uses: actions/upload-artifact@v2
       with:
-        name: arm64
+        name: ShowTractor.WinUI_arm64
         path: ShowTractor.WinUI\ShowTractor.WinUI (Package)\AppPackages\*\*arm64.msix
+        if-no-files-found: error
     
     - name: Upload build artifacts (x64)
       uses: actions/upload-artifact@v2
       with:
-        name: arm64
+        name: ShowTractor.WinUI_x64
         path: ShowTractor.WinUI\ShowTractor.WinUI (Package)\AppPackages\*\*x64.msix
+        if-no-files-found: error
     
     - name: Upload build artifacts (x86)
       uses: actions/upload-artifact@v2
       with:
-        name: arm64
+        name: ShowTractor.WinUI_x86
         path: ShowTractor.WinUI\ShowTractor.WinUI (Package)\AppPackages\*\*x86.msix
-  
+        if-no-files-found: error
