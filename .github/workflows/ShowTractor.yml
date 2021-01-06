@@ -82,11 +82,9 @@ jobs:
         Import-PfxCertificate -FilePath $certificatePath -CertStoreLocation cert:\\CurrentUser\My -Password (ConvertTo-SecureString '${{ secrets.Pfx_Key }}' -AsPlainText -Force)
 
     - name: build.ps1
-      uses: ilammy/msvc-dev-cmd@v1
       run: .\build.ps1
       
     - name: sign.ps1
-      uses: ilammy/msvc-dev-cmd@v1
       run: .\sign.ps1
       
     - name: Remove the pfx

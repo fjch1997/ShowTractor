@@ -1,4 +1,6 @@
 ﻿$ErrorActionPreference = "Stop"
+Import-Module "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
+Enter-VsDevShell -VsInstallPath "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise" -SkipAutomaticLocation
 $certificate = (Get-Item Cert:\CurrentUser\My\* -CodeSigningCert)
 Write-Host "Signing will be using" $certificate.FriendlyName
 foreach ($msixFile in Get-ChildItem "ShowTractor.WinUI\ShowTractor.WinUI (Package)\AppPackages\ShowTractor.WinUI (Package)*\*.msix")
