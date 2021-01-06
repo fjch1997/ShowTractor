@@ -1,4 +1,4 @@
-![Logo](ShowTractor.WinUI\ShowTractor.WinUI%20(Package)\Images\Wide310x150Logo.scale-200.png)
+![Logo](ShowTractor.WinUI/ShowTractor.WinUI%20(Package)/Images/Wide310x150Logo.scale-200.png)
 
 # ShowTractor
 
@@ -51,15 +51,16 @@ Open Solution in Visual Studio 2019 Preview. F5
       - [ ] HEVC, AAC support.
       - [ ] MP4, MKV support.
   - [ ] Remember playback position.
-- Archiving shows that are no longer active, so that they do not clutter the view.
-  - [ ] Download progress shall be displayed.
-  - [ ] Cleanup rules can be specified to delete downloaded files.
-  - [ ] Automatic download can be configured.
 - TV Show Browser
   - [x] Shall display TV shows with Artwork images.
   - [x] Shall display all information obtained in 2.
   - [ ] Rate a show or episode with a Rating Source.
-  - [ ] Display all unwatched episodes in one view.
+  - [x] Display all unwatched episodes in one view.
   - [x] Display all followed episodes in a calendar view.
   - [x] Calendar item should indicate if an episode is watched.
   - [x] Add TV Show to followed shows from search result.
+- Miscellaneous
+  - [ ] Archiving shows that are no longer active, so that they do not clutter the view.
+  - [ ] Download progress shall be displayed.
+  - [ ] Cleanup rules can be specified to delete downloaded files.
+  - [ ] Automatic download can be configured.
