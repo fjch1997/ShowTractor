@@ -42,6 +42,7 @@ Open Solution in Visual Studio 2019 Preview. F5
   - [ ] User can select from a list of download options.
   - [ ] A default resolution can be configured. Options are, 4K, 1080p, 720p, SD.
   - [ ] Downloaded file can be watched by the built-in media player or passed to another plugin for playback.
+  - [ ] A local file download source plugin that discovers media files in a specified folder and make them available for a Media Player Plugin.
 - Media Player Plugin
   - [ ] A system that allows plugins to stream episodes, or play downloaded media.
   - Built-in Media Player Plugin
