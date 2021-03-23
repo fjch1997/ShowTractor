@@ -19,37 +19,36 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Pivot Grid.Row="1">
-            <Pivot.Resources>
+        <TabView Grid.Row="1">
+            <TabView.Resources>
                 <Style TargetType="PivotHeaderItem" BasedOn="{StaticResource PivotTitleContentControlStyle}">
                     <Setter Property="FontSize" Value="{ThemeResource ControlContentThemeFontSize}" />
                     <Setter Property="FontWeight" Value="Normal"/>
                     <Setter Property="Height" Value="24" />
                     <Setter Property="Margin" Value="6"/>
                 </Style>
-            </Pivot.Resources>
-            <PivotItem Header="Current Shows">
-                <de:LibraryView DataContext="{Binding CurrentShows}"/>
-            </PivotItem>
-            <PivotItem Header="All Followed">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <de:AllTimeStatisticsView />
-                    <de:LibraryView Grid.Row="1" DataContext="{Binding AllFollowed}"/>
-                </Grid>
-            </PivotItem>
-            <PivotItem Header="Ended Shows">
-                <de:LibraryView DataContext="{Binding EndedShows}"/>
-            </PivotItem>
-            <!--<PivotItem Header="Downloaded">
-                <de:LibraryView DataContext="{Binding AllFollowed}"/>
-            </PivotItem>-->
-            <PivotItem Header="Unfollowed">
-                <de:LibraryView DataContext="{Binding Unfollowed}"/>
-            </PivotItem>
-        </Pivot>
+            </TabView.Resources>
+            <TabView.TabItems>
+                <TabViewItem Header="CurrentShows">
+                    <de:LibraryView DataContext="{Binding CurrentShows}"/>
+                </TabViewItem>
+                <TabViewItem Header="All Followed">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <de:AllTimeStatisticsView />
+                        <de:LibraryView Grid.Row="1" DataContext="{Binding AllFollowed}"/>
+                    </Grid>
+                </TabViewItem>
+                <TabViewItem Header="Ended Shows">
+                    <de:LibraryView DataContext="{Binding EndedShows}"/>
+                </TabViewItem>
+                <TabViewItem Header="Unfollowed">
+                    <de:LibraryView DataContext="{Binding Unfollowed}"/>
+                </TabViewItem>
+            </TabView.TabItems>
+        </TabView>
     </Grid>
 </Page>
