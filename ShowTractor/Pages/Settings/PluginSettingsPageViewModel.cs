@@ -5,6 +5,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace ShowTractor.Pages.Settings
@@ -20,12 +21,28 @@ namespace ShowTractor.Pages.Settings
             this.settings = settings;
             this.openFileDialogService = openFileDialogService;
             this.serviceProvider = serviceProvider;
-            MetadataProviders = new ObservableCollection<PluginViewModel>();
             foreach (var definition in settings.MetadataProviders)
+            {
+                DoAdd(() => MetadataProviders.Add(new MetadataProviderPluginViewModel(definition, serviceProvider)));
+            }
+            foreach (var definition in settings.MediaSourceProviders)
+            {
+                DoAdd(() => MediaSourceProviders.Add(new MediaSourceProviderPluginViewModel(definition, serviceProvider)));
+            }
+            foreach (var definition in settings.DownloadManagers)
+            {
+                DoAdd(() => DownloadManagers.Add(new DownloadManagerPluginViewModel(definition, serviceProvider)));
+            }
+            foreach (var definition in settings.MediaPlayers)
+            {
+                DoAdd(() => MediaPlayers.Add(new MediaPlayerPluginViewModel(definition, serviceProvider)));
+            }
+
+            void DoAdd(Action action)
             {
                 try
                 {
-                    MetadataProviders.Add(new MetadataProviderPluginViewModel(definition, serviceProvider));
+                    action();
                 }
                 catch (Exception ex)
                 {
@@ -36,11 +53,51 @@ namespace ShowTractor.Pages.Settings
             }
         }
 
-        public ObservableCollection<PluginViewModel> MetadataProviders { get; private set; }
+        public ObservableCollection<PluginViewModel> MetadataProviders { get; private set; } = new ObservableCollection<PluginViewModel>();
+        public ObservableCollection<PluginViewModel> MediaSourceProviders { get; private set; } = new ObservableCollection<PluginViewModel>();
+        public ObservableCollection<PluginViewModel> DownloadManagers { get; private set; } = new ObservableCollection<PluginViewModel>();
+        public ObservableCollection<PluginViewModel> MediaPlayers { get; private set; } = new ObservableCollection<PluginViewModel>();
         public object? Parameter { get => null; set { } }
         public string ErrorMessage { get => errorMessage; set { errorMessage = value; OnPropertyChanged(); } }
         private string errorMessage = string.Empty;
         public ICommand LoadMetadataProviderCommand => new AwaitableDelegateCommand(async () =>
+            await LoadPluginAsync(d =>
+            {
+                var vm = new MetadataProviderPluginViewModel(d, serviceProvider);
+                MetadataProviders.Add(vm);
+                settings.MetadataProviders.Add(d);
+            }));
+        public ICommand LoadMediaSourceProviderCommand => new AwaitableDelegateCommand(async () =>
+            await LoadPluginAsync(d =>
+            {
+                var vm = new MediaSourceProviderPluginViewModel(d, serviceProvider);
+                MediaSourceProviders.Add(vm);
+                settings.MetadataProviders.Add(d);
+            }));
+        public ICommand LoadDownloadManagerCommand => new AwaitableDelegateCommand(async () =>
+            await LoadPluginAsync(d =>
+            {
+                var vm = new DownloadManagerPluginViewModel(d, serviceProvider);
+                DownloadManagers.Add(vm);
+                settings.MetadataProviders.Add(d);
+            }));
+        public ICommand LoadMediaPlayerCommand => new AwaitableDelegateCommand(async () =>
+            await LoadPluginAsync(d =>
+            {
+                var vm = new MediaPlayerPluginViewModel(d, serviceProvider);
+                MediaPlayers.Add(vm);
+                settings.MetadataProviders.Add(d);
+            }));
+        public ICommand RemoveCommand => new DelegateCommand<PluginViewModel>(p =>
+        {
+            settings.MetadataProviders.Remove(p.Definition);
+            settings.MediaSourceProviders.Remove(p.Definition);
+            settings.DownloadManagers.Remove(p.Definition);
+            settings.MediaPlayers.Remove(p.Definition);
+            settings.Save();
+            MetadataProviders.Remove(p);
+        });
+        private async Task LoadPluginAsync(Action<PluginDefinition> action)
         {
             ErrorMessage = string.Empty;
             try
@@ -49,9 +106,7 @@ namespace ShowTractor.Pages.Settings
                 if (path != null)
                 {
                     var definition = new PluginDefinition() { Enabled = true, FileName = path };
-                    var vm = new MetadataProviderPluginViewModel(definition, serviceProvider);
-                    MetadataProviders.Add(vm);
-                    settings.MetadataProviders.Add(definition);
+                    action(definition);
                 }
             }
             catch (Exception ex)
@@ -59,13 +114,7 @@ namespace ShowTractor.Pages.Settings
                 ErrorMessage = ex.Message;
             }
             settings.Save();
-        });
-        public ICommand RemoveCommand => new DelegateCommand<PluginViewModel>(p =>
-        {
-            settings.MetadataProviders.Remove(p.Definition);
-            settings.Save();
-            MetadataProviders.Remove(p);
-        });
+        }
 
         public bool OnNavigatingFrom()
         {

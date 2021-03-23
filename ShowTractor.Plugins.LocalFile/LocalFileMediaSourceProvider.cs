@@ -4,8 +4,9 @@ using ShowTractor.Plugins.LocalFile.Properties;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 
-[assembly: ShowTractorPluginAssembly(MetadataProvider = typeof(LocalFileMediaSourceProvider))]
+[assembly: ShowTractorPluginAssembly(MediaSourceProvider = typeof(LocalFileMediaSourceProvider))]
 
 namespace ShowTractor.Plugins
 {
@@ -63,9 +64,6 @@ namespace ShowTractor.Plugins
             throw new NotImplementedException();
         }
 
-        public Stream GetIconStream()
-        {
-            throw new NotImplementedException();
-        }
+        public Stream GetIconStream() => Assembly.GetExecutingAssembly().GetManifestResourceStream($"{nameof(ShowTractor)}.{nameof(Plugins)}.{nameof(LocalFile)}.logo.png");
     }
 }

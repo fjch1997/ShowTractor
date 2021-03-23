@@ -68,5 +68,14 @@ namespace ShowTractor.WinUI.Properties {
                 return ResourceManager.GetString("DirectoryBrowseButtonText", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Load.
+        /// </summary>
+        internal static string PluginLoadButtonText {
+            get {
+                return ResourceManager.GetString("PluginLoadButtonText", resourceCulture);
+            }
+        }
     }
 }

@@ -120,4 +120,7 @@
   <data name="DirectoryBrowseButtonText" xml:space="preserve">
     <value>Browse</value>
   </data>
+  <data name="PluginLoadButtonText" xml:space="preserve">
+    <value>Load</value>
+  </data>
 </root>

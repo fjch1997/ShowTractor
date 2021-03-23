@@ -46,7 +46,7 @@
                                                 <RowDefinition Height="Auto"/>
                                             </Grid.RowDefinitions>
                                             <TextBox Header="{x:Bind Name}" ToolTipService.ToolTip="{x:Bind ToolTip}" Text="{x:Bind Get(), BindBack=Set, Mode=TwoWay}" MinWidth="200"/>
-                                            <Button Grid.Column="1" Content="{x:Bind p:Resources.DirectoryBrowseButtonText}"/>
+                                            <Button Grid.Column="1" Margin="10 0 0 0" Content="{x:Bind p:Resources.DirectoryBrowseButtonText}"/>
                                             <TextBlock Grid.Row="1" Grid.ColumnSpan="2" Text="{x:Bind Subtitle}" ToolTipService.ToolTip="{x:Bind ToolTip}"/>
                                         </Grid>
                                     </DataTemplate>

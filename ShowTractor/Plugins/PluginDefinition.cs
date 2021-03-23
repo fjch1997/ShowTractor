@@ -18,12 +18,16 @@ namespace ShowTractor.Plugins
             var attribute = (ShowTractorPluginAssemblyAttribute)assembly.GetCustomAttributes(typeof(ShowTractorPluginAssemblyAttribute), false).FirstOrDefault();
             if (attribute == null)
                 throw new TypeLoadException($"Could not load plugin from assembly {assembly.FullName}. A {nameof(ShowTractorPluginAssemblyAttribute)} was not found.");
-            if (attribute.MetadataProvider == null)
-                throw new TypeLoadException($"Could not load plugin from assembly {assembly.FullName}. This plugin does not provide an {nameof(IMetadataProvider)}.");
             T obj;
             var requestedType = typeof(T);
             if (requestedType == typeof(IMetadataProvider))
-                obj = (T)CreateWithServiceProvider(attribute.MetadataProvider, provider ?? throw new ArgumentNullException(nameof(provider)));
+                obj = (T)CreateWithServiceProvider(attribute.MetadataProvider ?? throw new TypeLoadException($"Could not load plugin from assembly {assembly.FullName}. This plugin does not provide an {nameof(IMetadataProvider)}."), provider ?? throw new ArgumentNullException(nameof(provider)));
+            else if (requestedType == typeof(IMediaSourceProvider))
+                obj = (T)CreateWithServiceProvider(attribute.MediaSourceProvider ?? throw new TypeLoadException($"Could not load plugin from assembly {assembly.FullName}. This plugin does not provide an {nameof(IMediaSourceProvider)}."), provider ?? throw new ArgumentNullException(nameof(provider)));
+            else if (requestedType == typeof(IDownloadManager))
+                obj = (T)CreateWithServiceProvider(attribute.DownloadManager ?? throw new TypeLoadException($"Could not load plugin from assembly {assembly.FullName}. This plugin does not provide an {nameof(IDownloadManager)}."), provider ?? throw new ArgumentNullException(nameof(provider)));
+            else if (requestedType == typeof(IMediaPlayer))
+                obj = (T)CreateWithServiceProvider(attribute.MediaPlayer ?? throw new TypeLoadException($"Could not load plugin from assembly {assembly.FullName}. This plugin does not provide an {nameof(IMediaPlayer)}."), provider ?? throw new ArgumentNullException(nameof(provider)));
             else
                 throw new NotSupportedException(requestedType.FullName + " is not supported as a plugin.");
             try

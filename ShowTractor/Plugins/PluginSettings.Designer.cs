@@ -25,15 +25,57 @@ namespace ShowTractor.Plugins {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("<?xml version=\"1.0\" encoding=\"utf-16\"?>\r\n<ArrayOfPluginDefinition xmlns:xsi=\"http" +
-            "://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSche" +
-            "ma\" />")]
+        [global::System.Configuration.DefaultSettingValueAttribute("<?xml version=\"1.0\" encoding=\"utf-16\"?><ArrayOfPluginDefinition xmlns:xsi=\"http:/" +
+            "/www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema" +
+            "\" />")]
         public global::System.Collections.Generic.List<ShowTractor.Plugins.PluginDefinition> MetadataProviders {
             get {
                 return ((global::System.Collections.Generic.List<ShowTractor.Plugins.PluginDefinition>)(this["MetadataProviders"]));
             }
             set {
                 this["MetadataProviders"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("<?xml version=\"1.0\" encoding=\"utf-16\"?><ArrayOfPluginDefinition xmlns:xsi=\"http:/" +
+            "/www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema" +
+            "\" />")]
+        public global::System.Collections.Generic.List<ShowTractor.Plugins.PluginDefinition> MediaSourceProviders {
+            get {
+                return ((global::System.Collections.Generic.List<ShowTractor.Plugins.PluginDefinition>)(this["MediaSourceProviders"]));
+            }
+            set {
+                this["MediaSourceProviders"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("<?xml version=\"1.0\" encoding=\"utf-16\"?><ArrayOfPluginDefinition xmlns:xsi=\"http:/" +
+            "/www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema" +
+            "\" />")]
+        public global::System.Collections.Generic.List<ShowTractor.Plugins.PluginDefinition> DownloadManagers {
+            get {
+                return ((global::System.Collections.Generic.List<ShowTractor.Plugins.PluginDefinition>)(this["DownloadManagers"]));
+            }
+            set {
+                this["DownloadManagers"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("<?xml version=\"1.0\" encoding=\"utf-16\"?><ArrayOfPluginDefinition xmlns:xsi=\"http:/" +
+            "/www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema" +
+            "\" />")]
+        public global::System.Collections.Generic.List<ShowTractor.Plugins.PluginDefinition> MediaPlayers {
+            get {
+                return ((global::System.Collections.Generic.List<ShowTractor.Plugins.PluginDefinition>)(this["MediaPlayers"]));
+            }
+            set {
+                this["MediaPlayers"] = value;
             }
         }
     }

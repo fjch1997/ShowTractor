@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
@@ -38,5 +39,23 @@ namespace ShowTractor.Pages.Settings
         internal MetadataProviderPluginViewModel(PluginDefinition definition, IServiceProvider serviceProvider)
             : base(definition, definition.Load<IMetadataProvider>(serviceProvider)) { }
         public override IEnumerable<string> Descriptions => new string[] { GetVersionDescription() };
+    }
+    public class MediaSourceProviderPluginViewModel : PluginViewModel
+    {
+        internal MediaSourceProviderPluginViewModel(PluginDefinition definition, IServiceProvider serviceProvider)
+            : base(definition, definition.Load<IMediaSourceProvider>(serviceProvider)) { }
+        public override IEnumerable<string> Descriptions => Enumerable.Empty<string>();
+    }
+    public class DownloadManagerPluginViewModel : PluginViewModel
+    {
+        internal DownloadManagerPluginViewModel(PluginDefinition definition, IServiceProvider serviceProvider)
+            : base(definition, definition.Load<IDownloadManager>(serviceProvider)) { }
+        public override IEnumerable<string> Descriptions => Enumerable.Empty<string>();
+    }
+    public class MediaPlayerPluginViewModel : PluginViewModel
+    {
+        internal MediaPlayerPluginViewModel(PluginDefinition definition, IServiceProvider serviceProvider)
+            : base(definition, definition.Load<IMediaPlayer>(serviceProvider)) { }
+        public override IEnumerable<string> Descriptions => Enumerable.Empty<string>();
     }
 }

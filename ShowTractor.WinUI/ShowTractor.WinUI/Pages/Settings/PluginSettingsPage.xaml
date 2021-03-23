@@ -6,7 +6,9 @@
     xmlns:e="using:ShowTractor.WinUI.Extensions"
     xmlns:vm="using:ShowTractor.Pages.Settings"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:s="using:ShowTractor.WinUI.Pages.Settings"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:s="using:ShowTractor.WinUI.Pages.Settings"
+    xmlns:p="using:ShowTractor.WinUI.Properties"
     mc:Ignorable="d" 
     d:DataContext="{d:DesignInstance Type=vm:PluginSettingsPageViewModel}"
     DataContext="{e:FromServiceProvider TypeName='ShowTractor.Pages.Settings.PluginSettingsPageViewModel, ShowTractor', ServiceProvider={StaticResource ServiceProvider}}"
@@ -51,7 +53,7 @@
                                 <FontIcon Glyph="&#xF259;" FontSize="16"/>
                                 <Button.Flyout>
                                     <Flyout>
-                                        <s:PluginSettingsView DataContext="{x:Bind Plugin.PluginSettingsDescriptions}"/>
+                                        <s:PluginSettingsView DataContext="{x:Bind Plugin.PluginSettingsDescriptions}" MaxWidth="430"/>
                                     </Flyout>
                                 </Button.Flyout>
                             </Button>
@@ -105,25 +107,39 @@
                     Style="{StaticResource PluginListViewStyle}" 
                     ItemsSource="{x:Bind ((vm:PluginSettingsPageViewModel)DataContext).MetadataProviders}"
                     ItemTemplate="{StaticResource PluginTemplate}"/>
-                <Button Command="{x:Bind ((vm:PluginSettingsPageViewModel)DataContext).LoadMetadataProviderCommand}">Load</Button>
+                <Button 
+                    Command="{x:Bind ((vm:PluginSettingsPageViewModel)DataContext).LoadMetadataProviderCommand}"
+                    Content="{x:Bind p:Resources.PluginLoadButtonText}"/>
 
                 <TextBlock Style="{StaticResource SettingsSubtitleStyle}">Media Source Providers</TextBlock>
                 <TextBlock Style="{StaticResource BodyStyle}">Media Source Providers search for ways to download or stream episodes, and pass them along to Download Managers (for downloads) or Vidoe Players (for streams). You may enable multiple providers and adjust their priority by reordering them in the list below.</TextBlock>
-                <ListView Style="{StaticResource PluginListViewStyle}">
-                </ListView>
-                <Button>Load</Button>
+                <ListView 
+                    Style="{StaticResource PluginListViewStyle}" 
+                    ItemsSource="{x:Bind ((vm:PluginSettingsPageViewModel)DataContext).MediaSourceProviders}"
+                    ItemTemplate="{StaticResource PluginTemplate}"/>
+                <Button 
+                    Command="{x:Bind ((vm:PluginSettingsPageViewModel)DataContext).LoadMediaSourceProviderCommand}"
+                    Content="{x:Bind p:Resources.PluginLoadButtonText}"/>
 
                 <TextBlock Style="{StaticResource SettingsSubtitleStyle}">Download Managers</TextBlock>
                 <TextBlock Style="{StaticResource BodyStyle}">Download managers take media sources of a particular type, and download them. Each download manager support only certain types of sources(e.g. HTTP, SMB, Torrent). You may enable multiple providers and adjust their priority by reordering them in the list below.</TextBlock>
-                <ListView Style="{StaticResource PluginListViewStyle}">
-                </ListView>
-                <Button>Load</Button>
+                <ListView 
+                    Style="{StaticResource PluginListViewStyle}" 
+                    ItemsSource="{x:Bind ((vm:PluginSettingsPageViewModel)DataContext).DownloadManagers}"
+                    ItemTemplate="{StaticResource PluginTemplate}"/>
+                <Button 
+                    Command="{x:Bind ((vm:PluginSettingsPageViewModel)DataContext).LoadDownloadManagerCommand}"
+                    Content="{x:Bind p:Resources.PluginLoadButtonText}"/>
 
                 <TextBlock Style="{StaticResource SettingsSubtitleStyle}">Media Players</TextBlock>
                 <TextBlock Style="{StaticResource BodyStyle}">Media Players enable playback of downlaoded media, or stream from an online source (typically in the browser). You may enable multiple providers and adjust their priority by reordering them in the list below.</TextBlock>
-                <ListView Style="{StaticResource PluginListViewStyle}">
-                </ListView>
-                <Button>Load</Button>
+                <ListView 
+                    Style="{StaticResource PluginListViewStyle}" 
+                    ItemsSource="{x:Bind ((vm:PluginSettingsPageViewModel)DataContext).MediaPlayers}"
+                    ItemTemplate="{StaticResource PluginTemplate}"/>
+                <Button 
+                    Command="{x:Bind ((vm:PluginSettingsPageViewModel)DataContext).LoadMediaPlayerCommand}"
+                    Content="{x:Bind p:Resources.PluginLoadButtonText}"/>
             </StackPanel>
         </ScrollViewer>
     </Grid>
