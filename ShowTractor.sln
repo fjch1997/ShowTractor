@@ -27,6 +27,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		sign.ps1 = sign.ps1
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShowTractor.Plugins.LocalFile", "ShowTractor.Plugins.LocalFile\ShowTractor.Plugins.LocalFile.csproj", "{E9BBA328-0535-4CE8-89E5-6A2A14AEC841}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|arm64 = Debug|arm64
@@ -139,6 +141,18 @@ Global
 		{08E73F11-1577-4AA6-8098-F85D28D77DAA}.Release|x64.Build.0 = Release|Any CPU
 		{08E73F11-1577-4AA6-8098-F85D28D77DAA}.Release|x86.ActiveCfg = Release|Any CPU
 		{08E73F11-1577-4AA6-8098-F85D28D77DAA}.Release|x86.Build.0 = Release|Any CPU
+		{E9BBA328-0535-4CE8-89E5-6A2A14AEC841}.Debug|arm64.ActiveCfg = Debug|Any CPU
+		{E9BBA328-0535-4CE8-89E5-6A2A14AEC841}.Debug|arm64.Build.0 = Debug|Any CPU
+		{E9BBA328-0535-4CE8-89E5-6A2A14AEC841}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E9BBA328-0535-4CE8-89E5-6A2A14AEC841}.Debug|x64.Build.0 = Debug|Any CPU
+		{E9BBA328-0535-4CE8-89E5-6A2A14AEC841}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E9BBA328-0535-4CE8-89E5-6A2A14AEC841}.Debug|x86.Build.0 = Debug|Any CPU
+		{E9BBA328-0535-4CE8-89E5-6A2A14AEC841}.Release|arm64.ActiveCfg = Release|Any CPU
+		{E9BBA328-0535-4CE8-89E5-6A2A14AEC841}.Release|arm64.Build.0 = Release|Any CPU
+		{E9BBA328-0535-4CE8-89E5-6A2A14AEC841}.Release|x64.ActiveCfg = Release|Any CPU
+		{E9BBA328-0535-4CE8-89E5-6A2A14AEC841}.Release|x64.Build.0 = Release|Any CPU
+		{E9BBA328-0535-4CE8-89E5-6A2A14AEC841}.Release|x86.ActiveCfg = Release|Any CPU
+		{E9BBA328-0535-4CE8-89E5-6A2A14AEC841}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
