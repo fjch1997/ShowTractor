@@ -5,6 +5,7 @@
     xmlns:c="using:ShowTractor.WinUI.Converters"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:pi="using:ShowTractor.Plugins.Interfaces"
+    xmlns:p="using:ShowTractor.WinUI.Properties"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
@@ -33,6 +34,23 @@
                                         </StackPanel>
                                     </DataTemplate>
                                 </c:PluginSettingsDataTemplateSelector.StringTemplate>
+                                <c:PluginSettingsDataTemplateSelector.DirectoryTemplate>
+                                    <DataTemplate x:DataType="pi:DirectoryPluginSettingsDescription">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+                                            <TextBox Header="{x:Bind Name}" ToolTipService.ToolTip="{x:Bind ToolTip}" Text="{x:Bind Get(), BindBack=Set, Mode=TwoWay}" MinWidth="200"/>
+                                            <Button Grid.Column="1" Content="{x:Bind p:Resources.DirectoryBrowseButtonText}"/>
+                                            <TextBlock Grid.Row="1" Grid.ColumnSpan="2" Text="{x:Bind Subtitle}" ToolTipService.ToolTip="{x:Bind ToolTip}"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </c:PluginSettingsDataTemplateSelector.DirectoryTemplate>
                             </c:PluginSettingsDataTemplateSelector>
                         </ItemsControl.ItemTemplateSelector>
                     </ItemsControl>

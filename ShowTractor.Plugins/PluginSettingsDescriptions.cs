@@ -41,28 +41,35 @@ namespace ShowTractor.Plugins.Interfaces
     }
     public abstract class PluginSettingsDescription<T> : PluginSettingsDescription
     {
-        public abstract T? Get();
-        public abstract void Set(T? value);
-    }
-    public class StringPluginSettingsDescription : PluginSettingsDescription<string>
-    {
-        private readonly Func<string?> get;
-        private readonly Action<string?> set;
-
-        public StringPluginSettingsDescription(Func<string?> get, Action<string?> set)
+        private readonly Func<T?>? get;
+        private readonly Action<T?>? set;
+        protected PluginSettingsDescription() { }
+        protected PluginSettingsDescription(Func<T?> get, Action<T?> set)
         {
             this.get = get;
             this.set = set;
         }
-
-        public override string? Get()
+        public virtual T? Get()
         {
+            if (get == null) throw new ArgumentNullException(nameof(get));
             return get();
         }
-
-        public override void Set(string? value)
+        public virtual void Set(T? value)
         {
+            if (set == null) throw new ArgumentNullException(nameof(set));
             set(value);
         }
+    }
+    public class StringPluginSettingsDescription : PluginSettingsDescription<string>
+    {
+        public StringPluginSettingsDescription(Func<string?> get, Action<string?> set) : base(get, set) { }
+    }
+    public class MultiLineStringPluginSettingsDescription : PluginSettingsDescription<string>
+    {
+        public MultiLineStringPluginSettingsDescription(Func<string?> get, Action<string?> set) : base(get, set) { }
+    }
+    public class DirectoryPluginSettingsDescription : PluginSettingsDescription<string>
+    {
+        public DirectoryPluginSettingsDescription(Func<string?> get, Action<string?> set) : base(get, set) { }
     }
 }
