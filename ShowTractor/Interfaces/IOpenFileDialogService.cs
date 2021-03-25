@@ -6,5 +6,6 @@ namespace ShowTractor.Interfaces
     public interface IOpenFileDialogService
     {
         Task<string?> OpenFileAsync(IEnumerable<string> filters);
+        Task<string?> OpenFolderAsync();
     }
 }

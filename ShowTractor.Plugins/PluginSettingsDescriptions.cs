@@ -41,14 +41,14 @@ namespace ShowTractor.Plugins.Interfaces
     }
     public abstract class PluginSettingsDescription<T> : PluginSettingsDescription
     {
-        private readonly Func<T?>? get;
-        private readonly Action<T?>? set;
-        protected PluginSettingsDescription() { }
+        private readonly Func<T?> get;
+        private readonly Action<T?> set;
         protected PluginSettingsDescription(Func<T?> get, Action<T?> set)
         {
             this.get = get;
             this.set = set;
         }
+        public T? Value { get => get(); set => set(value); }
         public virtual T? Get()
         {
             if (get == null) throw new ArgumentNullException(nameof(get));

@@ -72,21 +72,21 @@ namespace ShowTractor.Pages.Settings
             {
                 var vm = new MediaSourceProviderPluginViewModel(d, serviceProvider);
                 MediaSourceProviders.Add(vm);
-                settings.MetadataProviders.Add(d);
+                settings.MediaSourceProviders.Add(d);
             }));
         public ICommand LoadDownloadManagerCommand => new AwaitableDelegateCommand(async () =>
             await LoadPluginAsync(d =>
             {
                 var vm = new DownloadManagerPluginViewModel(d, serviceProvider);
                 DownloadManagers.Add(vm);
-                settings.MetadataProviders.Add(d);
+                settings.DownloadManagers.Add(d);
             }));
         public ICommand LoadMediaPlayerCommand => new AwaitableDelegateCommand(async () =>
             await LoadPluginAsync(d =>
             {
                 var vm = new MediaPlayerPluginViewModel(d, serviceProvider);
                 MediaPlayers.Add(vm);
-                settings.MetadataProviders.Add(d);
+                settings.MediaPlayers.Add(d);
             }));
         public ICommand RemoveCommand => new DelegateCommand<PluginViewModel>(p =>
         {

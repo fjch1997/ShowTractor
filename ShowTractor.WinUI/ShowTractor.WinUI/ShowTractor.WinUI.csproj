@@ -13,6 +13,7 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="CalendarPage.xaml" />
+    <None Remove="Controls\FolderPickerTextBox.xaml" />
     <None Remove="Controls\ShowTractorCalendarViewResources.xaml" />
     <None Remove="DownloadsPage.xaml" />
     <None Remove="GeneralSettingsPage.xaml" />
@@ -62,6 +63,12 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Controls\FolderPickerTextBox.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 
   <ItemGroup>

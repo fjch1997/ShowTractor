@@ -9,6 +9,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+                <ResourceDictionary Source="Controls/FolderPickerTextBox.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <local:AppServiceProvider x:Key="ServiceProvider" x:Name="serviceProvider"/>
             <c2:StringVisibilityConverter x:Key="StringVisibilityConverter"/>

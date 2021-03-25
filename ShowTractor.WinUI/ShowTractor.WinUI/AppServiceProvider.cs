@@ -27,6 +27,14 @@ namespace ShowTractor.WinUI
             var file = await picker.PickSingleFileAsync();
             return file?.Path;
         }
+        public async Task<string?> OpenFolderAsync()
+        {
+            var picker = new FolderPicker();
+            picker.FileTypeFilter.Add("*");
+            picker.As<IInitializeWithWindow>().Initialize(((App)Application.Current).MainWindow.As<IWindowNative>().WindowHandle);
+            var file = await picker.PickSingleFolderAsync();
+            return file?.Path;
+        }
     }
 
     [ComImport]

@@ -69,5 +69,9 @@ namespace ShowTractor.Tests
         {
             return Task.FromResult<string?>(Assembly.GetExecutingAssembly().Location);
         }
+        public Task<string?> OpenFolderAsync()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
