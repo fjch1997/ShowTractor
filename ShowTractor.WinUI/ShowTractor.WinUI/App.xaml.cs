@@ -21,13 +21,7 @@ namespace ShowTractor.WinUI
             var serviceProvider = (ShowTractorServiceProvider)Resources["ServiceProvider"] ?? throw new ArgumentNullException($"A {nameof(ServiceProvider)} must exists in the resource dictionary of the app.");
             backgroundWorker = serviceProvider.GetRequiredService<ShowTractorBackgroundWorker>();
             backgroundWorker.Start();
-            Suspending += App_Suspending;
             base.OnLaunched(args);
-        }
-        private void App_Suspending(object sender, SuspendingEventArgs e)
-        {
-            Suspending -= App_Suspending;
-            backgroundWorker?.StopAsync();
         }
         public Window MainWindow
         {
