@@ -112,7 +112,7 @@ namespace ShowTractor.Plugins.Tmdb
             return await LoadTvSeasonAsync(id, season.Season, season.ShowName, season.Genres, season.Ratings, season.ShowDescription,
                         showEnded, showEnded && season.Season == seasons.Last());
         }
-        private async Task<TvSeason> LoadTvSeasonAsync(int id, int seasonNumber, string showName, IList<string> genre, IList<string> ratings, string showDescriptions, bool showEnded, bool showFinale)
+        private async Task<TvSeason> LoadTvSeasonAsync(int id, int seasonNumber, string showName, IReadOnlyList<string> genre, IReadOnlyList<string> ratings, string showDescriptions, bool showEnded, bool showFinale)
         {
             using var seasonStream = await httpClient.GetStreamAsync(new Uri(BaseUri, $"tv/{id}/season/{seasonNumber}?api_key={GetApiKey()}"));
             using var season = await JsonDocument.ParseAsync(seasonStream);

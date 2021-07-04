@@ -26,6 +26,14 @@
                     <ItemsControl ItemsSource="{x:Bind Descriptions}">
                         <ItemsControl.ItemTemplateSelector>
                             <c:PluginSettingsDataTemplateSelector>
+                                <c:PluginSettingsDataTemplateSelector.BooleanTemplate>
+                                    <DataTemplate x:DataType="pi:BooleanPluginSettingsDescription">
+                                        <StackPanel>
+                                            <CheckBox ToolTipService.ToolTip="{x:Bind ToolTip}" Content="{x:Bind Name}" MinWidth="200" IsChecked="{x:Bind Value, Mode=TwoWay}"/>
+                                            <TextBlock Text="{x:Bind Subtitle}" ToolTipService.ToolTip="{x:Bind ToolTip}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </c:PluginSettingsDataTemplateSelector.BooleanTemplate>
                                 <c:PluginSettingsDataTemplateSelector.StringTemplate>
                                     <DataTemplate x:DataType="pi:StringPluginSettingsDescription">
                                         <StackPanel>

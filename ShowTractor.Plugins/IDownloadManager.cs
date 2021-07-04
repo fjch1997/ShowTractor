@@ -7,15 +7,13 @@ namespace ShowTractor.Plugins.Interfaces
 {
     public record DownloadItem(
         MediaSourceType Type,
-        Guid TvSeasonId,
-        int EpisodeNumber,
         MediaResolution Resolution,
         MediaCodec MediaCodec,
         string DisplayName,
         long TotalSizeBytes,
         Point FrameDimension,
         long DownloadedSizeBytes,
-        bool Downloaded) : MediaSource(Type, TvSeasonId, EpisodeNumber, Resolution, MediaCodec, DisplayName, TotalSizeBytes);
+        bool Downloaded) : MediaSource(Type, Resolution, MediaCodec, DisplayName, TotalSizeBytes);
     public interface IDownloadManager : IPlugin
     {
         public IEnumerable<MediaSourceType> SupportedTypes { get; set; }

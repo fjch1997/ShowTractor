@@ -97,7 +97,7 @@ namespace ShowTractor.Pages.Details
             get => sortByEnumItem;
             set
             {
-                if (sortByEnumItem != value)
+                if (value != null && sortByEnumItem != value)
                 {
                     sortByEnumItem = value;
                     OnPropertyChanged();

@@ -24,8 +24,6 @@ namespace ShowTractor.Plugins.Interfaces
     }
     public record MediaSource(
         MediaSourceType Type,
-        Guid TvSeasonId,
-        int EpisodeNumber,
         MediaResolution Resolution,
         MediaCodec MediaCodec,
         string DisplayName,
@@ -33,12 +31,10 @@ namespace ShowTractor.Plugins.Interfaces
     public record GenericMediaSource<T>(
         MediaSourceType Type,
         T Value,
-        Guid TvSeasonId,
-        int EpisodeNumber,
         MediaResolution Resolution,
         MediaCodec MediaCodec,
         string DisplayName,
-        long TotalSizeBytes) : MediaSource(Type, TvSeasonId, EpisodeNumber, Resolution, MediaCodec, DisplayName, TotalSizeBytes);
+        long TotalSizeBytes) : MediaSource(Type, Resolution, MediaCodec, DisplayName, TotalSizeBytes);
     public static class PredefinedMediaSources
     {
         /// <summary>
@@ -54,9 +50,9 @@ namespace ShowTractor.Plugins.Interfaces
         /// <see cref="GenericMediaSource.Value"/> shall be of type <see cref="byte[]"/>.
         /// </summary>
         public static MediaSourceType BitTorrent => new MediaSourceType { Id = Guid.Parse("2E0419FF-8E87-4FA2-B167-5FA77C99FB09"), DisplayName = "Torrent" };
-        public static GenericMediaSource<string> CreateLocalFile(string filename, Guid tvSeasonId, int episodeNumber, MediaResolution resolution, MediaCodec mediaCodec, string displayName, long totalSizeBytes) => new(LocalFile, filename, tvSeasonId, episodeNumber, resolution, mediaCodec, displayName, totalSizeBytes);
-        public static GenericMediaSource<(string nucPath, ICredentials? credential)> CreateSmb(string nucPath, ICredentials? credential, Guid tvSeasonId, int episodeNumber, MediaResolution resolution, MediaCodec mediaCodec, string displayName, long totalSizeBytes) => new(LocalFile, (nucPath, credential), tvSeasonId, episodeNumber, resolution, mediaCodec, displayName, totalSizeBytes);
-        public static GenericMediaSource<byte[]> CreateBitTorrentMagnet(byte[] torrent, Guid tvSeasonId, int episodeNumber, MediaResolution resolution, MediaCodec mediaCodec, string displayName, long totalSizeBytes) => new(BitTorrentMagnet, torrent, tvSeasonId, episodeNumber, resolution, mediaCodec, displayName, totalSizeBytes);
-        public static GenericMediaSource<Uri> CreateBitTorrent(Uri magnet, Guid tvSeasonId, int episodeNumber, MediaResolution resolution, MediaCodec mediaCodec, string displayName, long totalSizeBytes) => new(BitTorrent, magnet, tvSeasonId, episodeNumber, resolution, mediaCodec, displayName, totalSizeBytes);
+        public static GenericMediaSource<string> CreateLocalFile(string filename, MediaResolution resolution, MediaCodec mediaCodec, string displayName, long totalSizeBytes) => new(LocalFile, filename,  resolution, mediaCodec, displayName, totalSizeBytes);
+        public static GenericMediaSource<(string nucPath, ICredentials? credential)> CreateSmb(string nucPath, ICredentials? credential, MediaResolution resolution, MediaCodec mediaCodec, string displayName, long totalSizeBytes) => new(LocalFile, (nucPath, credential),  resolution, mediaCodec, displayName, totalSizeBytes);
+        public static GenericMediaSource<byte[]> CreateBitTorrentMagnet(byte[] torrent, MediaResolution resolution, MediaCodec mediaCodec, string displayName, long totalSizeBytes) => new(BitTorrentMagnet, torrent,  resolution, mediaCodec, displayName, totalSizeBytes);
+        public static GenericMediaSource<Uri> CreateBitTorrent(Uri magnet, MediaResolution resolution, MediaCodec mediaCodec, string displayName, long totalSizeBytes) => new(BitTorrent, magnet,  resolution, mediaCodec, displayName, totalSizeBytes);
     }
 }

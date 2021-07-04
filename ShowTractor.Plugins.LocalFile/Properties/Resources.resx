@@ -117,6 +117,12 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="BuiltInMatchingLogics" xml:space="preserve">
+    <value>Built-in Matching Logics</value>
+  </data>
+  <data name="BuiltInMatchingLogicsSubtitle" xml:space="preserve">
+    <value>If checked, a number of built-in logics are used to match season/episode number and show name, in addition to the regular expressions below. Otherwise, only the regular expressions are used.</value>
+  </data>
   <data name="EpisodeNumberPatternName" xml:space="preserve">
     <value>Episode Number</value>
   </data>
@@ -149,5 +155,8 @@
   </data>
   <data name="ShowNameReplacementCharactorsSubtitle" xml:space="preserve">
     <value>The following charactors in the matched Show Name will be ignored when looking up followed show names.</value>
+  </data>
+  <data name="UseBuiltInMatchingLogics" xml:space="preserve">
+    <value>Use Built-in Matching Logics</value>
   </data>
 </root>

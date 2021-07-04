@@ -61,6 +61,24 @@ namespace ShowTractor.Plugins.LocalFile.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Built-in Matching Logics.
+        /// </summary>
+        internal static string BuiltInMatchingLogics {
+            get {
+                return ResourceManager.GetString("BuiltInMatchingLogics", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to If checked, a number of built-in logics are used to match season/episode number and show name, in addition to the regular expressions below. Otherwise, only the regular expressions are used..
+        /// </summary>
+        internal static string BuiltInMatchingLogicsSubtitle {
+            get {
+                return ResourceManager.GetString("BuiltInMatchingLogicsSubtitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Episode Number.
         /// </summary>
         internal static string EpisodeNumberPatternName {
@@ -156,6 +174,15 @@ namespace ShowTractor.Plugins.LocalFile.Properties {
         internal static string ShowNameReplacementCharactorsSubtitle {
             get {
                 return ResourceManager.GetString("ShowNameReplacementCharactorsSubtitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use Built-in Matching Logics.
+        /// </summary>
+        internal static string UseBuiltInMatchingLogics {
+            get {
+                return ResourceManager.GetString("UseBuiltInMatchingLogics", resourceCulture);
             }
         }
     }

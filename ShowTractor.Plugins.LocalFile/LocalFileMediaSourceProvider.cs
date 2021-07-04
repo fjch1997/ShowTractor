@@ -4,7 +4,9 @@ using ShowTractor.Plugins.LocalFile.Properties;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 [assembly: ShowTractorPluginAssembly(MediaSourceProvider = typeof(LocalFileMediaSourceProvider))]
 
@@ -12,6 +14,8 @@ namespace ShowTractor.Plugins
 {
     public class LocalFileMediaSourceProvider : IMediaSourceProvider
     {
+        private readonly Regex seasonEpisodeNumberRegex = new Regex("S(\\d\\d)E(\\d\\d)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
         public string Name => "Local File";
 
         public PluginSettingsDescriptions? PluginSettingsDescriptions =>
@@ -26,6 +30,18 @@ namespace ShowTractor.Plugins
                         Descriptions = new []
                         {
                             new DirectoryPluginSettingsDescription(() => Settings.Default.SearchLocation, s => Settings.Default.SearchLocation = s)
+                        },
+                    },
+                    new PluginSettingsDescriptionsGroup
+                    {
+                        Name = Resources.BuiltInMatchingLogics,
+                        Subtitle = Resources.BuiltInMatchingLogicsSubtitle,
+                        Descriptions = new[]
+                        {
+                            new BooleanPluginSettingsDescription(() => Settings.Default.EnableBuiltInMatchingLogic, s => Settings.Default.EnableBuiltInMatchingLogic = s)
+                            {
+                                Name = Resources.UseBuiltInMatchingLogics,
+                            },
                         },
                     },
                     new PluginSettingsDescriptionsGroup
@@ -59,9 +75,94 @@ namespace ShowTractor.Plugins
                 }
             };
 
-        public IAsyncEnumerable<MediaSource> GetAsync(TvSeason tvSeason, TvEpisode tvEpisode)
+        public async IAsyncEnumerable<MediaSource> GetAsync(TvSeason tvSeason, TvEpisode tvEpisode)
         {
-            throw new NotImplementedException();
+            await foreach (var item in BuiltInMatchAsync(tvSeason, tvEpisode, Settings.Default.SearchLocation))
+            {
+                yield return item;
+            }
+            await foreach (var item in CustomMatchAsync(tvSeason, tvEpisode))
+            {
+                yield return item;
+            }
+        }
+
+        private async IAsyncEnumerable<MediaSource> BuiltInMatchAsync(TvSeason tvSeason, TvEpisode tvEpisode, string path)
+        {
+            foreach (var directory in Directory.EnumerateDirectories(path))
+            {
+                await foreach (var item in BuiltInMatchAsync(tvSeason, tvEpisode, directory))
+                {
+                    yield return item;
+                }
+            }
+            foreach (var file in Directory.EnumerateFiles(path))
+            {
+                var fileInfo = new FileInfo(file);
+                var filename = fileInfo.Name;
+                if (!tvSeason.ShowName.Split(' ', ':', '-', '.', '(', ')').All(t => filename.Contains(t, StringComparison.InvariantCultureIgnoreCase)))
+                    continue;
+                var matches = seasonEpisodeNumberRegex.Match(filename);
+                if (!matches.Success || matches.Groups.Count != 3)
+                    continue;
+                if (!int.TryParse(matches.Groups[1].Value, out var seasonNumber) || !int.TryParse(matches.Groups[2].Value, out var episodeNumber))
+                    continue;
+                if (tvSeason.Season == seasonNumber && tvEpisode.EpisodeNumber == episodeNumber)
+                {
+                    yield return new MediaSource(PredefinedMediaSources.LocalFile, GetResolution(filename), GetCodec(filename), filename, fileInfo.Length);
+                }
+            }
+
+            static MediaResolution GetResolution(string filename)
+            {
+                if (filename.Contains("720p", StringComparison.InvariantCultureIgnoreCase))
+                    return MediaResolution.SevenTwentyP;
+                if (filename.Contains("1080p", StringComparison.InvariantCultureIgnoreCase))
+                    return MediaResolution.TenEightyP;
+                if (filename.Contains("720", StringComparison.InvariantCultureIgnoreCase))
+                    return MediaResolution.SevenTwentyP;
+                if (filename.Contains("1080", StringComparison.InvariantCultureIgnoreCase))
+                    return MediaResolution.TenEightyP;
+                if (filename.Contains("4k", StringComparison.InvariantCultureIgnoreCase))
+                    return MediaResolution.FourK;
+                if (filename.Contains("UHD", StringComparison.InvariantCultureIgnoreCase))
+                    return MediaResolution.FourK;
+                return MediaResolution.SD;
+            }
+
+            static MediaCodec GetCodec(string filename)
+            {
+                if (filename.Contains("xvid", StringComparison.InvariantCultureIgnoreCase))
+                    return MediaCodec.Xvid;
+
+                if (filename.Contains("hevc", StringComparison.InvariantCultureIgnoreCase))
+                    return MediaCodec.HEVC;
+
+                if (filename.Contains("h265", StringComparison.InvariantCultureIgnoreCase))
+                    return MediaCodec.HEVC;
+                if (filename.Contains("h264", StringComparison.InvariantCultureIgnoreCase))
+                    return MediaCodec.H254;
+
+                if (filename.Contains("x265", StringComparison.InvariantCultureIgnoreCase))
+                    return MediaCodec.HEVC;
+                if (filename.Contains("x264", StringComparison.InvariantCultureIgnoreCase))
+                    return MediaCodec.H254;
+
+                if (filename.Contains("avc", StringComparison.InvariantCultureIgnoreCase))
+                    return MediaCodec.H254;
+
+                if (filename.Contains("265", StringComparison.InvariantCultureIgnoreCase))
+                    return MediaCodec.HEVC;
+                if (filename.Contains("264", StringComparison.InvariantCultureIgnoreCase))
+                    return MediaCodec.H254;
+
+                return MediaCodec.Unknown;
+            }
+        }
+
+        private async IAsyncEnumerable<MediaSource> CustomMatchAsync(TvSeason tvSeason, TvEpisode tvEpisode)
+        {
+            yield break;
         }
 
         public Stream GetIconStream() => Assembly.GetExecutingAssembly().GetManifestResourceStream($"{nameof(ShowTractor)}.{nameof(Plugins)}.{nameof(LocalFile)}.logo.png");

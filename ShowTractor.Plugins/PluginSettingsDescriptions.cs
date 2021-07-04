@@ -60,6 +60,10 @@ namespace ShowTractor.Plugins.Interfaces
             set(value);
         }
     }
+    public class BooleanPluginSettingsDescription : PluginSettingsDescription<bool>
+    {
+        public BooleanPluginSettingsDescription(Func<bool> get, Action<bool> set) : base(get, set) { }
+    }
     public class StringPluginSettingsDescription : PluginSettingsDescription<string>
     {
         public StringPluginSettingsDescription(Func<string?> get, Action<string?> set) : base(get, set) { }

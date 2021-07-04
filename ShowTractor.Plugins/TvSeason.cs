@@ -7,14 +7,14 @@ namespace ShowTractor.Plugins.Interfaces
         string? UniqueId,
         string ShowName,
         int Season,
-        IList<string> Genres,
-        IList<string> Ratings,
+        IReadOnlyList<string> Genres,
+        IReadOnlyList<string> Ratings,
         string ShowDescription,
         string SeasonDescription,
         byte[]? Artwork,
         Uri? ArtworkUri,
         bool ShowEnded,
         bool ShowFinale,
-        IList<TvEpisode> Episodes,
+        IReadOnlyList<TvEpisode> Episodes,
         IReadOnlyDictionary<string, string> AdditionalAttributes);
 }
