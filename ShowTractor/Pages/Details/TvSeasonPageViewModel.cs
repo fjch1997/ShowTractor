@@ -3,6 +3,7 @@ using ShowTractor.Database.Extensions;
 using ShowTractor.Extensions;
 using ShowTractor.Interfaces;
 using ShowTractor.Mvvm;
+using ShowTractor.Plugins;
 using ShowTractor.Plugins.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -22,15 +23,17 @@ namespace ShowTractor.Pages.Details
         private readonly IFactory<IMetadataProvider> providerFactory;
         private readonly HttpClient httpClient;
         private readonly IFactory<Database.ShowTractorDbContext> factory;
+        private readonly IAggregateMediaSourceProvider mediaSourceProvider;
         private readonly CancellationTokenSource cts = new();
         private TvSeason? data;
         private Guid? Id;
 
-        internal TvSeasonPageViewModel(IFactory<IMetadataProvider> providerFactory, HttpClient httpClient, IFactory<Database.ShowTractorDbContext> factory)
+        internal TvSeasonPageViewModel(IFactory<IMetadataProvider> providerFactory, HttpClient httpClient, IFactory<Database.ShowTractorDbContext> factory, IAggregateMediaSourceProvider mediaSourceProvider)
         {
-            this.providerFactory = providerFactory;
-            this.httpClient = httpClient;
-            this.factory = factory;
+            this.providerFactory = providerFactory ?? throw new ArgumentNullException(nameof(providerFactory));
+            this.httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+            this.factory = factory ?? throw new ArgumentNullException(nameof(factory));
+            this.mediaSourceProvider = mediaSourceProvider ?? throw new ArgumentNullException(nameof(mediaSourceProvider));
         }
 
         private PosterViewModel? parameter;
@@ -309,7 +312,7 @@ namespace ShowTractor.Pages.Details
             {
                 if (i >= Episodes.Count)
                 {
-                    var episodeVm = new TvEpisodeViewModel(this, Id, data.Episodes[i], episodeWatchProgresses?.Skip(i).FirstOrDefault(), httpClient, factory);
+                    var episodeVm = new TvEpisodeViewModel(this, Id, data, data.Episodes[i], episodeWatchProgresses?.Skip(i).FirstOrDefault(), httpClient, factory, mediaSourceProvider);
                     Episodes.Add(episodeVm);
                     AttachTvEpisodeEventListener(episodeVm);
                 }

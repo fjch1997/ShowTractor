@@ -3,6 +3,7 @@ using NUnit.Framework;
 using ShowTractor.Database.Extensions;
 using ShowTractor.Interfaces;
 using ShowTractor.Pages.Details;
+using ShowTractor.Plugins;
 using ShowTractor.Plugins.Interfaces;
 using ShowTractor.Tests.Mocks;
 using ShowTractor.Tests.TestPlugins;
@@ -37,7 +38,7 @@ namespace ShowTractor.Tests
                 context.Database.EnsureCreated();
             factory = new DelegateFactory<Database.ShowTractorDbContext>(() => new InMemoryDbContext(connection));
             provider = new TestMetadataProvider();
-            subject = new TvSeasonPageViewModel(new DelegateFactory<IMetadataProvider>(() => provider), httpClient, factory);
+            subject = new TvSeasonPageViewModel(new DelegateFactory<IMetadataProvider>(() => provider), httpClient, factory, new AggregateMediaSourceProvider(new PluginSettings(), new TestServiceProvider()));
         }
         [TearDown]
         public void TestCleanup()

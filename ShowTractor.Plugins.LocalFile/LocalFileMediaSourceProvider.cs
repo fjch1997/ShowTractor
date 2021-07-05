@@ -1,5 +1,6 @@
 ﻿using ShowTractor.Plugins;
 using ShowTractor.Plugins.Interfaces;
+using ShowTractor.Plugins.LocalFile;
 using ShowTractor.Plugins.LocalFile.Properties;
 using System;
 using System.Collections.Generic;
@@ -9,12 +10,24 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 
 [assembly: ShowTractorPluginAssembly(MediaSourceProvider = typeof(LocalFileMediaSourceProvider))]
-
-namespace ShowTractor.Plugins
+namespace ShowTractor.Plugins.LocalFile
 {
+
     public class LocalFileMediaSourceProvider : IMediaSourceProvider
     {
         private readonly Regex seasonEpisodeNumberRegex = new Regex("S(\\d\\d)E(\\d\\d)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static ThrottledAction saveAction = new ThrottledAction(() => Settings.Default.Save(), TimeSpan.FromSeconds(10));
+
+        public LocalFileMediaSourceProvider()
+        {
+            Settings.Default.PropertyChanged -= Default_PropertyChanged;
+            Settings.Default.PropertyChanged += Default_PropertyChanged;
+        }
+
+        private static void Default_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            saveAction.InvokeAction();
+        }
 
         public string Name => "Local File";
 
@@ -89,6 +102,8 @@ namespace ShowTractor.Plugins
 
         private async IAsyncEnumerable<MediaSource> BuiltInMatchAsync(TvSeason tvSeason, TvEpisode tvEpisode, string path)
         {
+            if (path == null || !Directory.Exists(path))
+                yield break;
             foreach (var directory in Directory.EnumerateDirectories(path))
             {
                 await foreach (var item in BuiltInMatchAsync(tvSeason, tvEpisode, directory))
@@ -109,7 +124,7 @@ namespace ShowTractor.Plugins
                     continue;
                 if (tvSeason.Season == seasonNumber && tvEpisode.EpisodeNumber == episodeNumber)
                 {
-                    yield return new MediaSource(PredefinedMediaSources.LocalFile, GetResolution(filename), GetCodec(filename), filename, fileInfo.Length);
+                    yield return new GenericMediaSource<string>(PredefinedMediaSources.LocalFile, file, GetResolution(filename), GetCodec(filename), filename, fileInfo.Length);
                 }
             }
 

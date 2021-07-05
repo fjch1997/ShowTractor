@@ -5,24 +5,24 @@ namespace ShowTractor.Plugins.Interfaces
 {
     public enum MediaResolution
     {
-        FourK,
-        TenEightyP,
-        SevenTwentyP,
         SD,
+        SevenTwentyP,
+        TenEightyP,
+        FourK,
     }
     public enum MediaCodec
     {
         Unknown,
+        Xvid,
         H254,
         HEVC,
-        Xvid,
     }
     public struct MediaSourceType
     {
         public Guid Id { get; set; }
         public string DisplayName { get; set; }
     }
-    public record MediaSource(
+    public abstract record MediaSource(
         MediaSourceType Type,
         MediaResolution Resolution,
         MediaCodec MediaCodec,

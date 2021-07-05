@@ -1,6 +1,7 @@
 ﻿using ShowTractor.Database.Extensions;
 using ShowTractor.Interfaces;
 using ShowTractor.Mvvm;
+using ShowTractor.Plugins;
 using ShowTractor.Plugins.Interfaces;
 using System;
 using System.ComponentModel;
@@ -19,13 +20,13 @@ namespace ShowTractor.Pages.Details
         private readonly HttpClient httpClient;
         private readonly IFactory<Database.ShowTractorDbContext> factory;
 
-        internal TvEpisodeViewModel(TvSeasonPageViewModel parent, Guid? seasonId, TvEpisode data, TimeSpan? watchProgress, HttpClient httpClient, IFactory<Database.ShowTractorDbContext> factory)
+        internal TvEpisodeViewModel(TvSeasonPageViewModel parent, Guid? seasonId, TvSeason season, TvEpisode data, TimeSpan? watchProgress, HttpClient httpClient, IFactory<Database.ShowTractorDbContext> factory, IAggregateMediaSourceProvider mediaSourceProvider)
         {
-            this.parent = parent;
+            this.parent = parent ?? throw new ArgumentNullException(nameof(parent));
             SeasonId = seasonId;
-            this.data = data;
-            this.httpClient = httpClient;
-            this.factory = factory;
+            this.data = data ?? throw new ArgumentNullException(nameof(data));
+            this.httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+            this.factory = factory ?? throw new ArgumentNullException(nameof(factory));
             if (watchProgress != null)
                 WatchProgress = watchProgress.Value;
             parent.PropertyChanged += (s, e) =>
@@ -47,9 +48,11 @@ namespace ShowTractor.Pages.Details
                     new DelegateFactory<ValueTask<Stream>>(async () => await httpClient.GetStreamAsync(data.ArtworkUri)));
             else
                 artwork = new TvEpisodeDefaultArtwork();
+            Media = new TvEpisodeMediaViewModel(season, data, mediaSourceProvider ?? throw new ArgumentNullException(nameof(mediaSourceProvider)));
         }
 
         public Guid? SeasonId { get; set; }
+        public TvEpisodeMediaViewModel Media { get; private set; }
 
         public string Name { get => data.Name; set { data = data with { Name = value }; OnPropertyChanged(); } }
         public int EpisodeNumber { get => data.EpisodeNumber; set { data = data with { EpisodeNumber = value }; OnPropertyChanged(); } }
@@ -80,6 +83,7 @@ namespace ShowTractor.Pages.Details
             await Task.Run(async () => await context.SetWatchProgressAsync(SeasonId.Value, EpisodeNumber, value));
             WatchProgress = value;
         }
+
         internal async ValueTask UpdateAsync(Guid? id, TvEpisode data, Database.ShowTractorDbContext? context, bool updateInDatabase)
         {
             if (id != null)
@@ -92,6 +96,7 @@ namespace ShowTractor.Pages.Details
                 await CreateOrUpdateInDatabaseAsync(context);
             }
         }
+
         private async ValueTask CreateOrUpdateInDatabaseAsync(Database.ShowTractorDbContext context)
         {
             if (SeasonId != null)
@@ -106,6 +111,7 @@ namespace ShowTractor.Pages.Details
                 await dbEpisode.UpdateAsync(data, httpClient);
             }
         }
+
         public static int GetWatchPercentage(TimeSpan runtime, TimeSpan watchProgress)
         {
             if (runtime == default)
