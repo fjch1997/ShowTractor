@@ -1,11 +1,14 @@
-﻿using ShowTractor.Plugins;
+﻿using ShowTractor.Mvvm;
+using ShowTractor.Plugins;
 using ShowTractor.Plugins.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace ShowTractor.Pages.Details
 {
@@ -28,7 +31,28 @@ namespace ShowTractor.Pages.Details
             this.tvEpisode = tvEpisode;
             this.mediaSourceProvider = mediaSourceProvider;
             Task.Run(UpdateAsync);
+            PlayCommand = new DelegateCommand(() =>
+            {
+                if (MediaSource is GenericMediaSource<string> s && MediaSource.Type.Id == PredefinedMediaSources.LocalFile.Id)
+                {
+                    var p = Process.Start(new ProcessStartInfo
+                    {
+                        FileName = s.Value,
+                        UseShellExecute = true,
+                    });
+                }
+            });
         }
+        public TvEpisodeMediaViewModelState State { get => state; set { state = value; OnPropertyChanged(); OnPropertyChanged(nameof(ShowUnavailable)); OnPropertyChanged(nameof(ShowPlay)); } }
+        private TvEpisodeMediaViewModelState state = TvEpisodeMediaViewModelState.Unavailable;
+
+        public bool ShowUnavailable => State == TvEpisodeMediaViewModelState.Unavailable;
+        public bool ShowPlay => State == TvEpisodeMediaViewModelState.Available;
+
+        public MediaSource? MediaSource { get => mediaSource; set { mediaSource = value; OnPropertyChanged(); } }
+        private MediaSource? mediaSource;
+
+        public ICommand PlayCommand { get; set; }
 
         public async Task UpdateAsync()
         {
@@ -43,15 +67,6 @@ namespace ShowTractor.Pages.Details
             else
                 State = TvEpisodeMediaViewModelState.Unavailable;
         }
-
-        public TvEpisodeMediaViewModelState State { get => state; set { state = value; OnPropertyChanged(); OnPropertyChanged(nameof(ShowUnavailable)); OnPropertyChanged(nameof(ShowPlay)); } }
-        private TvEpisodeMediaViewModelState state = TvEpisodeMediaViewModelState.Unavailable;
-
-        public bool ShowUnavailable => State == TvEpisodeMediaViewModelState.Unavailable;
-        public bool ShowPlay => State == TvEpisodeMediaViewModelState.Available;
-
-        public MediaSource? MediaSource { get => mediaSource; set { mediaSource = value; OnPropertyChanged(); } }
-        private MediaSource? mediaSource;
 
         public event PropertyChangedEventHandler? PropertyChanged;
 

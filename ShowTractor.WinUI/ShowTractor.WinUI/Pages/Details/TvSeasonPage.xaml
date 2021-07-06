@@ -112,7 +112,7 @@
                                         </Button>
                                     </StackPanel>
                                     <StackPanel Grid.Column="2" Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Visibility="{x:Bind Media.ShowPlay}">
-                                        <Button HorizontalAlignment="Center" Margin="6 0">
+                                        <Button HorizontalAlignment="Center" Margin="6 0" Command="{x:Bind Media.PlayCommand}">
                                             <FontIcon Glyph="&#xE768;" ToolTipService.ToolTip="Play"/>
                                         </Button>
                                     </StackPanel>
