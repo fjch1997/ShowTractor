@@ -38,13 +38,20 @@ namespace ShowTractor.Tests
                 context.Database.EnsureCreated();
             factory = new DelegateFactory<Database.ShowTractorDbContext>(() => new InMemoryDbContext(connection));
             provider = new TestMetadataProvider();
-            subject = new TvSeasonPageViewModel(new DelegateFactory<IMetadataProvider>(() => provider), httpClient, factory, new AggregateMediaSourceProvider(new PluginSettings(), new TestServiceProvider()));
+            subject = new TvSeasonPageViewModel(
+                new DelegateFactory<IMetadataProvider>(() => provider), 
+                httpClient, 
+                factory, 
+                new AggregateMediaSourceProvider(new PluginSettings(), new TestServiceProvider()),
+                new AggregateMediaPlayer(new PluginSettings(), new TestServiceProvider()));
         }
+
         [TearDown]
         public void TestCleanup()
         {
             connection.Dispose();
         }
+
         [Test]
         public async Task Load_FromSearchResult_NoDatabaseEntry_NoUniqueIdTest([Values("67198", null)] string uniqueId, [Values(TestHttpMessageHandler.ImageUrl, null)] string artworkUrl)
         {

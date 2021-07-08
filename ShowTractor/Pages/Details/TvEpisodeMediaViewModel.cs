@@ -2,57 +2,111 @@
 using ShowTractor.Plugins;
 using ShowTractor.Plugins.Interfaces;
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Input;
 
 namespace ShowTractor.Pages.Details
 {
     public enum TvEpisodeMediaViewModelState
     {
         Loading,
-        Unavailable,
+        MediaUnavailable,
         DownloadAvailable,
+        PlayerUnavailable,
         Available,
+        Playing,
     }
+
     public class TvEpisodeMediaViewModel : INotifyPropertyChanged
     {
         private readonly TvSeason tvSeason;
         private readonly TvEpisode tvEpisode;
         private IAggregateMediaSourceProvider mediaSourceProvider;
+        private static ConcurrentDictionary<(string showName, int season, int episode), MediaPlayerStateViewModel> playing = new ConcurrentDictionary<(string showName, int season, int episode), MediaPlayerStateViewModel>();
+        private DateTime playStartTime;
+        internal Task initializationTask;
 
-        internal TvEpisodeMediaViewModel(TvSeason tvSeason, TvEpisode tvEpisode, IAggregateMediaSourceProvider mediaSourceProvider)
+        internal TvEpisodeMediaViewModel(TvSeason tvSeason, TvEpisode tvEpisode, IAggregateMediaSourceProvider mediaSourceProvider, IAggregateMediaPlayer aggregateMediaPlayer)
         {
-            this.tvSeason = tvSeason;
-            this.tvEpisode = tvEpisode;
-            this.mediaSourceProvider = mediaSourceProvider;
-            Task.Run(UpdateAsync);
-            PlayCommand = new DelegateCommand(() =>
+            if (aggregateMediaPlayer is null)
             {
-                if (MediaSource is GenericMediaSource<string> s && MediaSource.Type.Id == PredefinedMediaSources.LocalFile.Id)
+                throw new ArgumentNullException(nameof(aggregateMediaPlayer));
+            }
+
+            this.tvSeason = tvSeason ?? throw new ArgumentNullException(nameof(tvSeason));
+            this.tvEpisode = tvEpisode ?? throw new ArgumentNullException(nameof(tvEpisode));
+            this.mediaSourceProvider = mediaSourceProvider ?? throw new ArgumentNullException(nameof(mediaSourceProvider));
+            initializationTask = Task.Run(async () => await UpdateAsync());
+            PlayCommand = new AwaitableDelegateCommand(async () =>
+            {
+                if (MediaSource == null)
+                    return; // No available media.
+                if (MediaPlayerState != null)
+                    return; // It is playing.
+                var (controlTemplate, vm) = await aggregateMediaPlayer.PlayAsync(MediaSource, tvSeason, tvEpisode);
+                if (controlTemplate != null)
                 {
-                    var p = Process.Start(new ProcessStartInfo
-                    {
-                        FileName = s.Value,
-                        UseShellExecute = true,
-                    });
+                    throw new NotImplementedException();
+                }
+                else if (vm != null)
+                {
+                    MediaPlayerState = vm;
+                    State = TvEpisodeMediaViewModelState.Playing;
+                    MediaPlayerState.PropertyChanged += MediaPlayerState_PropertyChanged;
+                    playStartTime = DateTime.UtcNow;
+                    playing.AddOrUpdate((tvSeason.ShowName, tvSeason.Season, tvEpisode.EpisodeNumber), vm, (_, _) => vm);
+                }
+                else
+                {
+                    State = TvEpisodeMediaViewModelState.PlayerUnavailable;
                 }
             });
         }
-        public TvEpisodeMediaViewModelState State { get => state; set { state = value; OnPropertyChanged(); OnPropertyChanged(nameof(ShowUnavailable)); OnPropertyChanged(nameof(ShowPlay)); } }
-        private TvEpisodeMediaViewModelState state = TvEpisodeMediaViewModelState.Unavailable;
 
-        public bool ShowUnavailable => State == TvEpisodeMediaViewModelState.Unavailable;
+        private void MediaPlayerState_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (MediaPlayerState == null)
+                throw new InvalidOperationException();
+            if (e.PropertyName == nameof(MediaPlayerState.State) && MediaPlayerState.State == Plugins.Interfaces.MediaPlayerState.Closed)
+            {
+                MediaPlayerState.PropertyChanged -= MediaPlayerState_PropertyChanged;
+                MediaPlayerState = null;
+                NotPlaying();
+                if (playStartTime == default)
+                    return; // This instance is not the view model that tracks play time. Only the instance that launched the player does.
+                var playTime = DateTime.UtcNow - playStartTime;
+                // TODO
+                playing.TryRemove((tvSeason.ShowName, tvSeason.Season, tvEpisode.EpisodeNumber), out _);
+            }
+        }
+
+        public MediaPlayerStateViewModel? MediaPlayerState { get => mediaPlayerState; set { mediaPlayerState = value; OnPropertyChanged(); } }
+        private MediaPlayerStateViewModel? mediaPlayerState;
+
+        public TvEpisodeMediaViewModelState State
+        {
+            get => state; set
+            {
+                state = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(ShowMediaUnavailable));
+                OnPropertyChanged(nameof(ShowPlayerUnavailable));
+                OnPropertyChanged(nameof(ShowPlay));
+            }
+        }
+        private TvEpisodeMediaViewModelState state = TvEpisodeMediaViewModelState.MediaUnavailable;
+
+        public bool ShowMediaUnavailable => State == TvEpisodeMediaViewModelState.MediaUnavailable;
+        public bool ShowPlayerUnavailable => State == TvEpisodeMediaViewModelState.PlayerUnavailable;
         public bool ShowPlay => State == TvEpisodeMediaViewModelState.Available;
+        public bool ShowPlaying => State == TvEpisodeMediaViewModelState.Playing;
 
         public MediaSource? MediaSource { get => mediaSource; set { mediaSource = value; OnPropertyChanged(); } }
         private MediaSource? mediaSource;
 
-        public ICommand PlayCommand { get; set; }
+        public IAsyncCommand PlayCommand { get; set; }
 
         public async Task UpdateAsync()
         {
@@ -62,15 +116,25 @@ namespace ShowTractor.Pages.Details
                     continue;
                 MediaSource = item;
             }
+            NotPlaying();
+            if (playing.TryGetValue((tvSeason.ShowName, tvSeason.Season, tvEpisode.EpisodeNumber), out var vm))
+            {
+                MediaPlayerState = vm;
+                State = TvEpisodeMediaViewModelState.Playing;
+                MediaPlayerState.PropertyChanged += MediaPlayerState_PropertyChanged;
+            }
+        }
+
+        private void NotPlaying()
+        {
             if (MediaSource != null)
                 State = TvEpisodeMediaViewModelState.Available;
             else
-                State = TvEpisodeMediaViewModelState.Unavailable;
+                State = TvEpisodeMediaViewModelState.MediaUnavailable;
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
     }
 }

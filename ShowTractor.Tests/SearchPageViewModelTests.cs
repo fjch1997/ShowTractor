@@ -11,7 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using static ShowTractor.Tests.TestFixtures.ExampleSearchResults;
 
-namespace ShowTractor.UnitTests
+namespace ShowTractor.Tests
 {
     [TestFixture]
     public class SearchPageViewModelTests : HttpMessageHandler

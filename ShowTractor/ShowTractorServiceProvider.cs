@@ -24,6 +24,7 @@ namespace ShowTractor
             services.AddSingleton(GeneralSettings.Default);
             services.AddSingleton<IFactory<IMetadataProvider?>>(p => new MetadataProviderFactory(p.GetRequiredService<PluginSettings>(), p));
             services.AddSingleton<IAggregateMediaSourceProvider>(p => new AggregateMediaSourceProvider(p.GetRequiredService<PluginSettings>(), p));
+            services.AddSingleton<IAggregateMediaPlayer>(p => new AggregateMediaPlayer(p.GetRequiredService<PluginSettings>(), p));
             services.AddSingleton<IFactory<Database.ShowTractorDbContext>>(p => new DelegateFactory<Database.ShowTractorDbContext>(() => new Database.ShowTractorDbContext()));
             services.AddDbContext<Database.ShowTractorDbContext>();
             ConfigureViewModels(services);
@@ -41,7 +42,8 @@ namespace ShowTractor
                 p.GetRequiredService<IFactory<IMetadataProvider>>(),
                 p.GetRequiredService<HttpClient>(),
                 p.GetRequiredService<IFactory<Database.ShowTractorDbContext>>(),
-                p.GetRequiredService<IAggregateMediaSourceProvider>()));
+                p.GetRequiredService<IAggregateMediaSourceProvider>(),
+                p.GetRequiredService<IAggregateMediaPlayer>()));
             services.AddScoped(p => new MyShowsPageViewModel(p.GetRequiredService<IFactory<Database.ShowTractorDbContext>>()));
             services.AddScoped(
                 p => new CalendarPageViewModel(

@@ -102,9 +102,17 @@
                                         Grid.Column="2" Grid.ColumnSpan="2" Margin="6"
                                         Visibility="{x:Bind ShowWatchProgress, Mode=OneWay}"
                                         Value="{x:Bind WatchProgressPercentage, Mode=OneWay}"/>
-                                    <StackPanel Grid.Column="2" Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Visibility="{x:Bind Media.ShowUnavailable}">
+                                    <StackPanel Grid.Column="2" Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Visibility="{x:Bind Media.ShowMediaUnavailable}">
                                         <FontIcon Glyph="&#xE783;"/>
                                         <TextBlock LineHeight="22" Margin="3 0">Unavailable</TextBlock>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2" Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Visibility="{x:Bind Media.ShowPlayerUnavailable}">
+                                        <FontIcon Glyph="&#xE783;"/>
+                                        <TextBlock LineHeight="22" Margin="3 0">No supported player</TextBlock>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2" Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Visibility="{x:Bind Media.ShowPlayerUnavailable}">
+                                        <FontIcon Glyph="&#xE783;"/>
+                                        <TextBlock LineHeight="22" Margin="3 0">Playing</TextBlock>
                                     </StackPanel>
                                     <StackPanel Grid.Column="2" Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Visibility="Collapsed">
                                         <Button HorizontalAlignment="Center" Margin="6 0">

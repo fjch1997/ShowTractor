@@ -24,16 +24,18 @@ namespace ShowTractor.Pages.Details
         private readonly HttpClient httpClient;
         private readonly IFactory<Database.ShowTractorDbContext> factory;
         private readonly IAggregateMediaSourceProvider mediaSourceProvider;
+        private readonly IAggregateMediaPlayer aggregateMediaPlayer;
         private readonly CancellationTokenSource cts = new();
         private TvSeason? data;
         private Guid? Id;
 
-        internal TvSeasonPageViewModel(IFactory<IMetadataProvider> providerFactory, HttpClient httpClient, IFactory<Database.ShowTractorDbContext> factory, IAggregateMediaSourceProvider mediaSourceProvider)
+        internal TvSeasonPageViewModel(IFactory<IMetadataProvider> providerFactory, HttpClient httpClient, IFactory<Database.ShowTractorDbContext> factory, IAggregateMediaSourceProvider mediaSourceProvider, IAggregateMediaPlayer aggregateMediaPlayer)
         {
             this.providerFactory = providerFactory ?? throw new ArgumentNullException(nameof(providerFactory));
             this.httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             this.factory = factory ?? throw new ArgumentNullException(nameof(factory));
             this.mediaSourceProvider = mediaSourceProvider ?? throw new ArgumentNullException(nameof(mediaSourceProvider));
+            this.aggregateMediaPlayer = aggregateMediaPlayer ?? throw new ArgumentNullException(nameof(aggregateMediaPlayer));
         }
 
         private PosterViewModel? parameter;
@@ -312,7 +314,7 @@ namespace ShowTractor.Pages.Details
             {
                 if (i >= Episodes.Count)
                 {
-                    var episodeVm = new TvEpisodeViewModel(this, Id, data, data.Episodes[i], episodeWatchProgresses?.Skip(i).FirstOrDefault(), httpClient, factory, mediaSourceProvider);
+                    var episodeVm = new TvEpisodeViewModel(this, Id, data, data.Episodes[i], episodeWatchProgresses?.Skip(i).FirstOrDefault(), httpClient, factory, mediaSourceProvider, aggregateMediaPlayer);
                     Episodes.Add(episodeVm);
                     AttachTvEpisodeEventListener(episodeVm);
                 }

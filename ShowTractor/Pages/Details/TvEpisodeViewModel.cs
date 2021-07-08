@@ -20,7 +20,8 @@ namespace ShowTractor.Pages.Details
         private readonly HttpClient httpClient;
         private readonly IFactory<Database.ShowTractorDbContext> factory;
 
-        internal TvEpisodeViewModel(TvSeasonPageViewModel parent, Guid? seasonId, TvSeason season, TvEpisode data, TimeSpan? watchProgress, HttpClient httpClient, IFactory<Database.ShowTractorDbContext> factory, IAggregateMediaSourceProvider mediaSourceProvider)
+        internal TvEpisodeViewModel(TvSeasonPageViewModel parent, Guid? seasonId, TvSeason season, TvEpisode data, TimeSpan? watchProgress, HttpClient httpClient, 
+            IFactory<Database.ShowTractorDbContext> factory, IAggregateMediaSourceProvider mediaSourceProvider, IAggregateMediaPlayer aggregateMediaPlayer)
         {
             this.parent = parent ?? throw new ArgumentNullException(nameof(parent));
             SeasonId = seasonId;
@@ -48,7 +49,7 @@ namespace ShowTractor.Pages.Details
                     new DelegateFactory<ValueTask<Stream>>(async () => await httpClient.GetStreamAsync(data.ArtworkUri)));
             else
                 artwork = new TvEpisodeDefaultArtwork();
-            Media = new TvEpisodeMediaViewModel(season, data, mediaSourceProvider ?? throw new ArgumentNullException(nameof(mediaSourceProvider)));
+            Media = new TvEpisodeMediaViewModel(season, data, mediaSourceProvider ?? throw new ArgumentNullException(nameof(mediaSourceProvider)), aggregateMediaPlayer);
         }
 
         public Guid? SeasonId { get; set; }

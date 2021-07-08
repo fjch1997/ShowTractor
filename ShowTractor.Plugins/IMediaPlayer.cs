@@ -52,16 +52,20 @@ namespace ShowTractor.Plugins.Interfaces
 
     public interface IMediaPlayer : IPlugin
     {
-        public IEnumerable<MediaPlayerSourceType> SupportedTypes { get; set; }
+        public IEnumerable<MediaPlayerSourceType> SupportedTypes { get; }
         /// <summary>
         /// Get a ControlTemplate that can be loaded as a player. The actual underlying type depends on the platform.
         /// This method is called only when the reported mode is <see cref="MediaPlayerMode.ControlTemplate"/>.
         /// </summary>
-        public ValueTask<object> GetPlayerAsync(MediaSource source, TvSeason tvSeason, TvEpisode tvEpisode, Action closePlayerCallback);
+        public ValueTask<object> GetPlayerAsync(MediaSource source, TvSeason tvSeason, TvEpisode tvEpisode);
         /// <summary>
         /// Get a <see cref="MediaPlayerStateViewModel"/> to track the state of a media player opened in a new window or process.
         /// This method is called only when the reported mode is <see cref="MediaPlayerMode.Process"/>.
         /// </summary>
         public ValueTask<MediaPlayerStateViewModel> PlayAsync(MediaSource source, TvSeason tvSeason, TvEpisode tvEpisode);
+        /// <summary>
+        /// If the return value is true, this media player will be used. Otherwise, an <see cref="IMediaPlayer"/> next in priority will be tried.
+        /// </summary>
+        public ValueTask<bool> CanPlayAsync(MediaSource source, TvSeason tvSeason, TvEpisode tvEpisode) => new ValueTask<bool>(true);
     }
 }
