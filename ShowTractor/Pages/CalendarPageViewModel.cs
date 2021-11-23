@@ -16,12 +16,14 @@ namespace ShowTractor.Pages
         private readonly GeneralSettings settings;
         private readonly Dictionary<(int year, int month), Task> tasks = new();
         private readonly Dictionary<DateTimeOffset, CalendarDayViewModel> days = new();
+        private readonly Task<IDictionary<DateTime, IEnumerable<CalendarPosterViewModel>>> loadDataTask;
 
         internal CalendarPageViewModel(IFactory<Database.ShowTractorDbContext> factory, IAsyncInitializationService asyncInitializationService, GeneralSettings settings)
         {
             this.factory = factory;
             this.asyncInitializationService = asyncInitializationService;
             this.settings = settings;
+            loadDataTask = LoadDataAsync();
         }
 
         public Func<DateTimeOffset, object> CalendarDayItemDataContextProvider => date =>
@@ -41,19 +43,23 @@ namespace ShowTractor.Pages
 
         public event PropertyChangedEventHandler? PropertyChanged { add { } remove { } }
 
-        private async Task LoadMonthAsync((int year, int month) month)
+        private async Task<IDictionary<DateTime, IEnumerable<CalendarPosterViewModel>>> LoadDataAsync()
         {
             await asyncInitializationService.Task;
             using var context = factory.Get();
             var query = from e in (IQueryable<Database.TvEpisode>)context.TvEpisodes
-                        where e.FirstAirDate.Year == month.year && e.FirstAirDate.Month == month.month
                         join s in context.TvSeasons on e.TvSeasonId equals s.Id
                         where s.Following == true
                         select new CalendarPosterViewModel(e.TvSeasonId, s.ShowName, s.Season, e.EpisodeNumber, e.Name, e.FirstAirDate, TvEpisodeViewModel.GetWatchPercentage(e.Runtime, e.WatchProgress) > 0, factory, settings)
                         {
                             FirstEpisodeAirDate = e.FirstAirDate,
                         };
-            var data = await Task.Run(() => query.AsEnumerable().GroupBy(e => DateTime.SpecifyKind(e.FirstEpisodeAirDate, DateTimeKind.Utc)).ToDictionary(g => g.Key, g => g.AsEnumerable()));
+            return await Task.Run(() => query.AsEnumerable().GroupBy(e => DateTime.SpecifyKind(e.FirstEpisodeAirDate, DateTimeKind.Utc)).ToDictionary(g => g.Key, g => g.AsEnumerable()));
+        }
+
+        private async Task LoadMonthAsync((int year, int month) month)
+        {
+            var data = await loadDataTask;
             for (var i = new DateTimeOffset(month.year, month.month, 1, 0, 0, 0, 0, TimeSpan.Zero); i.Month == month.month; i = i.AddDays(1))
             {
                 if (!days.TryGetValue(i, out var dayVm))

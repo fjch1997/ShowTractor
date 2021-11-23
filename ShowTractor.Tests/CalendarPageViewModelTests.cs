@@ -34,13 +34,13 @@ namespace ShowTractor.Tests
             using (var context = new InMemoryDbContext(connection))
                 context.Database.EnsureCreated();
             factory = new DelegateFactory<Database.ShowTractorDbContext>(() => new InMemoryDbContext(connection));
-            subject = new CalendarPageViewModel(factory, this, new GeneralSettings());
             AddExistingDatabaseEntry(TestTvSeason1, true, true);
             AddExistingDatabaseEntry(TestTvSeason2, true, false);
             AddExistingDatabaseEntry(TestTvSeason3, true, false);
             AddExistingDatabaseEntry(TestTvSeason4, false, false);
             AddExistingDatabaseEntry(TestTvSeason5, false, false);
             AddExistingDatabaseEntry(TestTvSeason6, false, false);
+            subject = new CalendarPageViewModel(factory, this, new GeneralSettings());
         }
         [TearDown]
         public void TestCleanup()
