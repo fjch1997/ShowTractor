@@ -22,6 +22,9 @@
     </Page.DataContext>
     <Grid>
         <c:ShowTractorCalendarView 
+            CalendarItemCornerRadius="0"
+            OutOfScopeHoverForeground="{StaticResource CalendarViewOutOfScopeForeground}"
+            TodayForeground="{StaticResource CalendarViewCalendarItemForeground}"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch" 
             SelectionMode="None"

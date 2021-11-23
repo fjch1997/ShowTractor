@@ -13,15 +13,15 @@ Having a software that can run independtly of the cloud shouldn't be that big of
 
 # Technologies used
 
-1. WinUI 3 Preview 3
+1. WinUI 3 (Windows App SDK 1.0)
 2. C# 9
-3. .NET 5 and .NET Standard 2.1
+3. .NET 6 and .NET Standard 2.1
 4. EntityFramework Core
 5. SQLite
 
 # Build and run
 
-Open Solution in Visual Studio 2019 Preview. F5
+Open Solution in Visual Studio 2022. F5
 
 # Requirements
 

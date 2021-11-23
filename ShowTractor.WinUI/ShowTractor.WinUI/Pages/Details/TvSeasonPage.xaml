@@ -136,7 +136,7 @@
         <c:HeaderControl x:Name="headerControl" ScrollViewer="{x:Bind scrollViewer}" MaxHeight="{StaticResource HeaderMaxHeight}" VerticalAlignment="Top" HeaderMinHeight="120">
             <Rectangle x:Name="WideBackground" IsHitTestVisible="False">
                 <Rectangle.Fill>
-                    <AcrylicBrush BackgroundSource="Backdrop" TintOpacity="0.9" TintColor="#FF000000" FallbackColor="SaddleBrown"/>
+                    <AcrylicBrush TintOpacity="0.9" TintColor="#FF000000" FallbackColor="SaddleBrown"/>
                 </Rectangle.Fill>
             </Rectangle>
             <Grid x:Name="headerRoot">
