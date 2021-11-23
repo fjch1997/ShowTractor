@@ -1,6 +1,6 @@
 ﻿$ErrorActionPreference = "Stop"
-Import-Module "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
-Enter-VsDevShell -VsInstallPath "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise" -SkipAutomaticLocation
+Import-Module "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
+Enter-VsDevShell -VsInstallPath "C:\Program Files\Microsoft Visual Studio\2022\Enterprise" -SkipAutomaticLocation
 $certificate = (Get-Item Cert:\CurrentUser\My\* -CodeSigningCert)
 Write-Host "Signing will be using" $certificate.FriendlyName
 foreach ($msixFile in Get-ChildItem "ShowTractor.WinUI\ShowTractor.WinUI (Package)\AppPackages\ShowTractor.WinUI (Package)*\*.msix")
@@ -23,4 +23,4 @@ foreach ($msixFile in Get-ChildItem "ShowTractor.WinUI\ShowTractor.WinUI (Packag
     SignTool sign /a /v /fd SHA256 /tr http://timestamp.sectigo.com /td SHA256 /sha1 $certificate.Thumbprint $msixPath
 }
 # Sign plugins
-Set-AuthenticodeSignature -Certificate $certificate -TimestampServer http://timestamp.sectigo.com -FilePath ShowTractor.Plugins.Tmdb\bin\Release\netstandard2.1\ShowTractor.Plugins.Tmdb.dll
+Set-AuthenticodeSignature -Certificate $certificate -TimestampServer http://timestamp.sectigo.com -FilePath ShowTractor.Plugins.Tmdb\bin\Release\net6.0\ShowTractor.Plugins.Tmdb.dll
