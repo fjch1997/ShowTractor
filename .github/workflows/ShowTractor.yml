@@ -114,5 +114,5 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: ShowTractor.Plugins.Tmdb
-        path: ShowTractor.Plugins.Tmdb\bin\Release\netstandard2.1\ShowTractor.Plugins.Tmdb.*
+        path: ShowTractor.Plugins.Tmdb\bin\Release\*\ShowTractor.Plugins.Tmdb.*
         if-no-files-found: error
