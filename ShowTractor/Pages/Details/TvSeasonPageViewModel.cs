@@ -91,8 +91,7 @@ namespace ShowTractor.Pages.Details
             if (Id == null)
             {
                 var provider = providerFactory.Get();
-                var providerAssemblyName = provider.GetType().Assembly.GetName().Name;
-                dbSeason = Database.TvSeason.FromRecord(data ?? throw new ArgumentNullException(nameof(data)), providerAssemblyName);
+                dbSeason = Database.TvSeason.FromRecord(data ?? throw new ArgumentNullException(nameof(data)), provider.GetAssemblyName());
                 if (dbSeason.Artwork == null && data.ArtworkUri != null)
                 {
                     try

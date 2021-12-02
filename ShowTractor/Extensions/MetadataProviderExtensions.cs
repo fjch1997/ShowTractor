@@ -20,7 +20,8 @@ namespace ShowTractor.Extensions
                         .GroupBy(a => new AssemblyName(a.AssemblyName))
                         .ToDictionary(a => a.Key, a => (IReadOnlyDictionary<string, string>)a.ToDictionary(a => a.Name, a => a.Value)), token);
         }
-        public static string GetAssemblyName(this IMetadataProvider provider) => provider.GetType().Assembly.GetName().Name ?? provider.GetType().Assembly.GetName().ToString();
+        public static string GetAssemblyName(this IMetadataProvider provider) => GetAssemblyName(provider.GetType().Assembly.GetName());
+        private static string GetAssemblyName(AssemblyName name) => name.Name ?? name.ToString();
         internal static string? GetUniqueId(this Database.TvSeason dbSeason, string providerAssemblyName) => dbSeason.AdditionalAttributes.FirstOrDefault(a => a.AssemblyName == providerAssemblyName && a.Name == nameof(TvSeason.UniqueId))?.Value;
     }
 }
