@@ -271,7 +271,7 @@ namespace ShowTractor.Pages.Details
                     // Update saved data from latest.
                     if (provider != null)
                     {
-                        var latest = await provider.GetUpdatesAsync(dbSeason, cts.Token);
+                        var (latest, _) = await provider.GetUpdatesAsync(dbSeason, cts.Token);
                         await dbSeason.UpdateAsync(latest, httpClient);
                         await Task.Run(async () => await context.SaveChangesAsync());
                         await LoadDataForDisplayAsync(

@@ -38,7 +38,7 @@ namespace ShowTractor.Tests
             connection.Dispose();
         }
         [Test]
-        public async Task TestAsync()
+        public async Task TestUpdatedSeasonAsync()
         {
             var subject = new MetadataUpdateBackgroundWork(
                 new GeneralSettings(),
@@ -56,6 +56,18 @@ namespace ShowTractor.Tests
             Assert.That(season.Episodes[0].Name, Is.EqualTo(TestEpisode1Updated.Name));
             Assert.That(season.Episodes[0].FirstAirDate, Is.EqualTo(TestEpisode1Updated.FirstAirDate));
             Assert.That(season.Episodes[0].Runtime, Is.EqualTo(TestEpisode1Updated.Runtime));
+        }
+        [Test]
+        public async Task TestNewSeasonAvailableAsync()
+        {
+            var subject = new MetadataUpdateBackgroundWork(
+                   new GeneralSettings(),
+                   new DelegateFactory<Database.ShowTractorDbContext>(() => new InMemoryDbContext(connection)),
+                   new DelegateFactory<IMetadataProvider?>(() => new TestMetadataProvider { TestTvSeason = TestTvSeason1Updated }),
+                   new System.Net.Http.HttpClient(new TestHttpMessageHandler()));
+            Assert.IsTrue(await subject.CanDoWorkAsync());
+            await subject.DoWorkAsync();
+
         }
     }
 }

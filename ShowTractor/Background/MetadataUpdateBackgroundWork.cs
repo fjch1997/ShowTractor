@@ -41,7 +41,7 @@ namespace ShowTractor.Background
                 .Include(s => s.Episodes).AsAsyncEnumerable();
             await foreach (var dbSeason in dbSeasons)
             {
-                var latest = await provider.GetUpdatesAsync(dbSeason, token);
+                var (latest, _) = await provider.GetUpdatesAsync(dbSeason, token);
                 await dbSeason.UpdateAsync(latest, httpClient);
                 for (int i = 0; i < latest.Episodes.Count; i++)
                 {
