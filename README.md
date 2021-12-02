@@ -60,7 +60,7 @@ Open Solution in Visual Studio 2022. F5
   - [x] Display all followed episodes in a calendar view.
   - [x] Calendar item should indicate if an episode is watched.
   - [x] Add TV Show to followed shows from search result.
-  - [ ] Subscribe to new season when they become available.
+  - [x] Subscribe to new season when they become available.
 - Miscellaneous
   - [ ] Archiving shows that are no longer active, so that they do not clutter the view.
   - [ ] Download progress shall be displayed.
