@@ -24,6 +24,7 @@
         <c:ShowTractorCalendarView 
             CalendarItemCornerRadius="0"
             OutOfScopeHoverForeground="{StaticResource CalendarViewOutOfScopeForeground}"
+            OutOfScopePressedForeground="{StaticResource CalendarViewPressedForeground}"
             TodayForeground="{StaticResource CalendarViewCalendarItemForeground}"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch" 
