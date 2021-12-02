@@ -19,12 +19,25 @@ namespace ShowTractor.Tests.TestPlugins
         }
         public bool ShouldFail { get; set; }
         public TvSeason TestTvSeason { get; set; } = TestTvSeason1;
+        public TvSeason[] MoreTvSeasons { get; set; } = new TvSeason[0];
         public string Name => nameof(TestMetadataProvider);
         public PluginSettingsDescriptions? PluginSettingsDescriptions => null;
         public Stream GetIconStream() => IPlugin.GetDefaultIconStream();
-        public Task<TvSeason> GetUpdatesAsync(TvSeason season, IReadOnlyDictionary<AssemblyName, IReadOnlyDictionary<string, string>> additionalAttributes, CancellationToken token)
+        public Task<GetUpdatesResult> GetUpdatesAsync(TvSeason season, IReadOnlyDictionary<AssemblyName, IReadOnlyDictionary<string, string>> additionalAttributes, CancellationToken _)
         {
-            return Task.FromResult(TestTvSeason);
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+            async IAsyncEnumerable<TvSeason> GetLatestSeasons(int afterSeasonNumber)
+#pragma warning restore CS1998
+            {
+                for (int i = 0; i < MoreTvSeasons.Length; i++)
+                {
+                    if (i > afterSeasonNumber)
+                    {
+                        yield return MoreTvSeasons[i];
+                    }
+                }
+            }
+            return Task.FromResult(new GetUpdatesResult(TestTvSeason, GetLatestSeasons));
         }
         public IAsyncEnumerable<TvSeason> SearchAsync(string keyword, CancellationToken token)
         {

@@ -91,8 +91,7 @@ namespace ShowTractor.Pages.Details
             if (Id == null)
             {
                 var provider = providerFactory.Get();
-                var providerAssemblyName = provider.GetType().Assembly.GetName().Name;
-                dbSeason = Database.TvSeason.FromRecord(data ?? throw new ArgumentNullException(nameof(data)), providerAssemblyName);
+                dbSeason = Database.TvSeason.FromRecord(data ?? throw new ArgumentNullException(nameof(data)), provider.GetAssemblyName());
                 if (dbSeason.Artwork == null && data.ArtworkUri != null)
                 {
                     try
@@ -271,7 +270,7 @@ namespace ShowTractor.Pages.Details
                     // Update saved data from latest.
                     if (provider != null)
                     {
-                        var latest = await provider.GetUpdatesAsync(dbSeason, cts.Token);
+                        var (latest, _) = await provider.GetUpdatesAsync(dbSeason, cts.Token);
                         await dbSeason.UpdateAsync(latest, httpClient);
                         await Task.Run(async () => await context.SaveChangesAsync());
                         await LoadDataForDisplayAsync(

@@ -15,7 +15,7 @@ namespace ShowTractor.Plugins
                 throw new InvalidOperationException($"{nameof(FileName)} is null.");
 
             var assembly = Assembly.LoadFrom(FileName);
-            var attribute = (ShowTractorPluginAssemblyAttribute)assembly.GetCustomAttributes(typeof(ShowTractorPluginAssemblyAttribute), false).FirstOrDefault();
+            var attribute = (ShowTractorPluginAssemblyAttribute?)assembly.GetCustomAttributes(typeof(ShowTractorPluginAssemblyAttribute), false).FirstOrDefault();
             if (attribute == null)
                 throw new TypeLoadException($"Could not load plugin from assembly {assembly.FullName}. A {nameof(ShowTractorPluginAssemblyAttribute)} was not found.");
             if (attribute.MetadataProvider == null)

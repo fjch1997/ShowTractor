@@ -18,10 +18,18 @@ namespace ShowTractor.Plugins
 
         public IMetadataProvider? Get()
         {
-            var definition = settings.MetadataProviders.Where(p => p.Enabled).FirstOrDefault();
-            if (definition == null)
-                return null;
-            return definition.Load<IMetadataProvider>(serviceProvider);
+            foreach (var definition in settings.MetadataProviders.Where(p => p.Enabled).ToArray())
+            {
+                try
+                {
+                    return definition.Load<IMetadataProvider>(serviceProvider);
+                }
+                catch (Exception)
+                {
+                    settings.MetadataProviders.Remove(definition);
+                }
+            }
+            return null;
         }
     }
 }

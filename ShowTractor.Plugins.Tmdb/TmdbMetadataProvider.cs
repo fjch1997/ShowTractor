@@ -86,7 +86,7 @@ namespace ShowTractor.Plugins.Tmdb
             using var document = await JsonDocument.ParseAsync(stream, cancellationToken: token);
             return document.RootElement.GetProperty("results").EnumerateArray().Select(tv => tv.GetProperty("id").GetInt32()).ToArray();
         }
-        public async Task<TvSeason> GetUpdatesAsync(TvSeason season, IReadOnlyDictionary<AssemblyName, IReadOnlyDictionary<string, string>> additionalAttributes, CancellationToken token)
+        public async Task<GetUpdatesResult> GetUpdatesAsync(TvSeason season, IReadOnlyDictionary<AssemblyName, IReadOnlyDictionary<string, string>> additionalAttributes, CancellationToken token)
         {
             int id;
             if (season.UniqueId != null)
@@ -96,21 +96,25 @@ namespace ShowTractor.Plugins.Tmdb
             else
             {
                 var ids = await SearchForTvIdsAsync(season.ShowName, token);
-                if (ids.Length == 0)
-                {
-                    throw new ShowNotFoundException(season.ShowName);
-                }
-                else
-                {
-                    id = ids[0];
-                }
+                id = ids.Length > 0 ? ids.First() : throw new ShowNotFoundException(season.ShowName);
             }
             using var tvStream = await httpClient.GetStreamAsync(new Uri(BaseUri, "tv/" + id + "?api_key=" + GetApiKey()));
             using var tv = await JsonDocument.ParseAsync(tvStream, cancellationToken: token);
             var seasons = tv.RootElement.GetProperty("seasons").EnumerateArray().Select(s => s.GetProperty("season_number").GetInt32()).ToArray();
             var showEnded = tv.RootElement.TryGetProperty("status", out var status) && status.GetString() == "Ended";
-            return await LoadTvSeasonAsync(id, season.Season, season.ShowName, season.Genres, season.Ratings, season.ShowDescription,
-                        showEnded, showEnded && season.Season == seasons.Last());
+            async IAsyncEnumerable<TvSeason> GetLatestSeasons(int afterSeasonNumber)
+            {
+                for (int i = 0; i < seasons.Length; i++)
+                {
+                    if (seasons[i] > afterSeasonNumber)
+                    {
+                        yield return await LoadTvSeasonAsync(id, seasons[i], season.ShowName, season.Genres, season.Ratings, season.ShowDescription, showEnded, showEnded && seasons[i] == seasons.Last());
+                    }
+                }
+                yield break;
+            }
+            return new (await LoadTvSeasonAsync(id, season.Season, season.ShowName, season.Genres, season.Ratings, season.ShowDescription,
+                        showEnded, showEnded && season.Season == seasons.Last()), GetLatestSeasons);
         }
         private async Task<TvSeason> LoadTvSeasonAsync(int id, int seasonNumber, string showName, IList<string> genre, IList<string> ratings, string showDescriptions, bool showEnded, bool showFinale)
         {

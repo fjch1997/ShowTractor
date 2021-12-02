@@ -80,10 +80,65 @@ namespace ShowTractor.Plugins.Tmdb.Tests
         {
             var season = new TvSeason(uniqueId, "Star Trek: Discovery", 1, new List<string>(), new List<string>(), "Old Description", "Old Season Description", null, null, false, false, new List<TvEpisode>(), new Dictionary<string, string>());
             var subject = new TmdbMetadataProvider(new HttpClient(this));
-            var updated = await subject.GetUpdatesAsync(season, AdditionalAttributes.Empty, default);
+            var (updated, getNewSeasonsFunc) = await subject.GetUpdatesAsync(season, AdditionalAttributes.Empty, default);
+            AssertSeason1(updated);
+            await TestGetNewSeasonsAfterSeason1(updated, getNewSeasonsFunc);
+            await TestGetNewSeasonsAfterSeason2(updated, getNewSeasonsFunc);
+        }
+        private static async Task TestGetNewSeasonsAfterSeason1(TvSeason updated, GetLatestSeasonsDelegate getNewSeasonsFunc)
+        {
+            int i = 0;
+            await foreach (var newSeason in getNewSeasonsFunc(1))
+            {
+                switch (newSeason.Season)
+                {
+                    case 2:
+                        AssertSeason2(newSeason);
+                        break;
+                    case 3:
+                        AssertSeason3(newSeason);
+                        break;
+                    default:
+                        throw new AssertionException("Unrecognized season returned by TmdbMetadataProvider.");
+                }
+                i++;
+            }
+            Assert.AreEqual(2, i);
+        }
+        private static async Task TestGetNewSeasonsAfterSeason2(TvSeason updated, GetLatestSeasonsDelegate getNewSeasonsFunc)
+        {
+            int i = 0;
+            await foreach (var newSeason in getNewSeasonsFunc(2))
+            {
+                switch (newSeason.Season)
+                {
+                    case 3:
+                        AssertSeason3(newSeason);
+                        break;
+                    default:
+                        throw new AssertionException("Unrecognized season returned by TmdbMetadataProvider.");
+                }
+                i++;
+            }
+            Assert.AreEqual(1, i);
+        }
+        private static void AssertSeason1(TvSeason updated)
+        {
             Assert.AreEqual("Star Trek: Discovery", updated.ShowName);
             Assert.AreEqual(15, updated.Episodes.Count);
             Assert.AreEqual("The Vulcan Hello", updated.Episodes[0].Name);
+        }
+        private static void AssertSeason2(TvSeason newSeason)
+        {
+            Assert.AreEqual("Star Trek: Discovery", newSeason.ShowName);
+            Assert.AreEqual(14, newSeason.Episodes.Count);
+            Assert.AreEqual("Brother", newSeason.Episodes[0].Name);
+        }
+        private static void AssertSeason3(TvSeason newSeason)
+        {
+            Assert.AreEqual("Star Trek: Discovery", newSeason.ShowName);
+            Assert.AreEqual(13, newSeason.Episodes.Count);
+            Assert.AreEqual("That Hope Is You, Part 1", newSeason.Episodes[0].Name);
         }
         [Test]
         public void IconTest()
