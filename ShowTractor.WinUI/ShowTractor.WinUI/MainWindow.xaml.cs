@@ -1,4 +1,5 @@
-﻿using Microsoft.UI.Xaml;
+﻿using Microsoft.Data.Sqlite;
+using Microsoft.UI.Xaml;
 
 namespace ShowTractor.WinUI
 {
@@ -7,6 +8,13 @@ namespace ShowTractor.WinUI
         public MainWindow()
         {
             InitializeComponent();
+			Closed += MainWindow_Closed;
         }
-    }
+
+		private void MainWindow_Closed(object sender, WindowEventArgs args)
+		{
+			// Closing main window is equivalent to app shutdown.
+			SqliteConnection.ClearAllPools();
+		}
+	}
 }
