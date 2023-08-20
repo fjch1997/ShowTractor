@@ -67,27 +67,8 @@ jobs:
     - name: Setup MSBuild.exe
       uses: microsoft/setup-msbuild@v1
       
-    # Decode the base 64 encoded pfx, save the Signing_Certificate, and import to Windows Certificate Store
-    - name: Decode the pfx
-      if: github.ref == 'refs/heads/master'
-      run: |
-        $pfx_cert_byte = [System.Convert]::FromBase64String("${{ secrets.Base64_Encoded_Pfx }}")
-        $certificatePath = 'GitHubActionsWorkflow.pfx'
-        [IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
-        Import-PfxCertificate -FilePath $certificatePath -CertStoreLocation cert:\\CurrentUser\My -Password (ConvertTo-SecureString '${{ secrets.Pfx_Key }}' -AsPlainText -Force)
-
     - name: build.ps1
       run: .\build.ps1
-      
-    - name: sign.ps1
-      if: github.ref == 'refs/heads/master'
-      run: .\sign.ps1
-      
-    - name: Remove the pfx
-      if: github.ref == 'refs/heads/master'
-      run: |
-        Remove-Item -path GitHubActionsWorkflow.pfx
-        Get-Item cert:\\CurrentUser\My\* -CodeSigning | Remove-Item
       
     - name: Upload build artifacts (arm64)
       uses: actions/upload-artifact@v2
