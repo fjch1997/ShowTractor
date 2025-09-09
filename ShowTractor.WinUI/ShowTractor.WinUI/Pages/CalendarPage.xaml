@@ -55,6 +55,7 @@
                                                     <Grid.ContextFlyout>
                                                         <MenuFlyout>
                                                             <MenuFlyoutItem Text="Copy" Click="MenuFlyoutCopy_Click"/>
+                                                            <MenuFlyoutItem Text="Show in The Pirate Bay" Click="MenuFlyoutShowInThePirateBay_Click"/>
                                                         </MenuFlyout>
                                                     </Grid.ContextFlyout>
                                                     <Grid.ColumnDefinitions>

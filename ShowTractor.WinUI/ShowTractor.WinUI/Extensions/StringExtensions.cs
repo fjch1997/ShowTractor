@@ -1,17 +1,18 @@
 ﻿using System;
+using System.IO;
 using System.Text;
 
 namespace ShowTractor.WinUI.Extensions
 {
     internal static class StringExtensions
     {
-        public static string CompactWhitespaces(this string s)
+        public static string CleanName(this string s)
         {
             StringBuilder sb = new StringBuilder(s);
 
             CompactWhitespaces(sb);
 
-            return sb.ToString();
+            return string.Join(" ", sb.ToString().Split(Path.GetInvalidFileNameChars()));
         }
 
         private static void CompactWhitespaces(StringBuilder sb)

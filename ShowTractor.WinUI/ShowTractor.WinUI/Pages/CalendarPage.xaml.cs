@@ -2,8 +2,9 @@
 using Microsoft.UI.Xaml.Controls;
 using ShowTractor.Pages.Details;
 using ShowTractor.WinUI.Extensions;
-using System.IO;
+using System;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.System;
 
 namespace ShowTractor.WinUI.Pages
 {
@@ -17,10 +18,15 @@ namespace ShowTractor.WinUI.Pages
         private void MenuFlyoutCopy_Click(object sender, RoutedEventArgs e)
         {
             var episode = (CalendarPosterViewModel)((FrameworkElement)sender).DataContext;
-            var cleanShowName = string.Join(" ", episode.ShowName.Split(Path.GetInvalidFileNameChars()));
             var data = new DataPackage();
-            data.SetText((cleanShowName + " " + episode.D2Identifier).CompactWhitespaces());
+            data.SetText((episode.ShowName + " " + episode.D2Identifier).CleanName());
             Clipboard.SetContent(data);
+        }
+        private void MenuFlyoutShowInThePirateBay_Click(object sender, RoutedEventArgs e)
+        {
+            var episode = (CalendarPosterViewModel)((FrameworkElement)sender).DataContext;
+            var query = episode.ShowName + " " + episode.D2Identifier;
+            var _ = Launcher.LaunchUriAsync(new Uri("https://thepiratebay.org/search.php?q=" + Uri.EscapeDataString(query)));
         }
     }
 }
