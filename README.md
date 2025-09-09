@@ -66,3 +66,9 @@ Open Solution in Visual Studio 2022. F5
   - [ ] Download progress shall be displayed.
   - [ ] Cleanup rules can be specified to delete downloaded files.
   - [ ] Automatic download can be configured.
+
+# Local data file
+
+When debugging in Visual Studio, data files are in `%LOCALAPPDATA%\ShowTractor`
+
+When packaged, `%LOCALAPPDATA%\Packages\ff67f6ff-3707-446e-a79d-3e95f4d04f68_d7w9j395gsp6m\LocalCache\Local\ShowTractor`
