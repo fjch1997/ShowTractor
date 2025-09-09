@@ -68,8 +68,9 @@ namespace ShowTractor.Pages.Details
         }
         public string EpisodeName { get => episodeName; set { episodeName = value; OnPropertyChanged(); } }
         private string episodeName;
-        public int EpisodeNumber { get => episodeNumber; set { episodeNumber = value; OnPropertyChanged(); } }
+        public int EpisodeNumber { get => episodeNumber; set { episodeNumber = value; OnPropertyChanged(); OnPropertyChanged(nameof(D2Identifier)); } }
         private int episodeNumber;
+        public string D2Identifier => "S" + Season.ToString("D2") + "E" + EpisodeNumber.ToString("D2");
         public bool ShowCheckbox => settings.ShowCheckboxInCalendarPage && airDate <= DateTime.Now;
         public bool ShowNewIcon => !ShowCheckbox && !Watched && airDate <= DateTime.Now;
         public bool Watched

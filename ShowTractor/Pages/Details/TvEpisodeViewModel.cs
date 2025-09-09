@@ -14,14 +14,13 @@ namespace ShowTractor.Pages.Details
 {
     public class TvEpisodeViewModel : INotifyPropertyChanged
     {
-        private readonly TvSeasonPageViewModel parent;
         private TvEpisode data;
         private readonly HttpClient httpClient;
         private readonly IFactory<Database.ShowTractorDbContext> factory;
 
         internal TvEpisodeViewModel(TvSeasonPageViewModel parent, Guid? seasonId, TvEpisode data, TimeSpan? watchProgress, HttpClient httpClient, IFactory<Database.ShowTractorDbContext> factory)
         {
-            this.parent = parent;
+            Parent = parent;
             SeasonId = seasonId;
             this.data = data;
             this.httpClient = httpClient;
@@ -50,10 +49,12 @@ namespace ShowTractor.Pages.Details
         }
 
         public Guid? SeasonId { get; set; }
+        public TvSeasonPageViewModel Parent { get;private set; }
 
         public string Name { get => data.Name; set { data = data with { Name = value }; OnPropertyChanged(); } }
         public int EpisodeNumber { get => data.EpisodeNumber; set { data = data with { EpisodeNumber = value }; OnPropertyChanged(); } }
         public string Description { get => data.Description; set { data = data with { Description = value }; OnPropertyChanged(); } }
+        public string D2Identifier => "S" + Parent.Season.GetValueOrDefault().ToString("D2") + "E" + EpisodeNumber.ToString("D2");
         public DateTime FirstAirDate { get => data.FirstAirDate; set { data = data with { FirstAirDate = value }; OnPropertyChanged(); OnPropertyChanged(nameof(TagsDisplayText)); OnPropertyChanged(nameof(ShowWatchProgress)); OnPropertyChanged(nameof(Aired)); } }
         public TimeSpan Runtime { get => data.Runtime; set { data = data with { Runtime = value }; OnPropertyChanged(); OnPropertyChanged(nameof(WatchProgressPercentage)); OnPropertyChanged(nameof(ShowWatchProgress)); OnPropertyChanged(nameof(TagsDisplayText)); OnPropertyChanged(nameof(MarkAsWatchedEnabled)); } }
         public TimeSpan WatchProgress { get => watchProgress; set { watchProgress = value; OnPropertyChanged(); OnPropertyChanged(nameof(WatchProgressPercentage)); OnPropertyChanged(nameof(MarkAsWatchedEnabled)); } }
@@ -65,7 +66,7 @@ namespace ShowTractor.Pages.Details
             FirstAirDate == default ? null : FirstAirDate.ToLongDateString(),
             Runtime == default ? null : ((int)Math.Round(Runtime.TotalMinutes) + " minutes"),
         }.Where(s => s != null));
-        public bool ShowWatchProgress => Aired && parent.Following;
+        public bool ShowWatchProgress => Aired && Parent.Following;
         public int WatchProgressPercentage => GetWatchPercentage(Runtime, WatchProgress);
         public bool MarkAsWatchedEnabled => WatchProgressPercentage != 100;
         public bool Aired => new Database.TvEpisode { FirstAirDate = FirstAirDate }.Aired();

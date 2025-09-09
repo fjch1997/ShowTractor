@@ -52,6 +52,11 @@
                                         <ListView.ItemTemplate>
                                             <DataTemplate>
                                                 <Grid>
+                                                    <Grid.ContextFlyout>
+                                                        <MenuFlyout>
+                                                            <MenuFlyoutItem Text="Copy" Click="MenuFlyoutCopy_Click"/>
+                                                        </MenuFlyout>
+                                                    </Grid.ContextFlyout>
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="Auto"/>
                                                         <ColumnDefinition Width="*"/>
@@ -64,15 +69,18 @@
                                                     <Rectangle Grid.RowSpan="2" VerticalAlignment="Stretch" Width="3" Fill="Brown" Margin="0 0 3 0"/>
                                                     <TextBlock
                                                         Grid.Column="1"
-                                                        Text="{Binding ShowName}"
                                                         HorizontalTextAlignment="Left"
-                                                        Style="{StaticResource BaseTextBlockStyle}"/>
+                                                        Style="{StaticResource BaseTextBlockStyle}">
+                                                        <Run Text="{Binding ShowName}"/>
+                                                        <Run Text="{Binding D2Identifier}" FontWeight="Normal" FontSize="10"/>
+                                                    </TextBlock>
                                                     <TextBlock
                                                         Grid.Column="1" 
                                                         Grid.Row="1"
                                                         Text="{Binding EpisodeName}"
                                                         HorizontalTextAlignment="Left" 
-                                                        Style="{StaticResource CaptionTextBlockStyle}"/>
+                                                        Style="{StaticResource CaptionTextBlockStyle}">
+                                                    </TextBlock>
                                                     <CheckBox 
                                                         Grid.Column="2" Grid.RowSpan="2" VerticalAlignment="Center" Padding="0" MinWidth="0" Height="28" MinHeight="28" Margin="0 -6 0 0" 
                                                         Visibility="{Binding ShowCheckbox}" 

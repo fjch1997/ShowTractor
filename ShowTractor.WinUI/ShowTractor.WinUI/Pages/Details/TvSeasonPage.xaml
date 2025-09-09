@@ -90,6 +90,11 @@
                                     </Grid.RowDefinitions>
                                     <Image Grid.RowSpan="2" Source="{x:Bind Artwork, Converter={StaticResource ArtworkToImageSourceConverter}, Mode=OneWay}" Stretch="UniformToFill" />
                                     <StackPanel Grid.Column="1" Grid.RowSpan="2" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="12">
+                                        <StackPanel.ContextFlyout>
+                                            <MenuFlyout>
+                                                <MenuFlyoutItem Text="Copy" Click="MenuFlyoutCopy_Click"/>
+                                            </MenuFlyout>
+                                        </StackPanel.ContextFlyout>
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="Episode" Padding="0 0 3 0" Style="{StaticResource CaptionTextBlockStyle}"/>
                                             <TextBlock Text="{x:Bind EpisodeNumber}" Style="{StaticResource CaptionTextBlockStyle}"/>
