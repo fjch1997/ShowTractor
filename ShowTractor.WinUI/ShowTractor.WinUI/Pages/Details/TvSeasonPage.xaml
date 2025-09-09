@@ -133,7 +133,7 @@
                 </StackPanel>
             </StackPanel>
         </ScrollViewer>
-        <c:HeaderControl x:Name="headerControl" ScrollViewer="{x:Bind scrollViewer}" MaxHeight="{StaticResource HeaderMaxHeight}" VerticalAlignment="Top" HeaderMinHeight="120">
+        <c:HeaderControl x:Name="headerControl" ScrollViewer="{x:Bind scrollViewer}" MaxHeight="{StaticResource HeaderMaxHeight}" VerticalAlignment="Top" HeaderMinHeight="123">
             <Rectangle x:Name="WideBackground" IsHitTestVisible="False">
                 <Rectangle.Fill>
                     <AcrylicBrush TintOpacity="0.9" TintColor="#FF000000" FallbackColor="SaddleBrown"/>
@@ -159,7 +159,13 @@
                             <b:ScrollViewerHeaderBehavior ScrollHeight="180" MaximumFontSize="46" MinimumFontSize="36" ScrollViewer="{x:Bind scrollViewer}"/>
                         </i:Interaction.Behaviors>
                     </TextBlock>
-                    <TextBlock Style="{StaticResource BaseTextBlockStyle}" Foreground="White" Text="{x:Bind ((vm:TvSeasonPageViewModel)grid.DataContext).TagsDisplayText, Mode=OneWay}"/>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Style="{StaticResource BaseTextBlockStyle}" Foreground="White" Text="{x:Bind ((vm:TvSeasonPageViewModel)grid.DataContext).TagsDisplayText, Mode=OneWay}"/>
+                        <Grid Background="DarkOrange" HorizontalAlignment="Left" Padding="5 2" CornerRadius="3" Margin="5 0"
+                              Visibility="{x:Bind ((vm:TvSeasonPageViewModel)grid.DataContext).ShowFinale, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+                            <TextBlock Foreground="White" Text="Series Finale" FontSize="12" FontWeight="Bold"/>
+                        </Grid>
+                    </StackPanel>
                     <TextBlock Style="{StaticResource BodyTextBlockStyle}" Foreground="White" Text="{x:Bind ((vm:TvSeasonPageViewModel)grid.DataContext).SeasonDescription, Mode=OneWay}"/>
                 </StackPanel>
                 <Border x:Name="commandBarBorder" Grid.Column="1" Grid.Row="1">

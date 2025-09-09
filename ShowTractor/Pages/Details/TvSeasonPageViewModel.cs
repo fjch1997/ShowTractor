@@ -63,6 +63,8 @@ namespace ShowTractor.Pages.Details
         private string showDescription = string.Empty;
         public string SeasonDescription { get => seasonDescription; set { seasonDescription = value; OnPropertyChanged(); } }
         private string seasonDescription = string.Empty;
+        public bool ShowFinale { get => showFinale; set { showFinale = value; OnPropertyChanged(); } }
+        private bool showFinale;
         public Artwork Artwork { get => artwork; set { artwork = value; OnPropertyChanged(); } }
         private Artwork artwork = new TvSeasonDefaultArtwork();
         public ObservableCollection<TvEpisodeViewModel> Episodes
@@ -301,6 +303,7 @@ namespace ShowTractor.Pages.Details
             Ratings = data.Ratings;
             ShowDescription = data.ShowDescription;
             SeasonDescription = data.SeasonDescription;
+            ShowFinale = data.ShowFinale;
             if (artwork != null)
                 Artwork = artwork;
 
