@@ -23,4 +23,4 @@ foreach ($msixFile in Get-ChildItem "ShowTractor.WinUI\ShowTractor.WinUI (Packag
     SignTool sign /a /v /fd SHA256 /tr http://timestamp.sectigo.com /td SHA256 /sha1 $certificate.Thumbprint $msixPath
 }
 # Sign plugins
-Set-AuthenticodeSignature -Certificate $certificate -TimestampServer http://timestamp.sectigo.com -FilePath ShowTractor.Plugins.Tmdb\bin\Release\net6.0\ShowTractor.Plugins.Tmdb.dll
+Set-AuthenticodeSignature -Certificate $certificate -TimestampServer http://timestamp.sectigo.com -FilePath ShowTractor.Plugins.Tmdb\bin\Release\net8.0\ShowTractor.Plugins.Tmdb.dll
