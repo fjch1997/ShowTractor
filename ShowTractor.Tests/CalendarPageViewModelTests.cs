@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using ShowTractor.Interfaces;
 using ShowTractor.Pages;
 using ShowTractor.Plugins.Interfaces;
@@ -72,16 +73,16 @@ namespace ShowTractor.Tests
             var vm = (CalendarDayViewModel)subject.CalendarDayItemDataContextProvider(DateTime.SpecifyKind(testSeason.Episodes[0].FirstAirDate, DateTimeKind.Utc));
             await WaitForViewModelToLoadAsync(vm);
             var episode = (vm.TvEpisodes ?? throw new Exception()).First(e => e.Season == testSeason.Season && e.ShowName == testSeason.ShowName && e.EpisodeNumber == testSeason.Episodes[0].EpisodeNumber);
-            Assert.That(episode.Watched, Is.EqualTo(watched));
+            ClassicAssert.That(episode.Watched, Is.EqualTo(watched));
             episode.Watched = !watched;
             await ((Func<bool>)(() => !episode.Loading)).WaitForTrueAsync();
-            Assert.That(episode.Watched, Is.EqualTo(!watched));
+            ClassicAssert.That(episode.Watched, Is.EqualTo(!watched));
             using var context = factory.Get();
             var dbEpisode = ((IQueryable<Database.TvEpisode>)context.TvEpisodes).First(e => e.TvSeason.Season == testSeason.Season && e.TvSeason.ShowName == testSeason.ShowName && e.EpisodeNumber == testSeason.Episodes[0].EpisodeNumber);
             if (watched)
-                Assert.That(dbEpisode.WatchProgress, Is.EqualTo(TimeSpan.Zero));
+                ClassicAssert.That(dbEpisode.WatchProgress, Is.EqualTo(TimeSpan.Zero));
             else
-                Assert.That(dbEpisode.WatchProgress, Is.GreaterThanOrEqualTo(dbEpisode.Runtime));
+                ClassicAssert.That(dbEpisode.WatchProgress, Is.GreaterThanOrEqualTo(dbEpisode.Runtime));
         }
         private async Task AssertTvSeasonAsync(TvSeason season, bool shouldExist)
         {
@@ -91,7 +92,7 @@ namespace ShowTractor.Tests
                     continue;
                 var vm = (CalendarDayViewModel)subject.CalendarDayItemDataContextProvider(episode.FirstAirDate);
                 await WaitForViewModelToLoadAsync(vm);
-                Assert.AreEqual(shouldExist, vm.TvEpisodes?.Any(e => e.EpisodeName == episode.Name && e.EpisodeNumber == episode.EpisodeNumber && e.Season == season.Season && e.ShowName == season.ShowName));
+                ClassicAssert.AreEqual(shouldExist, vm.TvEpisodes?.Any(e => e.EpisodeName == episode.Name && e.EpisodeNumber == episode.EpisodeNumber && e.Season == season.Season && e.ShowName == season.ShowName));
             }
         }
         private static async Task WaitForViewModelToLoadAsync(CalendarDayViewModel vm)

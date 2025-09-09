@@ -4,7 +4,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:b="using:ShowTractor.WinUI.Behaviors"
     xmlns:c="using:ShowTractor.WinUI.Controls"
-    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:e="using:ShowTractor.WinUI.Extensions"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:local="using:ShowTractor.WinUI.Pages.Details"
@@ -41,9 +40,9 @@
                                 <Grid Margin="0 30 0 0" d:DataContext="{d:DesignInstance Type=vm:CalendarDayViewModel}">
                                     <ListView IsItemClickEnabled="True" ScrollViewer.VerticalScrollBarVisibility="Hidden" ItemsSource="{Binding TvEpisodes}">
                                         <i:Interaction.Behaviors>
-                                            <core:EventTriggerBehavior EventName="ItemClick">
+                                            <i:EventTriggerBehavior EventName="ItemClick">
                                                 <b:NavigateToPageAction TargetPageType="local:TvSeasonPage"/>
-                                            </core:EventTriggerBehavior>
+                                            </i:EventTriggerBehavior>
                                         </i:Interaction.Behaviors>
                                         <ListView.ItemContainerStyle>
                                             <Style TargetType="ListViewItem">

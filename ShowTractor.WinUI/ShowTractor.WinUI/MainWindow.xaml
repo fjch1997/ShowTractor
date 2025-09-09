@@ -3,7 +3,6 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:b="using:ShowTractor.WinUI.Behaviors"
-    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:e="using:ShowTractor.WinUI.Extensions"
     xmlns:p="using:ShowTractor.WinUI.Pages"
     xmlns:s="using:ShowTractor.WinUI.Pages.Settings"
@@ -26,9 +25,9 @@
         <NavigationView.AutoSuggestBox>
             <AutoSuggestBox x:Name="autoSuggestBox" MinWidth="200" QueryIcon="Find">
                 <i:Interaction.Behaviors>
-                    <core:EventTriggerBehavior EventName="QuerySubmitted">
+                    <i:EventTriggerBehavior EventName="QuerySubmitted">
                         <b:NavigateToPageAction Frame="{x:Bind frame}" TargetPageType="p:SearchPage" Parameter="{x:Bind autoSuggestBox.Text, Mode=OneWay}"/>
-                    </core:EventTriggerBehavior>
+                    </i:EventTriggerBehavior>
                 </i:Interaction.Behaviors>
             </AutoSuggestBox>
         </NavigationView.AutoSuggestBox>

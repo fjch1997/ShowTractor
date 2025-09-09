@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using ShowTractor.Interfaces;
 using ShowTractor.Pages;
 using ShowTractor.Pages.Details;
@@ -65,13 +66,13 @@ namespace ShowTractor.Tests
         {
             var libraryVm = subject.AllFollowed;
             await libraryVm.WaitForLoadingAsync();
-            Assert.That(libraryVm.ErrorMessage, Is.Empty);
+            ClassicAssert.That(libraryVm.ErrorMessage, Is.Empty);
             if (libraryVm.View == null) throw new AssertionException($"{nameof(libraryVm.View)} is null.");
-            Assert.That(((IEnumerable<PosterViewModel>)libraryVm.View).Count(), Is.EqualTo(4));
+            ClassicAssert.That(((IEnumerable<PosterViewModel>)libraryVm.View).Count(), Is.EqualTo(4));
             foreach (var season in (IEnumerable<PosterViewModel>)libraryVm.View)
             {
-                Assert.That(season.ShowName + season.Season, Is.AnyOf(TestTvSeason1.ShowName + TestTvSeason1.Season, TestTvSeason2.ShowName + TestTvSeason2.Season, TestTvSeason3.ShowName + TestTvSeason3.Season, TestTvSeason4.ShowName + TestTvSeason4.Season));
-                Assert.That(season.ShowName + season.Season, Is.Not.AnyOf(TestTvSeason5.ShowName + TestTvSeason5.Season, TestTvSeason6.ShowName + TestTvSeason6.Season));
+                ClassicAssert.That(season.ShowName + season.Season, Is.AnyOf(TestTvSeason1.ShowName + TestTvSeason1.Season, TestTvSeason2.ShowName + TestTvSeason2.Season, TestTvSeason3.ShowName + TestTvSeason3.Season, TestTvSeason4.ShowName + TestTvSeason4.Season));
+                ClassicAssert.That(season.ShowName + season.Season, Is.Not.AnyOf(TestTvSeason5.ShowName + TestTvSeason5.Season, TestTvSeason6.ShowName + TestTvSeason6.Season));
             }
         }
         [TestCase]
@@ -79,13 +80,13 @@ namespace ShowTractor.Tests
         {
             var libraryVm = subject.CurrentShows;
             await libraryVm.WaitForLoadingAsync();
-            Assert.That(libraryVm.ErrorMessage, Is.Empty);
+            ClassicAssert.That(libraryVm.ErrorMessage, Is.Empty);
             if (libraryVm.View == null) throw new AssertionException($"{nameof(libraryVm.View)} is null.");
-            Assert.That(((IEnumerable<PosterViewModel>)libraryVm.View).Count(), Is.EqualTo(3));
+            ClassicAssert.That(((IEnumerable<PosterViewModel>)libraryVm.View).Count(), Is.EqualTo(3));
             foreach (var season in (IEnumerable<PosterViewModel>)libraryVm.View)
             {
-                Assert.That(season.ShowName + season.Season, Is.AnyOf(TestTvSeason1.ShowName + TestTvSeason1.Season, TestTvSeason2.ShowName + TestTvSeason2.Season, TestTvSeason3.ShowName + TestTvSeason3.Season));
-                Assert.That(season.ShowName + season.Season, Is.Not.AnyOf(TestTvSeason4.ShowName + TestTvSeason4.Season, TestTvSeason5.ShowName + TestTvSeason5.Season, TestTvSeason6.ShowName + TestTvSeason6.Season));
+                ClassicAssert.That(season.ShowName + season.Season, Is.AnyOf(TestTvSeason1.ShowName + TestTvSeason1.Season, TestTvSeason2.ShowName + TestTvSeason2.Season, TestTvSeason3.ShowName + TestTvSeason3.Season));
+                ClassicAssert.That(season.ShowName + season.Season, Is.Not.AnyOf(TestTvSeason4.ShowName + TestTvSeason4.Season, TestTvSeason5.ShowName + TestTvSeason5.Season, TestTvSeason6.ShowName + TestTvSeason6.Season));
             }
         }
         [TestCase]
@@ -93,13 +94,13 @@ namespace ShowTractor.Tests
         {
             var libraryVm = subject.EndedShows;
             await libraryVm.WaitForLoadingAsync();
-            Assert.That(libraryVm.ErrorMessage, Is.Empty);
+            ClassicAssert.That(libraryVm.ErrorMessage, Is.Empty);
             if (libraryVm.View == null) throw new AssertionException($"{nameof(libraryVm.View)} is null.");
-            Assert.That(((IEnumerable<PosterViewModel>)libraryVm.View).Count(), Is.EqualTo(1));
+            ClassicAssert.That(((IEnumerable<PosterViewModel>)libraryVm.View).Count(), Is.EqualTo(1));
             foreach (var season in (IEnumerable<PosterViewModel>)libraryVm.View)
             {
-                Assert.That(season.ShowName + season.Season, Is.AnyOf(TestTvSeason4.ShowName + TestTvSeason4.Season));
-                Assert.That(season.ShowName + season.Season, Is.Not.AnyOf(TestTvSeason1.ShowName + TestTvSeason1.Season, TestTvSeason2.ShowName + TestTvSeason2.Season, TestTvSeason3.ShowName + TestTvSeason3.Season, TestTvSeason5.ShowName + TestTvSeason5.Season, TestTvSeason6.ShowName + TestTvSeason6.Season));
+                ClassicAssert.That(season.ShowName + season.Season, Is.AnyOf(TestTvSeason4.ShowName + TestTvSeason4.Season));
+                ClassicAssert.That(season.ShowName + season.Season, Is.Not.AnyOf(TestTvSeason1.ShowName + TestTvSeason1.Season, TestTvSeason2.ShowName + TestTvSeason2.Season, TestTvSeason3.ShowName + TestTvSeason3.Season, TestTvSeason5.ShowName + TestTvSeason5.Season, TestTvSeason6.ShowName + TestTvSeason6.Season));
             }
         }
         [TestCase]
@@ -107,13 +108,13 @@ namespace ShowTractor.Tests
         {
             var libraryVm = subject.Unfollowed;
             await libraryVm.WaitForLoadingAsync();
-            Assert.That(libraryVm.ErrorMessage, Is.Empty);
+            ClassicAssert.That(libraryVm.ErrorMessage, Is.Empty);
             if (libraryVm.View == null) throw new AssertionException($"{nameof(libraryVm.View)} is null.");
-            Assert.That(((IEnumerable<PosterViewModel>)libraryVm.View).Count(), Is.EqualTo(2));
+            ClassicAssert.That(((IEnumerable<PosterViewModel>)libraryVm.View).Count(), Is.EqualTo(2));
             foreach (var season in (IEnumerable<PosterViewModel>)libraryVm.View)
             {
-                Assert.That(season.ShowName + season.Season, Is.AnyOf(TestTvSeason5.ShowName + TestTvSeason5.Season, TestTvSeason6.ShowName + TestTvSeason6.Season));
-                Assert.That(season.ShowName + season.Season, Is.Not.AnyOf(TestTvSeason3.ShowName + TestTvSeason3.Season, TestTvSeason4.ShowName + TestTvSeason4.Season, TestTvSeason1.ShowName + TestTvSeason1.Season, TestTvSeason2.ShowName + TestTvSeason2.Season));
+                ClassicAssert.That(season.ShowName + season.Season, Is.AnyOf(TestTvSeason5.ShowName + TestTvSeason5.Season, TestTvSeason6.ShowName + TestTvSeason6.Season));
+                ClassicAssert.That(season.ShowName + season.Season, Is.Not.AnyOf(TestTvSeason3.ShowName + TestTvSeason3.Season, TestTvSeason4.ShowName + TestTvSeason4.Season, TestTvSeason1.ShowName + TestTvSeason1.Season, TestTvSeason2.ShowName + TestTvSeason2.Season));
             }
         }
     }

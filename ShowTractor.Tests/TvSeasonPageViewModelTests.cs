@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using ShowTractor.Database.Extensions;
 using ShowTractor.Interfaces;
 using ShowTractor.Pages.Details;
@@ -100,22 +101,22 @@ namespace ShowTractor.Tests
             provider.TestTvSeason = testSeason;
             subject.Parameter = parameter;
             await WaitForLoadingAsync();
-            Assert.IsTrue(subject.MarkSeasonAsWatchedEnabled);
-            Assert.IsFalse(subject.MarkSeasonAsUnwatchedEnabled);
+            ClassicAssert.IsTrue(subject.MarkSeasonAsWatchedEnabled);
+            ClassicAssert.IsFalse(subject.MarkSeasonAsUnwatchedEnabled);
             AssertTestTvSeason(testSeason);
             AssertDatabase(testSeason);
             await subject.MarkSeasonAsWatched.ExecuteAsync(null);
-            Assert.IsFalse(subject.MarkSeasonAsWatchedEnabled);
-            Assert.IsTrue(subject.MarkSeasonAsUnwatchedEnabled);
+            ClassicAssert.IsFalse(subject.MarkSeasonAsWatchedEnabled);
+            ClassicAssert.IsTrue(subject.MarkSeasonAsUnwatchedEnabled);
             using var context = factory.Get();
             var dbSeason = GetTvSeasonFromDb(context, testSeason);
             for (int i = 0; i < subject.Episodes.Count; i++)
             {
                 if (subject.Episodes[i].Aired)
                 {
-                    Assert.AreEqual(100, subject.Episodes[i].WatchProgressPercentage);
-                    Assert.AreEqual(TimeSpan.MaxValue, subject.Episodes[i].WatchProgress);
-                    Assert.AreEqual(TimeSpan.MaxValue, (dbSeason.Episodes ?? throw new Exception())[i].WatchProgress);
+                    ClassicAssert.AreEqual(100, subject.Episodes[i].WatchProgressPercentage);
+                    ClassicAssert.AreEqual(TimeSpan.MaxValue, subject.Episodes[i].WatchProgress);
+                    ClassicAssert.AreEqual(TimeSpan.MaxValue, (dbSeason.Episodes ?? throw new Exception())[i].WatchProgress);
                 }
             }
         }
@@ -136,13 +137,13 @@ namespace ShowTractor.Tests
             }
             subject.Parameter = parameter;
             await WaitForLoadingAsync();
-            Assert.IsFalse(subject.MarkSeasonAsWatchedEnabled);
-            Assert.IsTrue(subject.MarkSeasonAsUnwatchedEnabled);
+            ClassicAssert.IsFalse(subject.MarkSeasonAsWatchedEnabled);
+            ClassicAssert.IsTrue(subject.MarkSeasonAsUnwatchedEnabled);
             AssertTestTvSeason(testSeason);
             AssertDatabase(testSeason);
             await subject.MarkSeasonAsUnwatched.ExecuteAsync(null);
-            Assert.IsFalse(subject.MarkSeasonAsUnwatchedEnabled);
-            Assert.IsTrue(subject.MarkSeasonAsWatchedEnabled);
+            ClassicAssert.IsFalse(subject.MarkSeasonAsUnwatchedEnabled);
+            ClassicAssert.IsTrue(subject.MarkSeasonAsWatchedEnabled);
             using (var context = factory.Get())
             {
                 var dbSeason = GetTvSeasonFromDb(context, testSeason);
@@ -150,9 +151,9 @@ namespace ShowTractor.Tests
                 {
                     if (subject.Episodes[i].Aired)
                     {
-                        Assert.AreEqual(0, subject.Episodes[i].WatchProgressPercentage);
-                        Assert.AreEqual(TimeSpan.Zero, subject.Episodes[i].WatchProgress);
-                        Assert.AreEqual(TimeSpan.Zero, (dbSeason.Episodes ?? throw new Exception())[i].WatchProgress);
+                        ClassicAssert.AreEqual(0, subject.Episodes[i].WatchProgressPercentage);
+                        ClassicAssert.AreEqual(TimeSpan.Zero, subject.Episodes[i].WatchProgress);
+                        ClassicAssert.AreEqual(TimeSpan.Zero, (dbSeason.Episodes ?? throw new Exception())[i].WatchProgress);
                     }
                 }
             }
@@ -165,18 +166,18 @@ namespace ShowTractor.Tests
             provider.TestTvSeason = testSeason;
             subject.Parameter = parameter;
             await WaitForLoadingAsync();
-            Assert.IsTrue(subject.MarkSeasonAsWatchedEnabled);
-            Assert.IsFalse(subject.MarkSeasonAsUnwatchedEnabled);
+            ClassicAssert.IsTrue(subject.MarkSeasonAsWatchedEnabled);
+            ClassicAssert.IsFalse(subject.MarkSeasonAsUnwatchedEnabled);
             AssertTestTvSeason(testSeason);
             AssertDatabase(testSeason);
             await subject.Episodes[0].MarkAsWatched.ExecuteAsync(null);
             using var context = factory.Get();
             var dbSeason = GetTvSeasonFromDb(context, testSeason);
-            Assert.AreEqual(100, subject.Episodes[0].WatchProgressPercentage);
-            Assert.AreEqual(TimeSpan.MaxValue, subject.Episodes[0].WatchProgress);
-            Assert.AreEqual(TimeSpan.MaxValue, (dbSeason.Episodes ?? throw new Exception())[0].WatchProgress);
-            Assert.IsTrue(subject.MarkSeasonAsWatchedEnabled);
-            Assert.IsTrue(subject.MarkSeasonAsUnwatchedEnabled);
+            ClassicAssert.AreEqual(100, subject.Episodes[0].WatchProgressPercentage);
+            ClassicAssert.AreEqual(TimeSpan.MaxValue, subject.Episodes[0].WatchProgress);
+            ClassicAssert.AreEqual(TimeSpan.MaxValue, (dbSeason.Episodes ?? throw new Exception())[0].WatchProgress);
+            ClassicAssert.IsTrue(subject.MarkSeasonAsWatchedEnabled);
+            ClassicAssert.IsTrue(subject.MarkSeasonAsUnwatchedEnabled);
         }
         [Test]
         public async Task MarkEpisodeAsUnwatchedTestAsync([Values("67198", null)] string uniqueId, [Values(TestHttpMessageHandler.ImageUrl, null)] string artworkUrl)
@@ -192,19 +193,19 @@ namespace ShowTractor.Tests
             }
             subject.Parameter = parameter;
             await WaitForLoadingAsync();
-            Assert.IsTrue(subject.MarkSeasonAsWatchedEnabled);
-            Assert.IsTrue(subject.MarkSeasonAsUnwatchedEnabled);
+            ClassicAssert.IsTrue(subject.MarkSeasonAsWatchedEnabled);
+            ClassicAssert.IsTrue(subject.MarkSeasonAsUnwatchedEnabled);
             AssertTestTvSeason(testSeason);
             AssertDatabase(testSeason);
             await subject.Episodes[0].MarkAsUnwatched.ExecuteAsync(null);
             using (var context = factory.Get())
             {
                 var dbSeason = GetTvSeasonFromDb(context, testSeason);
-                Assert.AreEqual(0, subject.Episodes[0].WatchProgressPercentage);
-                Assert.AreEqual(TimeSpan.Zero, subject.Episodes[0].WatchProgress);
-                Assert.AreEqual(TimeSpan.Zero, (dbSeason.Episodes ?? throw new Exception())[0].WatchProgress);
-                Assert.IsTrue(subject.MarkSeasonAsWatchedEnabled);
-                Assert.IsFalse(subject.MarkSeasonAsUnwatchedEnabled);
+                ClassicAssert.AreEqual(0, subject.Episodes[0].WatchProgressPercentage);
+                ClassicAssert.AreEqual(TimeSpan.Zero, subject.Episodes[0].WatchProgress);
+                ClassicAssert.AreEqual(TimeSpan.Zero, (dbSeason.Episodes ?? throw new Exception())[0].WatchProgress);
+                ClassicAssert.IsTrue(subject.MarkSeasonAsWatchedEnabled);
+                ClassicAssert.IsFalse(subject.MarkSeasonAsUnwatchedEnabled);
             }
         }
         [Test]
@@ -235,10 +236,10 @@ namespace ShowTractor.Tests
                 {
                     if (viewModel)
                     {
-                        Assert.AreEqual(watched ? 0 : 100, subject.Episodes[i].WatchProgressPercentage);
-                        Assert.AreEqual(watched ? TimeSpan.Zero : TimeSpan.MaxValue, subject.Episodes[i].WatchProgress);
+                        ClassicAssert.AreEqual(watched ? 0 : 100, subject.Episodes[i].WatchProgressPercentage);
+                        ClassicAssert.AreEqual(watched ? TimeSpan.Zero : TimeSpan.MaxValue, subject.Episodes[i].WatchProgress);
                     }
-                    Assert.AreEqual(watched ? TimeSpan.Zero : TimeSpan.MaxValue, (dbSeason.Episodes ?? throw new Exception())[i].WatchProgress);
+                    ClassicAssert.AreEqual(watched ? TimeSpan.Zero : TimeSpan.MaxValue, (dbSeason.Episodes ?? throw new Exception())[i].WatchProgress);
                 }
             }
         }
@@ -247,11 +248,11 @@ namespace ShowTractor.Tests
             using var context = factory.Get();
             var dbSeason = GetTvSeasonFromDb(context, tvSeason);
 
-            Assert.AreEqual(tvSeason.Episodes.Count, (dbSeason.Episodes ?? throw new Exception()).Count);
-            Assert.AreEqual(tvSeason.Season, dbSeason.Season);
-            Assert.AreEqual(tvSeason.SeasonDescription, dbSeason.SeasonDescription);
-            Assert.AreEqual(tvSeason.ShowDescription, dbSeason.ShowDescription);
-            Assert.AreEqual(tvSeason.ShowName, dbSeason.ShowName);
+            ClassicAssert.AreEqual(tvSeason.Episodes.Count, (dbSeason.Episodes ?? throw new Exception()).Count);
+            ClassicAssert.AreEqual(tvSeason.Season, dbSeason.Season);
+            ClassicAssert.AreEqual(tvSeason.SeasonDescription, dbSeason.SeasonDescription);
+            ClassicAssert.AreEqual(tvSeason.ShowDescription, dbSeason.ShowDescription);
+            ClassicAssert.AreEqual(tvSeason.ShowName, dbSeason.ShowName);
         }
         private static Database.TvSeason GetTvSeasonFromDb(Database.ShowTractorDbContext context, TvSeason tvSeason)
         {
@@ -278,32 +279,32 @@ namespace ShowTractor.Tests
         }
         private async Task TestFollowingAsync(TvSeason tvSeason)
         {
-            Assert.IsFalse(subject.Following);
+            ClassicAssert.IsFalse(subject.Following);
             await subject.FollowCommand.ExecuteAsync(null);
             using (var context = factory.Get())
             {
                 var dbSeason = context.TvSeasons.First();
-                Assert.IsTrue(dbSeason.Following);
-                Assert.AreEqual(tvSeason.ShowName, dbSeason.ShowName);
-                Assert.AreEqual(context.TvEpisodes.Count(), tvSeason.Episodes.Count);
-                Assert.AreEqual(context.TvSeasons.First().DateFollowed, DateTime.Today);
+                ClassicAssert.IsTrue(dbSeason.Following);
+                ClassicAssert.AreEqual(tvSeason.ShowName, dbSeason.ShowName);
+                ClassicAssert.AreEqual(context.TvEpisodes.Count(), tvSeason.Episodes.Count);
+                ClassicAssert.AreEqual(context.TvSeasons.First().DateFollowed, DateTime.Today);
                 await subject.UnfollowCommand.ExecuteAsync(null);
                 await WaitForPropertyAsync(nameof(subject.Following));
             }
-            Assert.IsFalse(subject.Following);
+            ClassicAssert.IsFalse(subject.Following);
             using (var context = factory.Get())
             {
-                Assert.IsFalse(context.TvSeasons.First().Following);
+                ClassicAssert.IsFalse(context.TvSeasons.First().Following);
             }
         }
         private void AssertTestTvSeason(TvSeason tvSeason)
         {
-            Assert.IsTrue(string.IsNullOrEmpty(subject.ErrorMessage), subject.ErrorMessage);
-            Assert.AreEqual(tvSeason.Episodes.Count, subject.Episodes.Count);
-            Assert.AreEqual(tvSeason.Season, subject.Season);
-            Assert.AreEqual(tvSeason.SeasonDescription, subject.SeasonDescription);
-            Assert.AreEqual(tvSeason.ShowDescription, subject.ShowDescription);
-            Assert.AreEqual(tvSeason.ShowName, subject.ShowName);
+            ClassicAssert.IsTrue(string.IsNullOrEmpty(subject.ErrorMessage), subject.ErrorMessage);
+            ClassicAssert.AreEqual(tvSeason.Episodes.Count, subject.Episodes.Count);
+            ClassicAssert.AreEqual(tvSeason.Season, subject.Season);
+            ClassicAssert.AreEqual(tvSeason.SeasonDescription, subject.SeasonDescription);
+            ClassicAssert.AreEqual(tvSeason.ShowDescription, subject.ShowDescription);
+            ClassicAssert.AreEqual(tvSeason.ShowName, subject.ShowName);
         }
         private async Task WaitForLoadingAsync()
         {

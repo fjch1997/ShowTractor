@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using ShowTractor.Interfaces;
 using ShowTractor.Pages;
 using ShowTractor.Pages.Details;
@@ -76,18 +77,18 @@ namespace ShowTractor.Tests
         {
             var libraryVm = subject.LibraryViewModel;
             await libraryVm.WaitForLoadingAsync();
-            Assert.That(libraryVm.ErrorMessage, Is.Empty);
-            Assert.That(((IEnumerable<PosterViewModel>?)libraryVm.View)?.Count(), Is.EqualTo(2));
+            ClassicAssert.That(libraryVm.ErrorMessage, Is.Empty);
+            ClassicAssert.That(((IEnumerable<PosterViewModel>?)libraryVm.View)?.Count(), Is.EqualTo(2));
             if (libraryVm.View == null) throw new Exception($"{nameof(libraryVm.View)} is null.");
             foreach (var season in (IEnumerable<PosterViewModel>)libraryVm.View)
             {
-                Assert.That(season.Unwatched, Is.EqualTo(2));
-                Assert.That(season.ShowUnwatched, Is.True);
-                Assert.That(season.ShowName, Is.AnyOf(TestTvSeason1.ShowName, TestTvSeason2.ShowName));
-                Assert.That(season.Season, Is.AnyOf(TestTvSeason1.Season, TestTvSeason2.Season));
+                ClassicAssert.That(season.Unwatched, Is.EqualTo(2));
+                ClassicAssert.That(season.ShowUnwatched, Is.True);
+                ClassicAssert.That(season.ShowName, Is.AnyOf(TestTvSeason1.ShowName, TestTvSeason2.ShowName));
+                ClassicAssert.That(season.Season, Is.AnyOf(TestTvSeason1.Season, TestTvSeason2.Season));
             }
             await ((Func<bool>)(() => subject.TotalTimeUnwatched != TimeSpan.Zero)).WaitForTrueAsync();
-            Assert.That(subject.TotalTimeUnwatched.TotalMinutes, Is.EqualTo(168D).Within(1D));
+            ClassicAssert.That(subject.TotalTimeUnwatched.TotalMinutes, Is.EqualTo(168D).Within(1D));
         }
         [Test]
         public async Task TotalTimeUnwatchedDisplayTextTestAsync()
@@ -97,50 +98,50 @@ namespace ShowTractor.Tests
             await libraryVm.WaitForLoadingAsync();
             await ((Func<bool>)(() => subject.TotalTimeUnwatched != TimeSpan.Zero)).WaitForTrueAsync();
             subject.TotalTimeUnwatched = TimeSpan.FromMinutes(30);
-            Assert.That(subject.TotalTimeUnwatchedDisplayText, Is.Empty);
+            ClassicAssert.That(subject.TotalTimeUnwatchedDisplayText, Is.Empty);
             subject.TotalTimeUnwatched = TimeSpan.FromHours(1.3);
-            Assert.That(subject.TotalTimeUnwatchedDisplayText, Is.EqualTo("1 hour"));
+            ClassicAssert.That(subject.TotalTimeUnwatchedDisplayText, Is.EqualTo("1 hour"));
             subject.TotalTimeUnwatched = TimeSpan.FromHours(2);
-            Assert.That(subject.TotalTimeUnwatchedDisplayText, Is.EqualTo("2 hours"));
+            ClassicAssert.That(subject.TotalTimeUnwatchedDisplayText, Is.EqualTo("2 hours"));
             subject.TotalTimeUnwatched = TimeSpan.FromHours(2.3);
-            Assert.That(subject.TotalTimeUnwatchedDisplayText, Is.EqualTo("2 hours"));
+            ClassicAssert.That(subject.TotalTimeUnwatchedDisplayText, Is.EqualTo("2 hours"));
 
             subject.TotalTimeUnwatched = TimeSpan.FromDays(1).Add(TimeSpan.FromHours(0.5));
-            Assert.That(subject.TotalTimeUnwatchedDisplayText, Is.EqualTo("1 day"));
+            ClassicAssert.That(subject.TotalTimeUnwatchedDisplayText, Is.EqualTo("1 day"));
             subject.TotalTimeUnwatched = TimeSpan.FromDays(1).Add(TimeSpan.FromHours(1.3));
-            Assert.That(subject.TotalTimeUnwatchedDisplayText, Is.EqualTo("1 day, 1 hour"));
+            ClassicAssert.That(subject.TotalTimeUnwatchedDisplayText, Is.EqualTo("1 day, 1 hour"));
             subject.TotalTimeUnwatched = TimeSpan.FromDays(1).Add(TimeSpan.FromHours(2.3));
-            Assert.That(subject.TotalTimeUnwatchedDisplayText, Is.EqualTo("1 day, 2 hours"));
+            ClassicAssert.That(subject.TotalTimeUnwatchedDisplayText, Is.EqualTo("1 day, 2 hours"));
 
             subject.TotalTimeUnwatched = TimeSpan.FromDays(30).Add(TimeSpan.FromMinutes(0.5));
-            Assert.That(subject.TotalTimeUnwatchedDisplayText, Is.EqualTo("1 month"));
+            ClassicAssert.That(subject.TotalTimeUnwatchedDisplayText, Is.EqualTo("1 month"));
             subject.TotalTimeUnwatched = TimeSpan.FromDays(30).Add(TimeSpan.FromHours(0.5));
-            Assert.That(subject.TotalTimeUnwatchedDisplayText, Is.EqualTo("1 month"));
+            ClassicAssert.That(subject.TotalTimeUnwatchedDisplayText, Is.EqualTo("1 month"));
             subject.TotalTimeUnwatched = TimeSpan.FromDays(30).Add(TimeSpan.FromHours(2.5));
-            Assert.That(subject.TotalTimeUnwatchedDisplayText, Is.EqualTo("1 month, 2 hours"));
+            ClassicAssert.That(subject.TotalTimeUnwatchedDisplayText, Is.EqualTo("1 month, 2 hours"));
             subject.TotalTimeUnwatched = TimeSpan.FromDays(30).Add(TimeSpan.FromDays(1)).Add(TimeSpan.FromHours(2.5));
-            Assert.That(subject.TotalTimeUnwatchedDisplayText, Is.EqualTo("1 month, 1 day, 2 hours"));
+            ClassicAssert.That(subject.TotalTimeUnwatchedDisplayText, Is.EqualTo("1 month, 1 day, 2 hours"));
             subject.TotalTimeUnwatched = TimeSpan.FromDays(30).Add(TimeSpan.FromDays(2)).Add(TimeSpan.FromHours(2.5));
-            Assert.That(subject.TotalTimeUnwatchedDisplayText, Is.EqualTo("1 month, 2 days, 2 hours"));
+            ClassicAssert.That(subject.TotalTimeUnwatchedDisplayText, Is.EqualTo("1 month, 2 days, 2 hours"));
             subject.TotalTimeUnwatched = TimeSpan.FromDays(60).Add(TimeSpan.FromDays(2)).Add(TimeSpan.FromHours(2.5));
-            Assert.That(subject.TotalTimeUnwatchedDisplayText, Is.EqualTo("2 months, 2 days, 2 hours"));
+            ClassicAssert.That(subject.TotalTimeUnwatchedDisplayText, Is.EqualTo("2 months, 2 days, 2 hours"));
 
             subject.TotalTimeUnwatched = TimeSpan.FromDays(365).Add(TimeSpan.FromHours(0.5));
-            Assert.That(subject.TotalTimeUnwatchedDisplayText, Is.EqualTo("1 year"));
+            ClassicAssert.That(subject.TotalTimeUnwatchedDisplayText, Is.EqualTo("1 year"));
             subject.TotalTimeUnwatched = TimeSpan.FromDays(365).Add(TimeSpan.FromDays(0.5));
-            Assert.That(subject.TotalTimeUnwatchedDisplayText, Is.EqualTo("1 year"));
+            ClassicAssert.That(subject.TotalTimeUnwatchedDisplayText, Is.EqualTo("1 year"));
             subject.TotalTimeUnwatched = TimeSpan.FromDays(365).Add(TimeSpan.FromHours(2.5));
-            Assert.That(subject.TotalTimeUnwatchedDisplayText, Is.EqualTo("1 year"));
+            ClassicAssert.That(subject.TotalTimeUnwatchedDisplayText, Is.EqualTo("1 year"));
             subject.TotalTimeUnwatched = TimeSpan.FromDays(365).Add(TimeSpan.FromDays(1)).Add(TimeSpan.FromHours(2.5));
-            Assert.That(subject.TotalTimeUnwatchedDisplayText, Is.EqualTo("1 year, 1 day"));
+            ClassicAssert.That(subject.TotalTimeUnwatchedDisplayText, Is.EqualTo("1 year, 1 day"));
             subject.TotalTimeUnwatched = TimeSpan.FromDays(365).Add(TimeSpan.FromDays(2)).Add(TimeSpan.FromHours(2.5));
-            Assert.That(subject.TotalTimeUnwatchedDisplayText, Is.EqualTo("1 year, 2 days"));
+            ClassicAssert.That(subject.TotalTimeUnwatchedDisplayText, Is.EqualTo("1 year, 2 days"));
             subject.TotalTimeUnwatched = TimeSpan.FromDays(395).Add(TimeSpan.FromDays(1)).Add(TimeSpan.FromHours(2.5));
-            Assert.That(subject.TotalTimeUnwatchedDisplayText, Is.EqualTo("1 year, 1 month, 1 day"));
+            ClassicAssert.That(subject.TotalTimeUnwatchedDisplayText, Is.EqualTo("1 year, 1 month, 1 day"));
             subject.TotalTimeUnwatched = TimeSpan.FromDays(365 * 2 + 30).Add(TimeSpan.FromDays(2)).Add(TimeSpan.FromHours(2.5));
-            Assert.That(subject.TotalTimeUnwatchedDisplayText, Is.EqualTo("2 years, 1 month, 2 days"));
+            ClassicAssert.That(subject.TotalTimeUnwatchedDisplayText, Is.EqualTo("2 years, 1 month, 2 days"));
             subject.TotalTimeUnwatched = TimeSpan.FromDays(365 * 2 + 30).Add(TimeSpan.FromDays(2)).Add(TimeSpan.FromHours(2.5));
-            Assert.That(subject.TotalTimeUnwatchedDisplayText, Is.EqualTo("2 years, 1 month, 2 days"));
+            ClassicAssert.That(subject.TotalTimeUnwatchedDisplayText, Is.EqualTo("2 years, 1 month, 2 days"));
         }
     }
 }

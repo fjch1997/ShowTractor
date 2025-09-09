@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using ShowTractor.Interfaces;
 using ShowTractor.Pages.Settings;
 using ShowTractor.Plugins;
@@ -50,16 +51,16 @@ namespace ShowTractor.Tests
             var task = GetSettingsSavingTask();
             subject.RemoveCommand.Execute(subject.MetadataProviders.First());
             await task;
-            Assert.AreEqual(0, subject.MetadataProviders.Count);
-            Assert.AreEqual(0, settings.MetadataProviders.Count);
+            ClassicAssert.AreEqual(0, subject.MetadataProviders.Count);
+            ClassicAssert.AreEqual(0, settings.MetadataProviders.Count);
         }
         private async Task AssertTestMetadataProviderAsync(PluginSettings settings)
         {
-            Assert.AreEqual(1, settings.MetadataProviders.Count);
-            Assert.AreEqual(await OpenFileAsync(Enumerable.Empty<string>()), settings.MetadataProviders[0].FileName);
-            Assert.AreEqual(1, subject.MetadataProviders.Count);
-            Assert.AreEqual(nameof(TestMetadataProvider), subject.MetadataProviders[0].Name);
-            Assert.AreEqual(true, subject.MetadataProviders[0].Enabled);
+            ClassicAssert.AreEqual(1, settings.MetadataProviders.Count);
+            ClassicAssert.AreEqual(await OpenFileAsync(Enumerable.Empty<string>()), settings.MetadataProviders[0].FileName);
+            ClassicAssert.AreEqual(1, subject.MetadataProviders.Count);
+            ClassicAssert.AreEqual(nameof(TestMetadataProvider), subject.MetadataProviders[0].Name);
+            ClassicAssert.AreEqual(true, subject.MetadataProviders[0].Enabled);
         }
         public object? GetService(Type serviceType)
         {

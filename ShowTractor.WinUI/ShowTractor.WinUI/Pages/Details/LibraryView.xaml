@@ -5,7 +5,6 @@
     xmlns:local="using:ShowTractor.WinUI.Pages.Details"
     xmlns:b="using:ShowTractor.WinUI.Behaviors"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
-    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:vm="using:ShowTractor.Pages.Details"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -18,9 +17,9 @@
             <SemanticZoom.ZoomedInView>
                 <GridView x:Name="gridView" SelectionMode="None" IsItemClickEnabled="True" ItemsSource="{x:Bind view.View, Mode=OneWay}">
                     <i:Interaction.Behaviors>
-                        <core:EventTriggerBehavior EventName="ItemClick">
+                        <i:EventTriggerBehavior EventName="ItemClick">
                             <b:NavigateToPageAction TargetPageType="local:TvSeasonPage"/>
-                        </core:EventTriggerBehavior>
+                        </i:EventTriggerBehavior>
                     </i:Interaction.Behaviors>
                     <GridView.HeaderTemplate>
                         <DataTemplate x:DataType="vm:LibraryViewModel">

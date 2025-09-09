@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using ShowTractor.Background;
 using ShowTractor.Interfaces;
 using ShowTractor.Plugins.Interfaces;
@@ -45,10 +46,10 @@ namespace ShowTractor.Tests
                 new DelegateFactory<Database.ShowTractorDbContext>(() => new InMemoryDbContext(connection)),
                 new DelegateFactory<IMetadataProvider?>(() => new TestMetadataProvider { TestTvSeason = TestTvSeason1Updated }),
                 new System.Net.Http.HttpClient(new TestHttpMessageHandler()));
-            Assert.IsTrue(await subject.CanDoWorkAsync());
+            ClassicAssert.IsTrue(await subject.CanDoWorkAsync());
             await subject.DoWorkAsync();
             using var context = new InMemoryDbContext(connection);
-            Assert.AreEqual(1, context.TvSeasons.Count());
+            ClassicAssert.AreEqual(1, context.TvSeasons.Count());
             var season = context.TvSeasons.Include(s => s.Episodes).First();
             AssertTvSeasonEqual(season, TestTvSeason1Updated);
         }
@@ -60,23 +61,23 @@ namespace ShowTractor.Tests
                    new DelegateFactory<Database.ShowTractorDbContext>(() => new InMemoryDbContext(connection)),
                    new DelegateFactory<IMetadataProvider?>(() => new TestMetadataProvider { TestTvSeason = TestTvSeason1, MoreTvSeasons = new[] {TestTvSeason1Updated, TestTvSeason1, TestTvSeason2, TestTvSeason3 } }),
                    new System.Net.Http.HttpClient(new TestHttpMessageHandler()));
-            Assert.IsTrue(await subject.CanDoWorkAsync());
+            ClassicAssert.IsTrue(await subject.CanDoWorkAsync());
             await subject.DoWorkAsync();
             using var context = new InMemoryDbContext(connection);
-            Assert.AreEqual(3, context.TvSeasons.Count());
+            ClassicAssert.AreEqual(3, context.TvSeasons.Count());
             var season = context.TvSeasons.OrderBy(t=>t.Season).Include(s => s.Episodes).Last();
             AssertTvSeasonEqual(season, TestTvSeason3);
         }
         private static void AssertTvSeasonEqual(Database.TvSeason dbSeason, TvSeason tvSeason)
         {
-            Assert.That(dbSeason.SeasonDescription, Is.EqualTo(tvSeason.SeasonDescription));
+            ClassicAssert.That(dbSeason.SeasonDescription, Is.EqualTo(tvSeason.SeasonDescription));
             if (dbSeason.Episodes == null) throw new AssertionException($"{nameof(dbSeason.Episodes)} is null.");
-            Assert.That(dbSeason.Episodes.Count, Is.EqualTo(tvSeason.Episodes.Count));
+            ClassicAssert.That(dbSeason.Episodes.Count, Is.EqualTo(tvSeason.Episodes.Count));
             var episode = tvSeason.Episodes.First();
-            Assert.That(dbSeason.Episodes[0].Description, Is.EqualTo(episode.Description));
-            Assert.That(dbSeason.Episodes[0].Name, Is.EqualTo(episode.Name));
-            Assert.That(dbSeason.Episodes[0].FirstAirDate, Is.EqualTo(episode.FirstAirDate));
-            Assert.That(dbSeason.Episodes[0].Runtime, Is.EqualTo(episode.Runtime));
+            ClassicAssert.That(dbSeason.Episodes[0].Description, Is.EqualTo(episode.Description));
+            ClassicAssert.That(dbSeason.Episodes[0].Name, Is.EqualTo(episode.Name));
+            ClassicAssert.That(dbSeason.Episodes[0].FirstAirDate, Is.EqualTo(episode.FirstAirDate));
+            ClassicAssert.That(dbSeason.Episodes[0].Runtime, Is.EqualTo(episode.Runtime));
         }
 
     }

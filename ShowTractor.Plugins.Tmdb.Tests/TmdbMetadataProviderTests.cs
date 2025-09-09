@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using ShowTractor.Plugins.Interfaces;
 using ShowTractor.Plugins.Tmdb.Properties;
 using System;
@@ -27,41 +28,41 @@ namespace ShowTractor.Plugins.Tmdb.Tests
             var i = 0;
             await foreach (var item in subject.SearchAsync("star trek discovery", default))
             {
-                Assert.AreEqual("Star Trek: Discovery", item.ShowName);
-                Assert.AreEqual(i, item.Season);
-                Assert.IsFalse(string.IsNullOrEmpty(item.ShowDescription));
-                Assert.AreNotEqual(item.ShowDescription, item.SeasonDescription);
+                ClassicAssert.AreEqual("Star Trek: Discovery", item.ShowName);
+                ClassicAssert.AreEqual(i, item.Season);
+                ClassicAssert.IsFalse(string.IsNullOrEmpty(item.ShowDescription));
+                ClassicAssert.AreNotEqual(item.ShowDescription, item.SeasonDescription);
                 if (i == 0)
                 {
-                    Assert.AreEqual(32, item.Episodes.Count);
-                    Assert.AreEqual("“Will You Take My Hand?” Bonus Scene", item.Episodes[0].Name);
-                    Assert.That(item.ShowFinale, Is.False);
-                    Assert.That(item.ShowEnded, Is.EqualTo(ended));
+                    ClassicAssert.AreEqual(32, item.Episodes.Count);
+                    ClassicAssert.AreEqual("“Will You Take My Hand?” Bonus Scene", item.Episodes[0].Name);
+                    ClassicAssert.That(item.ShowFinale, Is.False);
+                    ClassicAssert.That(item.ShowEnded, Is.EqualTo(ended));
                 }
                 else if (i == 1)
                 {
-                    Assert.AreEqual(15, item.Episodes.Count);
-                    Assert.AreEqual("The Vulcan Hello", item.Episodes[0].Name);
-                    Assert.That(item.ShowFinale, Is.False);
-                    Assert.That(item.ShowEnded, Is.EqualTo(ended));
+                    ClassicAssert.AreEqual(15, item.Episodes.Count);
+                    ClassicAssert.AreEqual("The Vulcan Hello", item.Episodes[0].Name);
+                    ClassicAssert.That(item.ShowFinale, Is.False);
+                    ClassicAssert.That(item.ShowEnded, Is.EqualTo(ended));
                 }
                 else if (i == 2)
                 {
-                    Assert.AreEqual(14, item.Episodes.Count);
-                    Assert.AreEqual("Brother", item.Episodes[0].Name);
-                    Assert.That(item.ShowFinale, Is.False);
-                    Assert.That(item.ShowEnded, Is.EqualTo(ended));
+                    ClassicAssert.AreEqual(14, item.Episodes.Count);
+                    ClassicAssert.AreEqual("Brother", item.Episodes[0].Name);
+                    ClassicAssert.That(item.ShowFinale, Is.False);
+                    ClassicAssert.That(item.ShowEnded, Is.EqualTo(ended));
                 }
                 else if (i == 3)
                 {
-                    Assert.AreEqual(13, item.Episodes.Count);
-                    Assert.AreEqual("That Hope Is You, Part 1", item.Episodes[0].Name);
-                    Assert.That(item.ShowFinale, Is.EqualTo(ended));
-                    Assert.That(item.ShowEnded, Is.EqualTo(ended));
+                    ClassicAssert.AreEqual(13, item.Episodes.Count);
+                    ClassicAssert.AreEqual("That Hope Is You, Part 1", item.Episodes[0].Name);
+                    ClassicAssert.That(item.ShowFinale, Is.EqualTo(ended));
+                    ClassicAssert.That(item.ShowEnded, Is.EqualTo(ended));
                 }
                 else
                 {
-                    Assert.Fail("Too many seasons returned.");
+                    ClassicAssert.Fail("Too many seasons returned.");
                 }
                 i++;
             }
@@ -72,7 +73,7 @@ namespace ShowTractor.Plugins.Tmdb.Tests
             var subject = new TmdbMetadataProvider(new HttpClient(this));
             await foreach (var item in subject.SearchAsync("star trek discovery", default))
             {
-                Assert.That(item.Episodes, Is.All.Matches((TvEpisode e) => e.FirstAirDate.Kind == DateTimeKind.Utc || e.FirstAirDate == default));
+                ClassicAssert.That(item.Episodes, Is.All.Matches((TvEpisode e) => e.FirstAirDate.Kind == DateTimeKind.Utc || e.FirstAirDate == default));
             }
         }
         [Test]
@@ -103,7 +104,7 @@ namespace ShowTractor.Plugins.Tmdb.Tests
                 }
                 i++;
             }
-            Assert.AreEqual(2, i);
+            ClassicAssert.AreEqual(2, i);
         }
         private static async Task TestGetNewSeasonsAfterSeason2(TvSeason updated, GetLatestSeasonsDelegate getNewSeasonsFunc)
         {
@@ -120,25 +121,25 @@ namespace ShowTractor.Plugins.Tmdb.Tests
                 }
                 i++;
             }
-            Assert.AreEqual(1, i);
+            ClassicAssert.AreEqual(1, i);
         }
         private static void AssertSeason1(TvSeason updated)
         {
-            Assert.AreEqual("Star Trek: Discovery", updated.ShowName);
-            Assert.AreEqual(15, updated.Episodes.Count);
-            Assert.AreEqual("The Vulcan Hello", updated.Episodes[0].Name);
+            ClassicAssert.AreEqual("Star Trek: Discovery", updated.ShowName);
+            ClassicAssert.AreEqual(15, updated.Episodes.Count);
+            ClassicAssert.AreEqual("The Vulcan Hello", updated.Episodes[0].Name);
         }
         private static void AssertSeason2(TvSeason newSeason)
         {
-            Assert.AreEqual("Star Trek: Discovery", newSeason.ShowName);
-            Assert.AreEqual(14, newSeason.Episodes.Count);
-            Assert.AreEqual("Brother", newSeason.Episodes[0].Name);
+            ClassicAssert.AreEqual("Star Trek: Discovery", newSeason.ShowName);
+            ClassicAssert.AreEqual(14, newSeason.Episodes.Count);
+            ClassicAssert.AreEqual("Brother", newSeason.Episodes[0].Name);
         }
         private static void AssertSeason3(TvSeason newSeason)
         {
-            Assert.AreEqual("Star Trek: Discovery", newSeason.ShowName);
-            Assert.AreEqual(13, newSeason.Episodes.Count);
-            Assert.AreEqual("That Hope Is You, Part 1", newSeason.Episodes[0].Name);
+            ClassicAssert.AreEqual("Star Trek: Discovery", newSeason.ShowName);
+            ClassicAssert.AreEqual(13, newSeason.Episodes.Count);
+            ClassicAssert.AreEqual("That Hope Is You, Part 1", newSeason.Episodes[0].Name);
         }
         [Test]
         public void IconTest()
@@ -147,7 +148,7 @@ namespace ShowTractor.Plugins.Tmdb.Tests
             using var stream = subject.GetIconStream();
             using var memoryStream = new MemoryStream();
             stream.CopyTo(memoryStream);
-            Assert.That(memoryStream.ToArray(), Is.Not.Empty);
+            ClassicAssert.That(memoryStream.ToArray(), Is.Not.Empty);
         }
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
