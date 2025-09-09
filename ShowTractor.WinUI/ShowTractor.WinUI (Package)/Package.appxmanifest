@@ -8,7 +8,7 @@
 
   <Identity
     Name="f0d5fe17-7d4a-4795-9ab2-55b4be65317e"
-    Publisher="CN=Jingchao Feng, O=Jingchao Feng, L=Princeton Junction, S=New Jersey, C=US"
+    Publisher="CN=Jingchao Feng"
     Version="1.4.0.0" />
 
   <Properties>

@@ -41,7 +41,7 @@
     <DefaultLanguage>en-US</DefaultLanguage>
     <AppxPackageSigningEnabled>False</AppxPackageSigningEnabled>
     <EntryPointProjectUniqueName>..\ShowTractor.WinUI\ShowTractor.WinUI.csproj</EntryPointProjectUniqueName>
-    <PackageCertificateThumbprint>F997F6ED236EFB2DEB4AAD303B2BAAD5BC553CE3</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>1A898B202F8EBE11D3B3FA62C6F86C703DA52872</PackageCertificateThumbprint>
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
     <AppxPackageSigningTimestampServerUrl>http://timestamp.sectigo.com</AppxPackageSigningTimestampServerUrl>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
