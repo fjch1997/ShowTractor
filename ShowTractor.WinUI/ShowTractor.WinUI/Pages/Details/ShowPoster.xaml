@@ -11,9 +11,9 @@
     <Grid>
         <StackPanel Orientation="Vertical" Width="160" Background="White">
             <Image Source="{x:Bind ((vm:PosterViewModel)DataContext).Artwork, Converter={StaticResource ArtworkToImageSourceConverter}}" />
-            <StackPanel Margin="6">
+            <StackPanel Margin="6" Height="50.4">
                 <TextBlock Text="{x:Bind ((vm:PosterViewModel)DataContext).ShowName}" Style="{StaticResource BaseTextBlockStyle}"/>
-                <TextBlock Text="{x:Bind ((vm:PosterViewModel)DataContext).SeasonText}" TextWrapping="Wrap" HorizontalAlignment="Left" Style="{StaticResource BodyTextBlockStyle}"/>
+                <TextBlock Height="16.8" Text="{x:Bind ((vm:PosterViewModel)DataContext).SeasonText}" TextWrapping="Wrap" HorizontalAlignment="Left" Style="{StaticResource BodyTextBlockStyle}"/>
             </StackPanel>
         </StackPanel>
         <Grid Margin="6 0" HorizontalAlignment="Left" VerticalAlignment="Top" 
