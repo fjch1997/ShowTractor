@@ -27,6 +27,7 @@
             </c2:EmptyObjectToObjectConverter>
             <c:UriToImageSourceConverter x:Key="TvSeasonImageSourceConverter" ArtworkType="Season"/>
             <c:UriToImageSourceConverter x:Key="EpisodeImageSourceConverter" ArtworkType="Episode"/>
+            <c:StreamToImageSourceConverter x:Key="StreamToImageSourceConverter"/>
             <c:ObjectToCollectionViewConverter x:Key="ObjectToCollectionViewConverter"/>
             <c:EnumToStringConverter x:Key="EnumToStringConverter"/>
             <c2:BoolToObjectConverter x:Key="InverseBooleanConverter">
