@@ -129,7 +129,6 @@ namespace ShowTractor.Plugins.Tmdb
                 ratings,
                 showDescriptions,
                 season.RootElement.TryGetProperty("overview", out var overview) ? overview.GetString() ?? string.Empty : string.Empty,
-                null,
                 season.RootElement.TryGetProperty("poster_path", out var posterPath) ?
                     posterPath.GetString() is string posterPathString ? configs.GetPosterUri(posterPathString) : null
                     :
@@ -141,7 +140,6 @@ namespace ShowTractor.Plugins.Tmdb
                         e.TryGetProperty("episode_number", out var episodeNumber) ? episodeNumber.GetInt32() : 0,
                         e.TryGetProperty("name", out var episodeName) ? episodeName.GetString() ?? string.Empty : string.Empty,
                         e.TryGetProperty("overview", out var episodeOverview) ? episodeOverview.GetString() ?? string.Empty : string.Empty,
-                        null,
                         e.TryGetProperty("still_path", out var stillPath) ?
                             stillPath.GetString() is string stillPathString ? configs.GetPosterUri(stillPathString) : null
                             :

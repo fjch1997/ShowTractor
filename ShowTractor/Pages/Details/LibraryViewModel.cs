@@ -53,10 +53,10 @@ namespace ShowTractor.Pages.Details
                 {
                     seasons.Add(season);
                     i++;
-                    if (i % 10 == 0)
+                    if (i % 100 == 0)
                         RefreshView();
                 }
-                if (i == 0 || i % 10 != 0)
+                if (i == 0 || i % 100 != 0)
                     RefreshView();
             }
             catch (Exception ex)

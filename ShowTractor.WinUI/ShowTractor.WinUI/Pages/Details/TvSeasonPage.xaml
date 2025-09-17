@@ -53,7 +53,7 @@
             <StackPanel>
                 <ParallaxView x:Name="headerImageView" Height="{StaticResource HeaderMaxHeight}" Source="{x:Bind scrollViewer}" VerticalShift="350">
                     <ParallaxView.Child>
-                        <Image x:Name="headerImage" HorizontalAlignment="Center" Source="{x:Bind ((vm:TvSeasonPageViewModel)grid.DataContext).Artwork, Converter={StaticResource ArtworkToImageSourceConverter}, Mode=OneWay}" Stretch="UniformToFill" />
+                        <Image x:Name="headerImage" HorizontalAlignment="Center" Source="{x:Bind ((vm:TvSeasonPageViewModel)grid.DataContext).Artwork, Converter={StaticResource TvSeasonImageSourceConverter}, Mode=OneWay}" Stretch="UniformToFill" />
                     </ParallaxView.Child>
                 </ParallaxView>
                 <StackPanel Margin="24" MaxWidth="1600">
@@ -88,7 +88,7 @@
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="*"/>
                                     </Grid.RowDefinitions>
-                                    <Image Grid.RowSpan="2" Source="{x:Bind Artwork, Converter={StaticResource ArtworkToImageSourceConverter}, Mode=OneWay}" Stretch="UniformToFill" />
+                                    <Image Grid.RowSpan="2" Source="{x:Bind Artwork, Converter={StaticResource EpisodeImageSourceConverter}, Mode=OneWay}" Stretch="UniformToFill" />
                                     <StackPanel Grid.Column="1" Grid.RowSpan="2" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="12">
                                         <StackPanel.ContextFlyout>
                                             <MenuFlyout>
@@ -154,7 +154,7 @@
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                <Image x:Name="poster" Grid.RowSpan="2" Margin="30 10" IsHitTestVisible="False" Source="{x:Bind ((vm:TvSeasonPageViewModel)grid.DataContext).Artwork, Converter={StaticResource ArtworkToImageSourceConverter}, Mode=OneWay}">
+                <Image x:Name="poster" Grid.RowSpan="2" Margin="30 10" IsHitTestVisible="False" Source="{x:Bind ((vm:TvSeasonPageViewModel)grid.DataContext).Artwork, Converter={StaticResource TvSeasonImageSourceConverter}, Mode=OneWay}">
                     <i:Interaction.Behaviors>
                         <b:AutoImageWidthBehavior/>
                     </i:Interaction.Behaviors>

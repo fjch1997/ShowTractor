@@ -23,7 +23,7 @@ namespace ShowTractor.Pages.Details
         public string ShowName { get; }
         public int Season { get; }
         public string SeasonText => "Season " + Season;
-        public abstract Artwork Artwork { get; }
+        public abstract Uri? Artwork { get; }
         public bool ShowUnwatched { get => showUnwatched; set { showUnwatched = value; OnPropertyChanged(); } }
         private bool showUnwatched;
         public int Unwatched { get => unwatched; set { unwatched = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasUnwatched)); } }
@@ -43,13 +43,26 @@ namespace ShowTractor.Pages.Details
             this.contextFactory = contextFactory;
         }
         public Guid Id { get; set; }
-        public override Artwork Artwork => new(
-            new ArtworkCacheKey { Type = ArtworkType.Season, SeasonId = Id },
-            new DelegateFactory<ValueTask<Stream>>(() => new ValueTask<Stream>(new Database.TvSeasonArtworkStream(contextFactory.Get(), Id))));
     }
     public class LibraryPosterViewModel : SavedPosterViewModel
     {
-        internal LibraryPosterViewModel(Guid id, string showName, int season, DateTime firstEpisodeAirDate, IFactory<Database.ShowTractorDbContext> contextFactory) : base(id, showName, season, firstEpisodeAirDate, contextFactory) { }
+        private readonly IArtworkService artworkService;
+
+        internal LibraryPosterViewModel(Guid id, string showName, int season, DateTime firstEpisodeAirDate, IFactory<Database.ShowTractorDbContext> contextFactory, IArtworkService artworkService) : base(id, showName, season, firstEpisodeAirDate, contextFactory)
+        {
+            this.artworkService = artworkService;
+            artworkService.LoadAndSaveArtwork(null, id).ContinueWith(t =>
+            {
+                if (t.Exception == null)
+                {
+                    this.artwork = t.Result;
+                    OnPropertyChanged(nameof(Artwork));
+                }
+            }, TaskScheduler.FromCurrentSynchronizationContext());
+        }
+
+        public override Uri? Artwork => artwork;
+        private Uri? artwork;
     }
     public class CalendarPosterViewModel : SavedPosterViewModel
     {
@@ -86,6 +99,9 @@ namespace ShowTractor.Pages.Details
         }
         private bool watched;
         public bool Loading { get => loading; set { loading = value; OnPropertyChanged(); } }
+
+        public override Uri? Artwork => null;
+
         private bool loading;
 
         private async Task MarkAsAsync(bool watched)
@@ -109,32 +125,11 @@ namespace ShowTractor.Pages.Details
     }
     public class SearchResultPosterViewModel : PosterViewModel
     {
-        private readonly HttpClient httpClient;
-
-        public SearchResultPosterViewModel(TvSeason data, HttpClient httpClient) : base(data.ShowName, data.Season, data.Episodes.Select(e => e.FirstAirDate).FirstOrDefault())
+        public SearchResultPosterViewModel(TvSeason data) : base(data.ShowName, data.Season, data.Episodes.Select(e => e.FirstAirDate).FirstOrDefault())
         {
             Data = data;
-            this.httpClient = httpClient;
         }
-
         public TvSeason Data { get; set; }
-        public override Artwork Artwork
-        {
-            get
-            {
-                if (Data.Artwork != null)
-                {
-                    return new Artwork(new ArtworkCacheKey { Type = ArtworkType.Season, HashCode = Data.Artwork.GetHashCode() }, new DelegateFactory<ValueTask<Stream>>(() => new ValueTask<Stream>(new MemoryStream(Data.Artwork))));
-                }
-                else if (Data.ArtworkUri != null)
-                {
-                    return new Artwork(new ArtworkCacheKey { Type = ArtworkType.Season, HashCode = Data.ArtworkUri.GetHashCode() }, new DelegateFactory<ValueTask<Stream>>(() => new ValueTask<Stream>(httpClient.GetStreamAsync(Data.ArtworkUri))));
-                }
-                else
-                {
-                    return new TvSeasonDefaultArtwork();
-                }
-            }
-        }
+        public override Uri? Artwork => Data.ArtworkUri;
     }
 }

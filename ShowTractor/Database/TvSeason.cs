@@ -47,7 +47,6 @@ namespace ShowTractor.Database
             get => seasonDescription ?? throw new InvalidOperationException("Uninitialized property: " + nameof(SeasonDescription));
         }
         private string? seasonDescription;
-        public byte[]? Artwork { get; set; }
         public bool Following { get; set; }
         public bool ShowEnded { get; set; }
         public bool ShowFinale { get; set; }
@@ -63,13 +62,12 @@ namespace ShowTractor.Database
                 RatingsCsv.Split(','),
                 ShowDescription,
                 SeasonDescription,
-                Artwork,
                 null,
                 ShowEnded,
                 ShowFinale,
                 Episodes.Select(e => e.ToRecord()).ToList(),
                 string.IsNullOrEmpty(providerAssemblyName) ? emptyDictionary : AdditionalAttributes.Where(a => a.AssemblyName == providerAssemblyName).ToDictionary(a => a.Name, a => a.Value));
-        public async ValueTask UpdateAsync(Plugins.Interfaces.TvSeason data, HttpClient httpClient)
+        public ValueTask UpdateAsync(Plugins.Interfaces.TvSeason data)
         {
             ShowName = data.ShowName;
             Season = data.Season;
@@ -77,10 +75,7 @@ namespace ShowTractor.Database
             RatingsCsv = GetCsv(data.Ratings);
             ShowDescription = data.ShowDescription;
             SeasonDescription = data.SeasonDescription;
-            if (data.Artwork != null)
-                Artwork = data.Artwork;
-            if (Artwork == null && data.ArtworkUri != null)
-                Artwork = await httpClient.GetByteArrayAsync(data.ArtworkUri);
+            return default;
         }
         public static TvSeason FromRecord(Plugins.Interfaces.TvSeason data, string providerAssemblyName) =>
             new()
@@ -97,7 +92,6 @@ namespace ShowTractor.Database
                     }
                     :
                     new List<AdditionalAttribute>(),
-                Artwork = data.Artwork,
                 GenresCsv = GetCsv(data.Genres),
                 RatingsCsv = GetCsv(data.Ratings),
                 Season = data.Season,

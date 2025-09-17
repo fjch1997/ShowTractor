@@ -12,7 +12,7 @@ namespace ShowTractor.Tests
         {
             while (libraryViewModel.Loading)
             {
-                await Task.Delay(0);
+                await Task.Delay(10);
             }
         }
         public static async Task WaitForTrueAsync(this Func<bool> func)

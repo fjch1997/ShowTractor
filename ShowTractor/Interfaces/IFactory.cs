@@ -2,7 +2,7 @@
 
 namespace ShowTractor.Interfaces
 {
-    interface IFactory<T>
+    public interface IFactory<T>
     {
         public T Get();
     }

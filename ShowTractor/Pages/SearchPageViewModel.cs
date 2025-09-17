@@ -15,14 +15,12 @@ namespace ShowTractor.Pages
     public class SearchPageViewModel : ISupportNavigation, INotifyPropertyChanged
     {
         private readonly IFactory<IMetadataProvider?> metadataProviderFactory;
-        private readonly HttpClient httpClient;
         private CancellationTokenSource? cts;
         private string? parameter;
 
-        internal SearchPageViewModel(IFactory<IMetadataProvider?> metadataProviderFactory, HttpClient httpClient)
+        internal SearchPageViewModel(IFactory<IMetadataProvider?> metadataProviderFactory)
         {
             this.metadataProviderFactory = metadataProviderFactory;
-            this.httpClient = httpClient;
         }
 
         public object? Parameter { get => parameter; set { SetParameter(value); OnPropertyChanged(); OnPropertyChanged(nameof(Title)); } }
@@ -93,7 +91,7 @@ namespace ShowTractor.Pages
         {
             await foreach (var item in await Task.Run(() => provider.SearchAsync(value, token)))
             {
-                yield return new SearchResultPosterViewModel(item, httpClient);
+                yield return new SearchResultPosterViewModel(item);
             }
         }
 

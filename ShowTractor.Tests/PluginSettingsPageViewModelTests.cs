@@ -9,11 +9,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ShowTractor.Tests
 {
     [TestFixture]
+    [Apartment(ApartmentState.STA)]
     public class PluginSettingsPageViewModelTests : IServiceProvider, IOpenFileDialogService
     {
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.

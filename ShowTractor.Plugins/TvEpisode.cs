@@ -6,7 +6,6 @@ namespace ShowTractor.Plugins.Interfaces
         int EpisodeNumber,
         string Name,
         string Description,
-        byte[]? Artwork,
         Uri? ArtworkUri,
         DateTime FirstAirDate,
         TimeSpan Runtime);

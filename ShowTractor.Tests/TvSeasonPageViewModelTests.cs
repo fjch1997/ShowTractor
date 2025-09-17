@@ -13,22 +13,30 @@ using System.Data.Common;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using static ShowTractor.Tests.TestFixtures.ExampleSearchResults;
 
 namespace ShowTractor.Tests
 {
     [TestFixture]
+    [Apartment(ApartmentState.STA)]
     public class TvSeasonPageViewModelTests
     {
         private static readonly string assemblyName = Assembly.GetExecutingAssembly().GetName().Name ?? string.Empty;
         private readonly HttpClient httpClient = new(new TestHttpMessageHandler());
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         private DbConnection connection;
         private DelegateFactory<Database.ShowTractorDbContext> factory;
         private TestMetadataProvider provider;
         private TvSeasonPageViewModel subject;
+        private MockArtworkService artworkService;
+
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        public TvSeasonPageViewModelTests()
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        {
+            artworkService = new MockArtworkService();
+        }
 
         [SetUp]
         public void TestInitialize()
@@ -38,7 +46,7 @@ namespace ShowTractor.Tests
                 context.Database.EnsureCreated();
             factory = new DelegateFactory<Database.ShowTractorDbContext>(() => new InMemoryDbContext(connection));
             provider = new TestMetadataProvider();
-            subject = new TvSeasonPageViewModel(new DelegateFactory<IMetadataProvider>(() => provider), httpClient, factory);
+            subject = new TvSeasonPageViewModel(new DelegateFactory<IMetadataProvider>(() => provider), factory, artworkService);
         }
         [TearDown]
         public void TestCleanup()
@@ -50,7 +58,7 @@ namespace ShowTractor.Tests
         {
             provider.ShouldFail = true;
             var testSeason = TestTvSeason1 with { UniqueId = uniqueId, ArtworkUri = artworkUrl != null ? new Uri(artworkUrl) : null };
-            subject.Parameter = new SearchResultPosterViewModel(testSeason, httpClient);
+            subject.Parameter = new SearchResultPosterViewModel(testSeason);
             await WaitForLoadingAsync();
             AssertTestTvSeason(testSeason);
             await TestFollowingAsync(testSeason);
@@ -61,7 +69,7 @@ namespace ShowTractor.Tests
             provider.ShouldFail = true;
             var testSeason = TestTvSeason1 with { UniqueId = uniqueId, ArtworkUri = artworkUrl != null ? new Uri(artworkUrl) : null };
             AddExistingDatabaseEntry(testSeason, sameProvider, following);
-            subject.Parameter = new SearchResultPosterViewModel(testSeason, httpClient);
+            subject.Parameter = new SearchResultPosterViewModel(testSeason);
             await WaitForLoadingAsync();
             AssertTestTvSeason(testSeason);
             if (!following)
@@ -73,7 +81,7 @@ namespace ShowTractor.Tests
             provider.ShouldFail = true;
             var testSeason = TestTvSeason1Updated with { UniqueId = uniqueId, ArtworkUri = artworkUrl != null ? new Uri(artworkUrl) : null };
             AddExistingDatabaseEntry(testSeason, sameProvider, following);
-            subject.Parameter = new SearchResultPosterViewModel(testSeason, httpClient);
+            subject.Parameter = new SearchResultPosterViewModel(testSeason);
             await WaitForLoadingAsync();
             AssertTestTvSeason(testSeason);
             AssertDatabase(testSeason);
@@ -88,6 +96,10 @@ namespace ShowTractor.Tests
             provider.TestTvSeason = testSeason;
             subject.Parameter = parameter;
             await WaitForLoadingAsync();
+            if (artworkUrl == null)
+                Assert.That(subject.Artwork, Is.Null);
+            else
+                Assert.That(subject.Artwork?.Scheme, Is.EqualTo("file"));
             AssertTestTvSeason(testSeason);
             AssertDatabase(testSeason);
             if (!following)
@@ -275,7 +287,7 @@ namespace ShowTractor.Tests
                 }
                 context.SaveChanges();
             }
-            return new LibraryPosterViewModel(dbSeason.Id, dbSeason.ShowName, dbSeason.Season, testSeason.Episodes.First().FirstAirDate, factory);
+            return new LibraryPosterViewModel(dbSeason.Id, dbSeason.ShowName, dbSeason.Season, testSeason.Episodes.First().FirstAirDate, factory, artworkService);
         }
         private async Task TestFollowingAsync(TvSeason tvSeason)
         {

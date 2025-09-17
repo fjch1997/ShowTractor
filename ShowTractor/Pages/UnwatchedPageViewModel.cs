@@ -16,11 +16,13 @@ namespace ShowTractor.Pages
     {
         private readonly IFactory<Database.ShowTractorDbContext> factory;
         private readonly GeneralSettings settings;
+        private readonly IArtworkService artworkService;
 
-        internal UnwatchedPageViewModel(IFactory<Database.ShowTractorDbContext> factory, GeneralSettings settings)
+        internal UnwatchedPageViewModel(IFactory<Database.ShowTractorDbContext> factory, GeneralSettings settings, IArtworkService artworkService)
         {
             this.factory = factory;
             this.settings = settings;
+            this.artworkService = artworkService;
             LoadTotalTimeUnwatchedAsync().ConfigureAwait(false);
         }
 
@@ -70,7 +72,7 @@ namespace ShowTractor.Pages
                         select new { g.Key, Count = g.Count() } into c
                         join s in context.TvSeasons on c.Key equals s.Id
                         where s.Following
-                        select new LibraryPosterViewModel(s.Id, s.ShowName, s.Season, default, factory)
+                        select new LibraryPosterViewModel(s.Id, s.ShowName, s.Season, default, factory, artworkService)
                         {
                             Unwatched = c.Count,
                             ShowUnwatched = true,

@@ -16,15 +16,13 @@ namespace ShowTractor.Background
         private readonly IFactory<Database.ShowTractorDbContext> factory;
         private readonly IFactory<IMetadataProvider?> providerFactory;
         private readonly GeneralSettings generalSettings;
-        private readonly HttpClient httpClient;
         private IMetadataProvider? provider;
 
-        internal MetadataUpdateBackgroundWork(GeneralSettings generalSettings, IFactory<Database.ShowTractorDbContext> factory, IFactory<IMetadataProvider?> providerFactory, HttpClient httpClient)
+        internal MetadataUpdateBackgroundWork(GeneralSettings generalSettings, IFactory<Database.ShowTractorDbContext> factory, IFactory<IMetadataProvider?> providerFactory)
         {
             this.factory = factory;
             this.providerFactory = providerFactory;
             this.generalSettings = generalSettings;
-            this.httpClient = httpClient;
         }
         public TimeSpan Interval => generalSettings.MetadataUpdateInterval;
         public ValueTask<bool> CanDoWorkAsync()
@@ -41,7 +39,7 @@ namespace ShowTractor.Background
                 .Include(s => s.AdditionalAttributes)
                 .Include(s => s.Episodes).OrderBy(s => s.Season).AsAsyncEnumerable().GroupBy(s => s.ShowName);
             var numberOfSeasonsAdded = 0;
-			await foreach (var show in shows)
+            await foreach (var show in shows)
             {
                 var showName = "Uninitialized";
                 try
@@ -52,7 +50,7 @@ namespace ShowTractor.Background
                     {
                         showName = dbSeason.ShowName;
                         (var latest, getLatestSeasonsDelegate) = await provider.GetUpdatesAsync(dbSeason, token);
-                        await dbSeason.UpdateAsync(latest, httpClient);
+                        await dbSeason.UpdateAsync(latest);
                         for (int i = 0; i < latest.Episodes.Count; i++)
                         {
                             if (dbSeason.Episodes == null) throw new Exception($"{nameof(dbSeason.Episodes)} is null.");
@@ -62,7 +60,7 @@ namespace ShowTractor.Background
                             }
                             else
                             {
-                                await dbSeason.Episodes[i].UpdateAsync(latest.Episodes[i], httpClient);
+                                await dbSeason.Episodes[i].UpdateAsync(latest.Episodes[i]);
                             }
                         }
                         lastSeasonNumber = dbSeason.Season;
@@ -73,17 +71,6 @@ namespace ShowTractor.Background
                         {
                             numberOfSeasonsAdded++;
                             var dbSeason = Database.TvSeason.FromRecord(newSeason ?? throw new ArgumentNullException(nameof(newSeason)), provider.GetAssemblyName());
-                            if (dbSeason.Artwork == null && newSeason.ArtworkUri != null)
-                            {
-                                try
-                                {
-                                    dbSeason.Artwork = await httpClient.GetByteArrayAsync(newSeason.ArtworkUri);
-                                }
-                                catch (Exception ex)
-                                {
-                                    throw new MetadataUpdateBackgroundWorkArtworkLoadException(ex);
-                                }
-                            }
                             context.TvSeasons.Add(dbSeason);
                             dbSeason.Following = true;
                             dbSeason.DateFollowed = DateTime.SpecifyKind(DateTime.Today, DateTimeKind.Utc);
@@ -91,7 +78,7 @@ namespace ShowTractor.Background
                             {
                                 var dbEpisode = Database.TvEpisode.FromRecord(episode);
                                 dbEpisode.TvSeasonId = dbSeason.Id;
-                                await dbEpisode.UpdateAsync(episode, httpClient);
+                                await dbEpisode.UpdateAsync(episode);
                                 await context.TvEpisodes.AddAsync(dbEpisode);
                             }
                         }

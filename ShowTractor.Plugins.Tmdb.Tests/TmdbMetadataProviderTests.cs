@@ -79,7 +79,7 @@ namespace ShowTractor.Plugins.Tmdb.Tests
         [Test]
         public async Task GetUpdatesAsyncTestAsync([Values(null, "67198")] string? uniqueId)
         {
-            var season = new TvSeason(uniqueId, "Star Trek: Discovery", 1, new List<string>(), new List<string>(), "Old Description", "Old Season Description", null, null, false, false, new List<TvEpisode>(), new Dictionary<string, string>());
+            var season = new TvSeason(uniqueId, "Star Trek: Discovery", 1, new List<string>(), new List<string>(), "Old Description", "Old Season Description", null, false, false, new List<TvEpisode>(), new Dictionary<string, string>());
             var subject = new TmdbMetadataProvider(new HttpClient(this));
             var (updated, getNewSeasonsFunc) = await subject.GetUpdatesAsync(season, AdditionalAttributes.Empty, default);
             AssertSeason1(updated);

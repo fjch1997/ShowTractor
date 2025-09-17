@@ -30,7 +30,7 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <CheckBox Width="80" IsChecked="{x:Bind Enabled, Mode=OneWay}"/>
-                        <Image Grid.Column="1" Source="{x:Bind Icon, Converter={StaticResource ArtworkToImageSourceConverter}}"/>
+                        <Image Grid.Column="1" Source="{x:Bind Icon, Converter={StaticResource StreamToImageSourceConverter}}"/>
                         <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="6 0">
                             <TextBlock Text="{x:Bind Name}" Style="{StaticResource BaseTextBlockStyle}"/>
                             <ItemsControl ItemsSource="{Binding Descriptions}">

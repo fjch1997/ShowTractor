@@ -9,12 +9,14 @@ using ShowTractor.Tests.TestPlugins;
 using System.Data.Common;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using static ShowTractor.Tests.TestFixtures.ExampleSearchResults;
 
 namespace ShowTractor.Tests
 {
     [TestFixture]
+    [Apartment(ApartmentState.STA)]
     public class MetadataUpdateBackgroundWorkTests
     {
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -44,8 +46,7 @@ namespace ShowTractor.Tests
             var subject = new MetadataUpdateBackgroundWork(
                 new GeneralSettings(),
                 new DelegateFactory<Database.ShowTractorDbContext>(() => new InMemoryDbContext(connection)),
-                new DelegateFactory<IMetadataProvider?>(() => new TestMetadataProvider { TestTvSeason = TestTvSeason1Updated }),
-                new System.Net.Http.HttpClient(new TestHttpMessageHandler()));
+                new DelegateFactory<IMetadataProvider?>(() => new TestMetadataProvider { TestTvSeason = TestTvSeason1Updated }));
             ClassicAssert.IsTrue(await subject.CanDoWorkAsync());
             await subject.DoWorkAsync();
             using var context = new InMemoryDbContext(connection);
@@ -59,8 +60,7 @@ namespace ShowTractor.Tests
             var subject = new MetadataUpdateBackgroundWork(
                    new GeneralSettings(),
                    new DelegateFactory<Database.ShowTractorDbContext>(() => new InMemoryDbContext(connection)),
-                   new DelegateFactory<IMetadataProvider?>(() => new TestMetadataProvider { TestTvSeason = TestTvSeason1, MoreTvSeasons = new[] {TestTvSeason1Updated, TestTvSeason1, TestTvSeason2, TestTvSeason3 } }),
-                   new System.Net.Http.HttpClient(new TestHttpMessageHandler()));
+                   new DelegateFactory<IMetadataProvider?>(() => new TestMetadataProvider { TestTvSeason = TestTvSeason1, MoreTvSeasons = new[] { TestTvSeason1Updated, TestTvSeason1, TestTvSeason2, TestTvSeason3 } }));
             ClassicAssert.IsTrue(await subject.CanDoWorkAsync());
             await subject.DoWorkAsync();
             using var context = new InMemoryDbContext(connection);

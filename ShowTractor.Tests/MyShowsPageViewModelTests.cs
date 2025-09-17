@@ -10,18 +10,21 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using static ShowTractor.Tests.TestFixtures.ExampleSearchResults;
 
 namespace ShowTractor.Tests
 {
     [TestFixture]
+    [Apartment(ApartmentState.STA)]
     public class MyShowsPageViewModelTests
     {
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         private MyShowsPageViewModel subject;
         private DbConnection connection;
         private InMemoryDbContext context;
+        private IArtworkService artworkService = new MockArtworkService();
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         [SetUp]
         public void Setup()
@@ -35,7 +38,7 @@ namespace ShowTractor.Tests
             AddSeason(TestTvSeason4, true);
             AddSeason(TestTvSeason5);
             AddSeason(TestTvSeason6);
-            subject = new MyShowsPageViewModel(new DelegateFactory<Database.ShowTractorDbContext>(() => new InMemoryDbContext(connection)));
+            subject = new MyShowsPageViewModel(new DelegateFactory<Database.ShowTractorDbContext>(() => new InMemoryDbContext(connection)), artworkService);
         }
         [TearDown]
         public void TestCleanup()

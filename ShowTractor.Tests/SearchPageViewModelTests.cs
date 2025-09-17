@@ -4,6 +4,7 @@ using ShowTractor.Interfaces;
 using ShowTractor.Pages;
 using ShowTractor.Pages.Details;
 using ShowTractor.Plugins.Interfaces;
+using ShowTractor.Tests.Mocks;
 using ShowTractor.Tests.TestPlugins;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,15 +13,17 @@ using System.Threading;
 using System.Threading.Tasks;
 using static ShowTractor.Tests.TestFixtures.ExampleSearchResults;
 
-namespace ShowTractor.UnitTests
+namespace ShowTractor.Tests
 {
     [TestFixture]
+    [Apartment(ApartmentState.STA)]
     public class SearchPageViewModelTests : HttpMessageHandler
     {
+        private MockArtworkService artworkService = new MockArtworkService();
         [TestCase]
         public async Task MissingMetadataProviderTestAsync()
         {
-            var subject = new SearchPageViewModel(new DelegateFactory<IMetadataProvider?>(() => null), new HttpClient(this))
+            var subject = new SearchPageViewModel(new DelegateFactory<IMetadataProvider?>(() => null))
             {
                 Parameter = "search term"
             };
@@ -31,7 +34,7 @@ namespace ShowTractor.UnitTests
         [TestCase]
         public async Task SearchErrorTestAsync()
         {
-            var subject = new SearchPageViewModel(new DelegateFactory<IMetadataProvider?>(() => new TestMetadataProvider(true)), new HttpClient(this))
+            var subject = new SearchPageViewModel(new DelegateFactory<IMetadataProvider?>(() => new TestMetadataProvider(true)))
             {
                 Parameter = "search term"
             };
@@ -41,7 +44,7 @@ namespace ShowTractor.UnitTests
         [TestCase]
         public async Task SearchTestAsync()
         {
-            var subject = new SearchPageViewModel(new DelegateFactory<IMetadataProvider?>(() => new TestMetadataProvider(false)), new HttpClient(this))
+            var subject = new SearchPageViewModel(new DelegateFactory<IMetadataProvider?>(() => new TestMetadataProvider(false)))
             {
                 Parameter = "search term"
             };
@@ -56,22 +59,31 @@ namespace ShowTractor.UnitTests
             var all = ((IEnumerable<IGrouping<string, PosterViewModel>>?)subject.LibraryViewModel.View)?.SelectMany(g => g) ?? throw new AssertionException("");
             void AssertShow(TvSeason tvSeason)
             {
-                var vm = all.Where(v => v.ShowName == tvSeason.ShowName && v.Season == tvSeason.Season).First();
-                ClassicAssert.AreEqual(tvSeason.ShowName, ((SearchResultPosterViewModel)vm).Data.ShowName);
-                ClassicAssert.AreEqual(tvSeason.SeasonDescription, ((SearchResultPosterViewModel)vm).Data.SeasonDescription);
-                ClassicAssert.AreEqual(tvSeason.ShowDescription, ((SearchResultPosterViewModel)vm).Data.ShowDescription);
-                ClassicAssert.AreEqual(tvSeason.Season, ((SearchResultPosterViewModel)vm).Data.Season);
-                ClassicAssert.AreEqual(tvSeason.Episodes.Count, ((SearchResultPosterViewModel)vm).Data.Episodes.Count);
+                var vm = (SearchResultPosterViewModel)all.Where(v => v.ShowName == tvSeason.ShowName && v.Season == tvSeason.Season).First();
+                if (tvSeason.ArtworkUri == null)
+                {
+                    Assert.That(vm.Artwork, Is.Null);
+                }
+                else
+                {
+                    Assert.That(vm.Artwork?.Scheme, Is.EqualTo("https"));
+                }
+                ClassicAssert.AreEqual(tvSeason.ShowName, vm.Data.ShowName);
+                ClassicAssert.AreEqual(tvSeason.SeasonDescription, vm.Data.SeasonDescription);
+                ClassicAssert.AreEqual(tvSeason.ShowDescription, vm.Data.ShowDescription);
+                ClassicAssert.AreEqual(tvSeason.Season, vm.Data.Season);
+                ClassicAssert.AreEqual(tvSeason.Episodes.Count, vm.Data.Episodes.Count);
             }
             AssertShow(TestTvSeason1);
             AssertShow(TestTvSeason2);
             AssertShow(TestTvSeason3);
             AssertShow(TestTvSeason6);
+            artworkService.AssertNothingSaved();
         }
         [TestCase]
         public async Task SearchFilterByShowTestAsync()
         {
-            var subject = new SearchPageViewModel(new DelegateFactory<IMetadataProvider?>(() => new TestMetadataProvider(false)), new HttpClient(this))
+            var subject = new SearchPageViewModel(new DelegateFactory<IMetadataProvider?>(() => new TestMetadataProvider(false)))
             {
                 Parameter = "search term"
             };
@@ -89,11 +101,12 @@ namespace ShowTractor.UnitTests
             ClassicAssert.AreEqual(TestTvSeason1.ShowName, result[1].Key);
             ClassicAssert.AreEqual(1, result[0].Count());
             ClassicAssert.AreEqual(3, result[1].Count());
+            artworkService.AssertNothingSaved();
         }
         [TestCase]
         public async Task SearchFilterByAToZTestAsync()
         {
-            var subject = new SearchPageViewModel(new DelegateFactory<IMetadataProvider?>(() => new TestMetadataProvider(false)), new HttpClient(this))
+            var subject = new SearchPageViewModel(new DelegateFactory<IMetadataProvider?>(() => new TestMetadataProvider(false)))
             {
                 Parameter = "search term"
             };
@@ -108,6 +121,7 @@ namespace ShowTractor.UnitTests
             ClassicAssert.AreEqual(1, result.Length);
             ClassicAssert.AreEqual(TestTvSeason1.ShowName.Substring(0, 1), result[0].Key);
             ClassicAssert.AreEqual(4, result[0].Count());
+            artworkService.AssertNothingSaved();
         }
         private static void AssertFiltersAndSorts(SearchPageViewModel subject)
         {

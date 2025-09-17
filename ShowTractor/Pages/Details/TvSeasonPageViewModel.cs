@@ -20,17 +20,17 @@ namespace ShowTractor.Pages.Details
     public class TvSeasonPageViewModel : INotifyPropertyChanged, ISupportNavigationParameter
     {
         private readonly IFactory<IMetadataProvider> providerFactory;
-        private readonly HttpClient httpClient;
         private readonly IFactory<Database.ShowTractorDbContext> factory;
+        private readonly IArtworkService artworkService;
         private readonly CancellationTokenSource cts = new();
         private TvSeason? data;
         private Guid? Id;
 
-        internal TvSeasonPageViewModel(IFactory<IMetadataProvider> providerFactory, HttpClient httpClient, IFactory<Database.ShowTractorDbContext> factory)
+        internal TvSeasonPageViewModel(IFactory<IMetadataProvider> providerFactory, IFactory<Database.ShowTractorDbContext> factory, IArtworkService artworkService)
         {
             this.providerFactory = providerFactory;
-            this.httpClient = httpClient;
             this.factory = factory;
+            this.artworkService = artworkService;
         }
 
         private PosterViewModel? parameter;
@@ -65,8 +65,8 @@ namespace ShowTractor.Pages.Details
         private string seasonDescription = string.Empty;
         public bool ShowFinale { get => showFinale; set { showFinale = value; OnPropertyChanged(); } }
         private bool showFinale;
-        public Artwork Artwork { get => artwork; set { artwork = value; OnPropertyChanged(); } }
-        private Artwork artwork = new TvSeasonDefaultArtwork();
+        public Uri? Artwork { get => artwork; set { if (artwork == value) return; artwork = value; OnPropertyChanged(); } }
+        private Uri? artwork;
         public ObservableCollection<TvEpisodeViewModel> Episodes
         {
             get => episodes; set
@@ -94,22 +94,13 @@ namespace ShowTractor.Pages.Details
             {
                 var provider = providerFactory.Get();
                 dbSeason = Database.TvSeason.FromRecord(data ?? throw new ArgumentNullException(nameof(data)), provider.GetAssemblyName());
-                if (dbSeason.Artwork == null && data.ArtworkUri != null)
-                {
-                    try
-                    {
-                        dbSeason.Artwork = await httpClient.GetByteArrayAsync(data.ArtworkUri);
-                    }
-                    catch (Exception ex)
-                    {
-                        ErrorMessage = "Warning: Could not load artwork. " + ex.Message;
-                    }
-                }
                 context.TvSeasons.Add(dbSeason);
                 dbSeason.Following = true;
                 dbSeason.DateFollowed = DateTime.SpecifyKind(DateTime.Today, DateTimeKind.Utc);
                 await Task.Run(async () => await context.SaveChangesAsync());
                 Id = dbSeason.Id;
+                if (Artwork != null)
+                    await artworkService.SaveArtwork(Artwork, dbSeason.Id);
                 for (int i = 0; i < Episodes.Count; i++)
                 {
                     await Episodes[i].UpdateAsync(dbSeason.Id, data.Episodes[i], context, true);
@@ -247,11 +238,11 @@ namespace ShowTractor.Pages.Details
                     {
                         // This is a show that already exists in the database.
                         Following = dbSeason.Following;
-                        await dbSeason.UpdateAsync(data, httpClient);
+                        await dbSeason.UpdateAsync(data);
                         await context.SaveChangesAsync();
                     }
                     Id = dbSeason?.Id;
-                    await LoadDataForDisplayAsync(data, dbSeason?.Episodes?.Select(e => e.WatchProgress).ToArray(), parameter.Artwork, false, context);
+                    await LoadDataForDisplayAsync(data, dbSeason?.Episodes?.Select(e => e.WatchProgress).ToArray(), false, context);
                 }
                 else if (parameter is SavedPosterViewModel savedPosterViewModel)
                 {
@@ -259,28 +250,30 @@ namespace ShowTractor.Pages.Details
                     Id = savedPosterViewModel.Id;
                     var dbSeason = await Task.Run(async () =>
                     {
-                        var dbSeason = await ((IQueryable<Database.TvSeason>)context.TvSeasons).Where(s => s.Id == savedPosterViewModel.Id).SelectNoArtwork().FirstAsync();
+                        var dbSeason = await context.TvSeasons.Where(s => s.Id == savedPosterViewModel.Id).SelectNoArtwork().FirstAsync();
                         context.TvSeasons.Attach(dbSeason);
                         await context.Entry(dbSeason).Collection(nameof(dbSeason.AdditionalAttributes)).LoadAsync();
                         await context.Entry(dbSeason).Collection(nameof(dbSeason.Episodes)).LoadAsync();
                         return dbSeason;
                     });
+                    if (dbSeason.AdditionalAttributes == null || dbSeason.Episodes == null)
+                        throw new InvalidOperationException("Could not load dbSeason.");
                     Following = dbSeason.Following;
                     var uniqueId = providerAssemblyName == null ? null : dbSeason.GetUniqueId(providerAssemblyName);
-                    Artwork = parameter.Artwork ?? new TvSeasonDefaultArtwork();
-                    await LoadDataForDisplayAsync(dbSeason.ToRecord(providerAssemblyName, uniqueId), dbSeason.Episodes.Select(e => e.WatchProgress).ToArray(), parameter.Artwork, false, context);
+                    if (parameter.Artwork != null)
+                    {
+                        Artwork = parameter.Artwork;
+                    }
+                    await LoadDataForDisplayAsync(dbSeason.ToRecord(providerAssemblyName, uniqueId), dbSeason.Episodes.Select(e => e.WatchProgress).ToArray(), false, context);
                     // Update saved data from latest.
                     if (provider != null)
                     {
                         var (latest, _) = await provider.GetUpdatesAsync(dbSeason, cts.Token);
-                        await dbSeason.UpdateAsync(latest, httpClient);
+                        await dbSeason.UpdateAsync(latest);
                         await Task.Run(async () => await context.SaveChangesAsync());
                         await LoadDataForDisplayAsync(
                             latest,
                             null,
-                            new Artwork(
-                                new ArtworkCacheKey { SeasonId = dbSeason.Id, Type = ArtworkType.Season },
-                                new DelegateFactory<ValueTask<Stream>>(() => new ValueTask<Stream>(new Database.TvSeasonArtworkStream(factory.Get(), dbSeason.Id)))),
                             true,
                             context);
                     }
@@ -295,7 +288,7 @@ namespace ShowTractor.Pages.Details
                 Loading = false;
             }
         }
-        private async ValueTask LoadDataForDisplayAsync(TvSeason data, TimeSpan[]? episodeWatchProgresses, Artwork? artwork, bool updateInDatabase, Database.ShowTractorDbContext? context)
+        private async ValueTask LoadDataForDisplayAsync(TvSeason data, TimeSpan[]? episodeWatchProgresses, bool updateInDatabase, Database.ShowTractorDbContext? context)
         {
             ShowName = data.ShowName;
             Season = data.Season;
@@ -304,14 +297,11 @@ namespace ShowTractor.Pages.Details
             ShowDescription = data.ShowDescription;
             SeasonDescription = data.SeasonDescription;
             ShowFinale = data.ShowFinale;
-            if (artwork != null)
-                Artwork = artwork;
-
             for (int i = 0; i < data.Episodes.Count; i++)
             {
                 if (i >= Episodes.Count)
                 {
-                    var episodeVm = new TvEpisodeViewModel(this, Id, data.Episodes[i], episodeWatchProgresses?.Skip(i).FirstOrDefault(), httpClient, factory);
+                    var episodeVm = new TvEpisodeViewModel(this, Id, data.Episodes[i], episodeWatchProgresses?.Skip(i).FirstOrDefault(), factory, artworkService);
                     Episodes.Add(episodeVm);
                     AttachTvEpisodeEventListener(episodeVm);
                 }
@@ -325,6 +315,7 @@ namespace ShowTractor.Pages.Details
                 if (context == null) throw new ArgumentNullException(nameof(context));
                 await Task.Run(async () => await context.SaveChangesAsync());
             }
+            Artwork = await artworkService.LoadAndSaveArtwork(data.ArtworkUri, Id);
         }
         private void AttachTvEpisodeEventListener(TvEpisodeViewModel episodeVm)
         {

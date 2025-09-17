@@ -18,7 +18,8 @@ namespace ShowTractor
         public ShowTractorServiceProvider(IOpenFileDialogService openFileDialogService)
         {
             var services = new ServiceCollection();
-            services.AddSingleton(new HttpClient());
+            var httpClient = new HttpClient();
+            services.AddSingleton(httpClient);
             services.AddSingleton(openFileDialogService);
             services.AddSingleton(PluginSettings.Default);
             services.AddSingleton(GeneralSettings.Default);
@@ -26,20 +27,25 @@ namespace ShowTractor
             services.AddSingleton<IFactory<Database.ShowTractorDbContext>>(p => new DelegateFactory<Database.ShowTractorDbContext>(() => new Database.ShowTractorDbContext()));
             services.AddDbContext<Database.ShowTractorDbContext>();
             ConfigureViewModels(services);
-            services.AddSingleton<IAsyncInitializationService>(new AsyncInitializationService(new Database.ShowTractorDbContext()));
+            var artworkService = new ArtworkService(httpClient);
+            services.AddSingleton((IArtworkService)artworkService);
+            services.AddSingleton<IAsyncInitializationService>(new AsyncInitializationService(new Database.ShowTractorDbContext(), artworkService));
             ConfigureBackgroundWorker(services);
             provider = services.BuildServiceProvider();
         }
         private static void ConfigureViewModels(ServiceCollection services)
         {
-            services.AddTransient(p => new SearchPageViewModel(p.GetRequiredService<IFactory<IMetadataProvider?>>(), p.GetRequiredService<HttpClient>()));
+            services.AddTransient(p => new SearchPageViewModel(
+                p.GetRequiredService<IFactory<IMetadataProvider?>>()));
             services.AddSingleton(p => new PluginSettingsPageViewModel(PluginSettings.Default, p.GetRequiredService<IOpenFileDialogService>(), p));
             services.AddSingleton(new GeneralSettingsPageViewModel(GeneralSettings.Default));
             services.AddScoped(p => new TvSeasonPageViewModel(
                 p.GetRequiredService<IFactory<IMetadataProvider>>(),
-                p.GetRequiredService<HttpClient>(),
-                p.GetRequiredService<IFactory<Database.ShowTractorDbContext>>()));
-            services.AddScoped(p => new MyShowsPageViewModel(p.GetRequiredService<IFactory<Database.ShowTractorDbContext>>()));
+                p.GetRequiredService<IFactory<Database.ShowTractorDbContext>>(),
+                p.GetRequiredService<IArtworkService>()));
+            services.AddScoped(p => new MyShowsPageViewModel(
+                p.GetRequiredService<IFactory<Database.ShowTractorDbContext>>(),
+                p.GetRequiredService<IArtworkService>()));
             services.AddScoped(
                 p => new CalendarPageViewModel(
                     p.GetRequiredService<IFactory<Database.ShowTractorDbContext>>(),
@@ -48,7 +54,8 @@ namespace ShowTractor
             services.AddScoped(
                 p => new UnwatchedPageViewModel(
                     p.GetRequiredService<IFactory<Database.ShowTractorDbContext>>(),
-                    p.GetRequiredService<GeneralSettings>()));
+                    p.GetRequiredService<GeneralSettings>(),
+                    p.GetRequiredService<IArtworkService>()));
             services.AddScoped(
                 p => new AllTimeStatisticsViewModel(
                     p.GetRequiredService<Database.ShowTractorDbContext>(),
@@ -59,8 +66,7 @@ namespace ShowTractor
             services.AddSingleton(p => new MetadataUpdateBackgroundWork(
                             GeneralSettings.Default,
                             p.GetRequiredService<IFactory<Database.ShowTractorDbContext>>(),
-                            p.GetRequiredService<IFactory<IMetadataProvider?>>(),
-                            p.GetRequiredService<HttpClient>()));
+                            p.GetRequiredService<IFactory<IMetadataProvider?>>()));
             services.AddSingleton(p =>
                 new ShowTractorBackgroundWorker(new BackgroundWorkCollection(
                     new IBackgroundWork[]
@@ -68,6 +74,6 @@ namespace ShowTractor
                         p.GetRequiredService<MetadataUpdateBackgroundWork>()
                     })));
         }
-        public object GetService(Type serviceType) => provider.GetService(serviceType);
+        public object? GetService(Type serviceType) => provider.GetService(serviceType);
     }
 }

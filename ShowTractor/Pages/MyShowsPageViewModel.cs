@@ -16,10 +16,12 @@ namespace ShowTractor.Pages
     {
         private const SortBy AllSorts = SortBy.AToZ | SortBy.ReleaseDate | SortBy.TvSeries;
         private readonly IFactory<Database.ShowTractorDbContext> factory;
+        private readonly IArtworkService artworkService;
 
-        internal MyShowsPageViewModel(IFactory<Database.ShowTractorDbContext> factory)
+        internal MyShowsPageViewModel(IFactory<Database.ShowTractorDbContext> factory, IArtworkService artworkService)
         {
             this.factory = factory;
+            this.artworkService = artworkService;
         }
 
         public LibraryViewModel CurrentShows => new(GetCurrentShowsAsync(), AllSorts, SortBy.None, Resources.LibraryNoCurrentShows);
@@ -42,7 +44,7 @@ namespace ShowTractor.Pages
         {
             using var context = factory.Get();
             var today = DateTime.Today;
-            var data = await Task.Run(async () => await ((IQueryable<Database.TvSeason>)context.TvSeasons)
+            var data = context.TvSeasons
             .Where(s => s.Episodes.Any(e => e.FirstAirDate < today.AddDays(7) && e.FirstAirDate > today.AddDays(-7) && s.Following))
             .Select(s =>
                 new LibraryPosterViewModel(
@@ -50,10 +52,10 @@ namespace ShowTractor.Pages
                     s.ShowName,
                     s.Season,
                     s.Episodes.Select(s => s.FirstAirDate).OrderBy(s => s).FirstOrDefault(),
-                    factory))
-            .AsAsyncEnumerable()
-            .ToArrayAsync());
-            foreach (var s in data)
+                    factory,
+                    artworkService))
+            .AsAsyncEnumerable();
+            await foreach (var s in data)
             {
                 yield return s;
             }
@@ -73,7 +75,7 @@ namespace ShowTractor.Pages
         private async Task<LibraryPosterViewModel> GetPosterViewModelAsync(Database.ShowTractorDbContext context, Database.TvSeason season)
         {
             var firstAirDate = await Task.Run(async () => await ((IQueryable<Database.TvEpisode>)context.TvEpisodes).Where(e => e.TvSeasonId == season.Id).Select(s => s.FirstAirDate).OrderBy(s => s).FirstOrDefaultAsync());
-            return new LibraryPosterViewModel(season.Id, season.ShowName, season.Season, firstAirDate, factory);
+            return new LibraryPosterViewModel(season.Id, season.ShowName, season.Season, firstAirDate, factory, artworkService);
         }
         public event PropertyChangedEventHandler? PropertyChanged;
         protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

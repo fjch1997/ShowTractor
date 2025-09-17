@@ -11,7 +11,6 @@ namespace ShowTractor.Plugins.Interfaces
         IList<string> Ratings,
         string ShowDescription,
         string SeasonDescription,
-        byte[]? Artwork,
         Uri? ArtworkUri,
         bool ShowEnded,
         bool ShowFinale,

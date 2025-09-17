@@ -22,7 +22,6 @@ namespace ShowTractor.Database
             get => description ?? throw new InvalidOperationException("Uninitialized property: " + nameof(Description));
         }
         private string? description;
-        public byte[]? Artwork { get; set; }
         public DateTime FirstAirDate { get; set; }
         public TimeSpan Runtime { get; set; }
         public TimeSpan WatchProgress { get; set; }
@@ -34,18 +33,17 @@ namespace ShowTractor.Database
         private TvSeason? tvSeason;
 
         internal Plugins.Interfaces.TvEpisode ToRecord() =>
-            new(EpisodeNumber, Name, Description, Artwork, null, FirstAirDate, Runtime);
+            new(EpisodeNumber, Name, Description, null, FirstAirDate, Runtime);
         public static TvEpisode FromRecord(Plugins.Interfaces.TvEpisode tvEpisode) =>
             new()
             {
                 EpisodeNumber = tvEpisode.EpisodeNumber,
                 Name = tvEpisode.Name,
                 Description = tvEpisode.Description,
-                Artwork = tvEpisode.Artwork,
                 FirstAirDate = tvEpisode.FirstAirDate,
                 Runtime = tvEpisode.Runtime,
             };
-        public async ValueTask UpdateAsync(Plugins.Interfaces.TvEpisode data, System.Net.Http.HttpClient httpClient)
+        public ValueTask UpdateAsync(Plugins.Interfaces.TvEpisode data)
         {
             if (!string.IsNullOrEmpty(data.Name) && data.Name != Name)
                 Name = data.Name;
@@ -57,13 +55,7 @@ namespace ShowTractor.Database
                 FirstAirDate = data.FirstAirDate;
             if (data.Runtime != default && data.Runtime != Runtime)
                 Runtime = data.Runtime;
-            if (Artwork == null)
-            {
-                if (data.Artwork != null)
-                    Artwork = data.Artwork;
-                else if (data.ArtworkUri != null)
-                    Artwork = await httpClient.GetByteArrayAsync(data.ArtworkUri);
-            }
+            return default;
         }
     }
 }

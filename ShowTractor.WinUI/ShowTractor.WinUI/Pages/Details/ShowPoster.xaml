@@ -10,7 +10,7 @@
     x:DefaultBindMode="OneWay">
     <Grid>
         <StackPanel Orientation="Vertical" Width="160" Background="White">
-            <Image Source="{x:Bind ((vm:PosterViewModel)DataContext).Artwork, Converter={StaticResource ArtworkToImageSourceConverter}}" />
+            <Image Source="{x:Bind ((vm:PosterViewModel)DataContext).Artwork, Converter={StaticResource TvSeasonImageSourceConverter}}" />
             <StackPanel Margin="6" Height="50.4">
                 <TextBlock Text="{x:Bind ((vm:PosterViewModel)DataContext).ShowName}" Style="{StaticResource BaseTextBlockStyle}"/>
                 <TextBlock Height="16.8" Text="{x:Bind ((vm:PosterViewModel)DataContext).SeasonText}" TextWrapping="Wrap" HorizontalAlignment="Left" Style="{StaticResource BodyTextBlockStyle}"/>

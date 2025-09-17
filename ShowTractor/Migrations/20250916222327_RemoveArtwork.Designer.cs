@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ShowTractor.Database;
 
@@ -10,9 +11,11 @@ using ShowTractor.Database;
 namespace ShowTractor.Migrations
 {
     [DbContext(typeof(ShowTractorDbContext))]
-    partial class ShowTractorDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250916222327_RemoveArtwork")]
+    partial class RemoveArtwork
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.8");
