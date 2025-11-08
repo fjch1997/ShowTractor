@@ -67,11 +67,15 @@ namespace ShowTractor
                             GeneralSettings.Default,
                             p.GetRequiredService<IFactory<Database.ShowTractorDbContext>>(),
                             p.GetRequiredService<IFactory<IMetadataProvider?>>()));
+            services.AddSingleton(p => new Database.DbSyncService(
+                            p.GetRequiredService<GeneralSettings>(),
+                            p.GetRequiredService<Database.ShowTractorDbContext>()));
             services.AddSingleton(p =>
                 new ShowTractorBackgroundWorker(new BackgroundWorkCollection(
                     new IBackgroundWork[]
                     {
-                        p.GetRequiredService<MetadataUpdateBackgroundWork>()
+                        p.GetRequiredService<MetadataUpdateBackgroundWork>(),
+                        p.GetRequiredService<Database.DbSyncService>()
                     })));
         }
         public object? GetService(Type serviceType) => provider.GetService(serviceType);

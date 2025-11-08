@@ -19,7 +19,7 @@ namespace ShowTractor.Database
             None = 0,
             DownloadRequired = 1,
             UploadRequired = 2,
-            Conflict = 3,
+            Conflict = DownloadRequired | UploadRequired,
         }
         private readonly GeneralSettings settings;
         private readonly ShowTractorDbContext context;
@@ -55,6 +55,12 @@ namespace ShowTractor.Database
                     LastUploadTimeUtc = DateTime.UtcNow;
                     break;
             }
+        }
+        public void Disable()
+        {
+            settings.RemoteDatabaseFilename = string.Empty;
+            settings.RemoteDatabaseLastSyncTimeUtc = default;
+            settings.Save();
         }
         public ValueTask LoadAsync(string filename)
         {
