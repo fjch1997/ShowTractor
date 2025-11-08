@@ -14,6 +14,13 @@ namespace ShowTractor.Tests
     [TestFixture]
     class DbSyncServiceTests
     {
+        class NotificationService : INotificationService
+        {
+            ValueTask<INotificationService.SyncConflictResolution> INotificationService.ShowSyncConflict(string remoteFilename, DateTime remoteLastModifiedTimeUtc, DateTime localLastModifiedTimeUtc)
+            {
+                return ValueTask.FromResult(INotificationService.SyncConflictResolution.Cancel);
+            }
+        }
         private ShowTractorDbContext? context;
         private ShowTractorDbContext? remoteContext;
         private GeneralSettings settings = new GeneralSettings();
@@ -83,7 +90,7 @@ namespace ShowTractor.Tests
         public async ValueTask LoadTestAsync()
         {
             var localContext = GetLocalContext();
-            var subject = new DbSyncService(settings, localContext);
+            var subject = new DbSyncService(settings, localContext, new NotificationService());
             localContext.TvSeasons.ExecuteDelete();
             await localContext.SaveChangesAsync();
             Assert.That(localContext.TvSeasons.Count(), Is.EqualTo(0));
@@ -102,7 +109,7 @@ namespace ShowTractor.Tests
             var remoteFilename = Path.Combine(remoteDirectoryName, "data2.sqlite");
             if (File.Exists(remoteFilename))
                 File.Delete(remoteFilename);
-            var subject = new DbSyncService(settings, GetLocalContext());
+            var subject = new DbSyncService(settings, GetLocalContext(), new NotificationService());
             await subject.SaveAsync(settings.RemoteDatabaseFilename);
             Assert.That(File.Exists(settings.RemoteDatabaseFilename), Is.True);
         }
@@ -125,7 +132,7 @@ namespace ShowTractor.Tests
         public async ValueTask UpdateTestAsync()
         {
             var localContext = GetLocalContext();
-            var subject = new DbSyncService(settings, localContext);
+            var subject = new DbSyncService(settings, localContext, new NotificationService());
             await InitInSyncDatabases(subject);
 
             // Act: Update the season's description and Following status.
@@ -158,7 +165,7 @@ namespace ShowTractor.Tests
         public async ValueTask DownloadTestAsync()
         {
             var localContext = GetLocalContext();
-            var subject = new DbSyncService(settings, localContext);
+            var subject = new DbSyncService(settings, localContext, new NotificationService());
             await InitInSyncDatabases(subject);
 
             // Download after remote change.
@@ -175,21 +182,22 @@ namespace ShowTractor.Tests
         public async ValueTask ConflictTestAsync()
         {
             var localContext = GetLocalContext();
-            var subject = new DbSyncService(settings, localContext);
+            var subject = new DbSyncService(settings, localContext, new NotificationService());
             await InitInSyncDatabases(subject);
 
-            // Simulate a local update
+            // Simulate a local update.
             var localSeason = localContext.TvSeasons.First();
             localSeason.SeasonDescription = "Local update";
             localSeason.Following = false;
             await localContext.SaveChangesAsync();
 
-            // Simulate a conflicting remote update
+            // Simulate a conflicting remote update.
             AddTestData(GetRemoteContext(), TestTvSeason2);
             CloseRemoteContext();
-            // Act & Assert: Try to sync, expect NotImplementedException for conflict
-            var ex = Assert.ThrowsAsync<NotImplementedException>(async () => await subject.DoWorkAsync());
-            Assert.That(ex, Is.Not.Null);
+            // Act & Assert: Try to sync.
+            await subject.DoWorkAsync();
+            Assert.That(settings.RemoteDatabaseFilename, Is.Null);
+            Assert.That(settings.RemoteDatabaseLastSyncTimeUtc, Is.Default);
         }
     }
 }

@@ -23,10 +23,13 @@ namespace ShowTractor.Database
         }
         private readonly GeneralSettings settings;
         private readonly ShowTractorDbContext context;
-        public DbSyncService(GeneralSettings settings, ShowTractorDbContext context)
+        private readonly INotificationService notificationService;
+
+        public DbSyncService(GeneralSettings settings, ShowTractorDbContext context, INotificationService notificationService)
         {
             this.settings = settings;
             this.context = context;
+            this.notificationService = notificationService;
         }
         public TimeSpan Interval => TimeSpan.FromMinutes(1);
         public DateTime LastDownloadTimeUtc { get => lastDownloadTimeUtc; set { lastDownloadTimeUtc = value; OnPropertyChanged(); } }
@@ -41,24 +44,39 @@ namespace ShowTractor.Database
         {
             if (string.IsNullOrEmpty(settings.RemoteDatabaseFilename))
                 return;
-
-            switch (await GetSyncStatusAsync())
+            var syncStatusResult = await GetSyncStatusAsync();
+            switch (syncStatusResult.status)
             {
                 case SyncStatus.Conflict:
-                    throw new NotImplementedException();
+                    await HandleConflict(syncStatusResult);
+                    break;
                 case SyncStatus.DownloadRequired:
                     await LoadAsync(settings.RemoteDatabaseFilename);
-                    LastDownloadTimeUtc = DateTime.UtcNow;
                     break;
                 case SyncStatus.UploadRequired:
                     await SaveAsync(settings.RemoteDatabaseFilename);
-                    LastUploadTimeUtc = DateTime.UtcNow;
+                    break;
+            }
+        }
+        private async ValueTask HandleConflict((SyncStatus status, DateTime localModifiedTimeUtc, DateTime remoteModifiedTimeUtc) syncStatusResult)
+        {
+            var resolution = await notificationService.ShowSyncConflict(settings.RemoteDatabaseFilename, syncStatusResult.remoteModifiedTimeUtc, syncStatusResult.localModifiedTimeUtc);
+            switch (resolution)
+            {
+                case INotificationService.SyncConflictResolution.Cancel:
+                    Disable();
+                    break;
+                case INotificationService.SyncConflictResolution.OverwriteLocal:
+                    await LoadAsync(settings.RemoteDatabaseFilename);
+                    break;
+                case INotificationService.SyncConflictResolution.OverwriteRemote:
+                    await SaveAsync(settings.RemoteDatabaseFilename);
                     break;
             }
         }
         public void Disable()
         {
-            settings.RemoteDatabaseFilename = string.Empty;
+            settings.RemoteDatabaseFilename = null;
             settings.RemoteDatabaseLastSyncTimeUtc = default;
             settings.Save();
         }
@@ -77,6 +95,7 @@ namespace ShowTractor.Database
             settings.RemoteDatabaseFilename = filename;
             settings.RemoteDatabaseLastSyncTimeUtc = File.GetLastWriteTimeUtc(filename);
             settings.Save();
+            LastDownloadTimeUtc = DateTime.UtcNow;
             return ValueTask.CompletedTask;
         }
         public ValueTask SaveAsync(string filename)
@@ -95,16 +114,17 @@ namespace ShowTractor.Database
             settings.RemoteDatabaseFilename = filename;
             settings.RemoteDatabaseLastSyncTimeUtc = File.GetLastWriteTimeUtc(filename);
             settings.Save();
+            LastUploadTimeUtc = DateTime.UtcNow;
             return ValueTask.CompletedTask;
         }
-        private async ValueTask<SyncStatus> GetSyncStatusAsync()
+        private async ValueTask<(SyncStatus status, DateTime localModifiedTimeUtc, DateTime remoteModifiedTimeUtc)> GetSyncStatusAsync()
         {
             var status = SyncStatus.None;
-            var localDatabaseModifiedTime = await Task.Run(() => GetDatabaseModifiedTimeUtc(context.DataSource));
+            var localModifiedTimeUtc = await Task.Run(() => GetDatabaseModifiedTimeUtc(context.DataSource));
             if (!File.Exists(settings.RemoteDatabaseFilename))
-                return SyncStatus.UploadRequired;
-            var remoteDatabaseModifiedTime = await Task.Run(() => GetDatabaseModifiedTimeUtc(settings.RemoteDatabaseFilename));
-            if (settings.RemoteDatabaseLastSyncTimeUtc != remoteDatabaseModifiedTime)
+                return (SyncStatus.UploadRequired, localModifiedTimeUtc, default);
+            var remoteModifiedTimeUtc = await Task.Run(() => GetDatabaseModifiedTimeUtc(settings.RemoteDatabaseFilename));
+            if (settings.RemoteDatabaseLastSyncTimeUtc != remoteModifiedTimeUtc)
             {
                 status |= SyncStatus.DownloadRequired;
             }
@@ -112,7 +132,7 @@ namespace ShowTractor.Database
             {
                 status |= SyncStatus.UploadRequired;
             }
-            return status;
+            return (status, localModifiedTimeUtc, remoteModifiedTimeUtc);
         }
         private DateTime GetDatabaseModifiedTimeUtc(string filename)
         {

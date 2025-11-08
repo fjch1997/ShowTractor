@@ -15,12 +15,13 @@ namespace ShowTractor
     {
         private readonly ServiceProvider provider;
 
-        public ShowTractorServiceProvider(IOpenFileDialogService openFileDialogService)
+        public ShowTractorServiceProvider(IOpenFileDialogService openFileDialogService, INotificationService notificationService)
         {
             var services = new ServiceCollection();
             var httpClient = new HttpClient();
             services.AddSingleton(httpClient);
             services.AddSingleton(openFileDialogService);
+            services.AddSingleton(notificationService);
             services.AddSingleton(PluginSettings.Default);
             services.AddSingleton(GeneralSettings.Default);
             services.AddSingleton<IFactory<IMetadataProvider?>>(p => new MetadataProviderFactory(p.GetRequiredService<PluginSettings>(), p));
@@ -69,7 +70,8 @@ namespace ShowTractor
                             p.GetRequiredService<IFactory<IMetadataProvider?>>()));
             services.AddSingleton(p => new Database.DbSyncService(
                             p.GetRequiredService<GeneralSettings>(),
-                            p.GetRequiredService<Database.ShowTractorDbContext>()));
+                            p.GetRequiredService<Database.ShowTractorDbContext>(),
+                            p.GetRequiredService<INotificationService>()));
             services.AddSingleton(p =>
                 new ShowTractorBackgroundWorker(new BackgroundWorkCollection(
                     new IBackgroundWork[]
