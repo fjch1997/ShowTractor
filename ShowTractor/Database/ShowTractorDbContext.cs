@@ -2,15 +2,30 @@
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ShowTractor.Database
 {
     class ShowTractorDbContext : DbContext
     {
+        private readonly string dataSourceDirectory;
+        private readonly string pendingUploadFilename;
+        public string DataSource => Path.Combine(dataSourceDirectory, "data.sqlite");
+        public bool PendingUpload
+        {
+            get { return File.Exists(pendingUploadFilename); }
+            set { if (!value) File.Delete(pendingUploadFilename); }
+        }
         internal DbSet<TvSeason> TvSeasons => Set<TvSeason>();
         internal DbSet<TvEpisode> TvEpisodes => Set<TvEpisode>();
         internal DbSet<AdditionalAttribute> AdditionalAttributes => Set<AdditionalAttribute>();
+        public ShowTractorDbContext() : this(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), nameof(ShowTractor))) { }
+        public ShowTractorDbContext(string dataSourceDirectory)
+        {
+            this.dataSourceDirectory = dataSourceDirectory;
+            pendingUploadFilename = DataSource + ".pending-upload";
+        }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<TvEpisode>().HasKey(nameof(TvEpisode.TvSeasonId), nameof(TvEpisode.EpisodeNumber));
@@ -25,24 +40,25 @@ namespace ShowTractor.Database
 #endif
             if (!optionsBuilder.IsConfigured)
             {
-                var directory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), nameof(ShowTractor));
-                Directory.CreateDirectory(directory);
+                Directory.CreateDirectory(dataSourceDirectory);
                 var builder = new SqliteConnectionStringBuilder
                 {
-                    DataSource = Path.Combine(directory, "data.sqlite"),
+                    DataSource = DataSource,
                     Cache = SqliteCacheMode.Shared
                 };
                 optionsBuilder.UseSqlite(builder.ToString());
             }
             base.OnConfiguring(optionsBuilder);
         }
-        public override void Dispose()
+        public override int SaveChanges(bool acceptAllChangesOnSuccess)
         {
-            base.Dispose();
+            File.Open(pendingUploadFilename, FileMode.OpenOrCreate).Dispose();
+            return base.SaveChanges(acceptAllChangesOnSuccess);
         }
-        public override ValueTask DisposeAsync()
+        public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
         {
-            return base.DisposeAsync();
+            await File.Open(pendingUploadFilename, FileMode.OpenOrCreate).DisposeAsync();
+            return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
         }
     }
 }
