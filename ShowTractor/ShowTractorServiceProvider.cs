@@ -39,7 +39,7 @@ namespace ShowTractor
             services.AddTransient(p => new SearchPageViewModel(
                 p.GetRequiredService<IFactory<IMetadataProvider?>>()));
             services.AddSingleton(p => new PluginSettingsPageViewModel(PluginSettings.Default, p.GetRequiredService<IOpenFileDialogService>(), p));
-            services.AddSingleton(new GeneralSettingsPageViewModel(GeneralSettings.Default));
+            services.AddSingleton(p => new GeneralSettingsPageViewModel(GeneralSettings.Default, p.GetRequiredService<Database.DbSyncService>()));
             services.AddScoped(p => new TvSeasonPageViewModel(
                 p.GetRequiredService<IFactory<IMetadataProvider>>(),
                 p.GetRequiredService<IFactory<Database.ShowTractorDbContext>>(),

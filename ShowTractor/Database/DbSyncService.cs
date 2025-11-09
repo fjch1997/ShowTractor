@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace ShowTractor.Database
 {
-    internal class DbSyncService : IBackgroundWork, INotifyPropertyChanged
+    public class DbSyncService : IBackgroundWork, INotifyPropertyChanged
     {
         [Flags]
         private enum SyncStatus
@@ -26,7 +26,7 @@ namespace ShowTractor.Database
         private readonly ShowTractorDbContext context;
         private readonly INotificationService notificationService;
 
-        public DbSyncService(GeneralSettings settings, ShowTractorDbContext context, INotificationService notificationService)
+        internal DbSyncService(GeneralSettings settings, ShowTractorDbContext context, INotificationService notificationService)
         {
             this.settings = settings;
             this.context = context;
