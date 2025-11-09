@@ -26,18 +26,19 @@ namespace ShowTractor.Background
         }
         public void Start()
         {
-            task = Task.Run(async () =>
-            {
-                while (true)
+            task = new Task(async () =>
+                {
+                while (!cts.IsCancellationRequested)
                 {
                     foreach (var work in backgroundWorkCollection.BackgroundWorks)
                     {
+                        cts.Token.ThrowIfCancellationRequested();
                         if (DateTime.UtcNow - lastDoWorkTime[work] > work.Interval && await work.CanDoWorkAsync())
                         {
                             lastDoWorkTime[work] = DateTime.UtcNow;
                             try
                             {
-                                await work.DoWorkAsync();
+                                await work.DoWorkAsync(cts.Token);
                             }
                             catch { }
                         }
@@ -45,11 +46,7 @@ namespace ShowTractor.Background
                     await Task.Delay(1000, cts.Token);
                 }
             }, cts.Token);
-            task.ContinueWith(t =>
-            {
-                if (t.IsFaulted)
-                    Environment.FailFast(nameof(ShowTractorBackgroundWorker) + " failed.", t.Exception);
-            });
+            task.RunSynchronously();
         }
     }
 }
