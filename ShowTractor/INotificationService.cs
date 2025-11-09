@@ -1,4 +1,4 @@
-﻿using System;
+﻿using ShowTractor.Pages;
 using System.Threading.Tasks;
 
 namespace ShowTractor
@@ -8,9 +8,9 @@ namespace ShowTractor
         public enum SyncConflictResolution
         {
             Cancel,
-            OverwriteLocal,
-            OverwriteRemote,
+            KeepRemote,
+            KeepLocal,
         }
-        ValueTask<SyncConflictResolution> ShowSyncConflict(string remoteFilename, DateTime remoteLastModifiedTimeUtc, DateTime localLastModifiedTimeUtc);
+        ValueTask<SyncConflictResolution> ShowSyncConflict(SyncConflictViewModel syncConflictViewModel);
     }
 }

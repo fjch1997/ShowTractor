@@ -1,6 +1,7 @@
 ﻿using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using ShowTractor.Background;
+using ShowTractor.Pages;
 using System;
 using System.ComponentModel;
 using System.IO;
@@ -60,16 +61,22 @@ namespace ShowTractor.Database
         }
         private async ValueTask HandleConflict((SyncStatus status, DateTime localModifiedTimeUtc, DateTime remoteModifiedTimeUtc) syncStatusResult)
         {
-            var resolution = await notificationService.ShowSyncConflict(settings.RemoteDatabaseFilename, syncStatusResult.remoteModifiedTimeUtc, syncStatusResult.localModifiedTimeUtc);
+            var vm = new SyncConflictViewModel
+            {
+                RemoteFilename = settings.RemoteDatabaseFilename,
+                RemoteLastModifiedTimeUtc = syncStatusResult.remoteModifiedTimeUtc,
+                LocalLastModifiedTimeUtc = syncStatusResult.localModifiedTimeUtc,
+            };
+            var resolution = await notificationService.ShowSyncConflict(vm);
             switch (resolution)
             {
                 case INotificationService.SyncConflictResolution.Cancel:
                     Disable();
                     break;
-                case INotificationService.SyncConflictResolution.OverwriteLocal:
+                case INotificationService.SyncConflictResolution.KeepRemote:
                     await LoadAsync(settings.RemoteDatabaseFilename);
                     break;
-                case INotificationService.SyncConflictResolution.OverwriteRemote:
+                case INotificationService.SyncConflictResolution.KeepLocal:
                     await SaveAsync(settings.RemoteDatabaseFilename);
                     break;
             }

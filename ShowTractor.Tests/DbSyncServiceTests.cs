@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using ShowTractor.Database;
+using ShowTractor.Pages;
 using System;
 using System.IO;
 using System.Linq;
@@ -16,7 +17,7 @@ namespace ShowTractor.Tests
     {
         class NotificationService : INotificationService
         {
-            ValueTask<INotificationService.SyncConflictResolution> INotificationService.ShowSyncConflict(string remoteFilename, DateTime remoteLastModifiedTimeUtc, DateTime localLastModifiedTimeUtc)
+            public ValueTask<INotificationService.SyncConflictResolution> ShowSyncConflict(SyncConflictViewModel syncConflictViewModel)
             {
                 return ValueTask.FromResult(INotificationService.SyncConflictResolution.Cancel);
             }
