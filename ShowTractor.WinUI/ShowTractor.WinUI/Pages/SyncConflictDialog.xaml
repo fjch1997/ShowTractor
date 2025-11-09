@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentDialog
+    x:Class="ShowTractor.WinUI.Pages.SyncConflictDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ShowTractor.WinUI.Pages"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:vm="using:ShowTractor.Pages"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="Sync conflict"
+    PrimaryButtonText="Confirm"
+    d:DataContext="{d:DesignInstance Type=vm:SyncConflictViewModel}">
+
+    <StackPanel>
+        <TextBlock TextWrapping="Wrap">
+            There was a conflict while syncing your data. Please choose which version to keep:
+        </TextBlock>
+        <StackPanel Margin="0 5">
+            <RadioButton GroupName="SyncConflict" x:Name="keepLocalButton" Margin="0 5">
+                <TextBlock>
+                    <Run Text="Keep local version"/>
+                    <LineBreak/>
+                    <Run Text="  Last modified: "/>
+                    <Run Text="{Binding LocalLastModifiedTime}" FontStyle="Italic"/>
+                </TextBlock>
+            </RadioButton>
+            <RadioButton GroupName="SyncConflict" x:Name="keepRemoteButton" Margin="0 5">
+                <TextBlock>
+                    <Run Text="Take remote version"/>
+                    <LineBreak/>
+                    <Run Text="  Last modified: "/>
+                    <Run Text="{Binding RemoteLastModifiedTime}" FontStyle="Italic"/>
+                </TextBlock>
+            </RadioButton>
+            <RadioButton Content="Disable sync" GroupName="SyncConflict" IsChecked="True" Margin="0 5"/>
+        </StackPanel>
+    </StackPanel>
+</ContentDialog>
