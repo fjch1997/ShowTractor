@@ -25,7 +25,8 @@ namespace ShowTractor.Database
         private readonly GeneralSettings settings;
         private readonly ShowTractorDbContext context;
         private readonly INotificationService notificationService;
-
+        public bool Running { get => running; set { running = value; OnPropertyChanged(); } }
+        private bool running;
         internal DbSyncService(GeneralSettings settings, ShowTractorDbContext context, INotificationService notificationService)
         {
             this.settings = settings;
@@ -39,24 +40,32 @@ namespace ShowTractor.Database
         private DateTime lastUploadTimeUtc;
         public ValueTask<bool> CanDoWorkAsync()
         {
-            return ValueTask.FromResult(!string.IsNullOrEmpty(settings.RemoteDatabaseFilename));
+            return ValueTask.FromResult(!string.IsNullOrEmpty(settings.RemoteDatabaseFilename) && !Running);
         }
         public async ValueTask DoWorkAsync(CancellationToken token = default)
         {
             if (string.IsNullOrEmpty(settings.RemoteDatabaseFilename))
                 return;
-            var syncStatusResult = await GetSyncStatusAsync();
-            switch (syncStatusResult.status)
+            Running = true;
+            try
             {
-                case SyncStatus.Conflict:
-                    await HandleConflict(syncStatusResult);
-                    break;
-                case SyncStatus.DownloadRequired:
-                    await LoadAsync(settings.RemoteDatabaseFilename);
-                    break;
-                case SyncStatus.UploadRequired:
-                    await SaveAsync(settings.RemoteDatabaseFilename);
-                    break;
+                var syncStatusResult = await GetSyncStatusAsync();
+                switch (syncStatusResult.status)
+                {
+                    case SyncStatus.Conflict:
+                        await HandleConflict(syncStatusResult);
+                        break;
+                    case SyncStatus.DownloadRequired:
+                        await LoadAsync(settings.RemoteDatabaseFilename);
+                        break;
+                    case SyncStatus.UploadRequired:
+                        await SaveAsync(settings.RemoteDatabaseFilename);
+                        break;
+                }
+            }
+            finally
+            {
+                Running = false;
             }
         }
         private async ValueTask HandleConflict((SyncStatus status, DateTime localModifiedTimeUtc, DateTime remoteModifiedTimeUtc) syncStatusResult)
