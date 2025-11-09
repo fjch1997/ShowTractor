@@ -64,8 +64,8 @@ namespace ShowTractor.Database
             var vm = new SyncConflictViewModel
             {
                 RemoteFilename = settings.RemoteDatabaseFilename,
-                RemoteLastModifiedTimeUtc = syncStatusResult.remoteModifiedTimeUtc,
-                LocalLastModifiedTimeUtc = syncStatusResult.localModifiedTimeUtc,
+                RemoteLastModifiedTime = syncStatusResult.remoteModifiedTimeUtc.ToLocalTime(),
+                LocalLastModifiedTime = syncStatusResult.localModifiedTimeUtc.ToLocalTime(),
             };
             var resolution = await notificationService.ShowSyncConflict(vm);
             switch (resolution)
