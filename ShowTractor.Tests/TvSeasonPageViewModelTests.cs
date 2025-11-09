@@ -287,7 +287,7 @@ namespace ShowTractor.Tests
                 }
                 context.SaveChanges();
             }
-            return new LibraryPosterViewModel(dbSeason.Id, dbSeason.ShowName, dbSeason.Season, testSeason.Episodes.First().FirstAirDate, factory, artworkService);
+            return new LibraryPosterViewModel(dbSeason.Id, dbSeason.ShowName, dbSeason.Season, testSeason.Episodes.First().FirstAirDate, artworkService);
         }
         private async Task TestFollowingAsync(TvSeason tvSeason)
         {

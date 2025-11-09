@@ -11,12 +11,12 @@ namespace ShowTractor.Tests.Mocks
         readonly DbConnection connection;
         private readonly bool shouldDispose;
 
-        public InMemoryDbContext()
+        public InMemoryDbContext() : base(new GeneralSettings())
         {
             connection = CreateConnection();
             shouldDispose = true;
         }
-        public InMemoryDbContext(DbConnection connection)
+        public InMemoryDbContext(DbConnection connection) : base(new GeneralSettings())
         {
             this.connection = connection;
         }

@@ -18,17 +18,19 @@ namespace ShowTractor.Pages.Details
 
     class ArtworkService : IArtworkService
     {
-        private readonly string artworkDirectory;
         private readonly HttpClient httpClient;
+        private readonly GeneralSettings generalSettings;
 
-        public ArtworkService(HttpClient httpClient) : this(httpClient, Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), nameof(ShowTractor), "Artwork")) { }
-
-        internal ArtworkService(HttpClient httpClient, string artworkDirectory)
+        public ArtworkService(HttpClient httpClient, GeneralSettings generalSettings)
         {
             this.httpClient = httpClient;
-            this.artworkDirectory = artworkDirectory;
+            this.generalSettings = generalSettings;
+            if (string.IsNullOrEmpty(generalSettings.ArtworkDirectoryName))
+            {
+                generalSettings.ArtworkDirectoryName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), nameof(ShowTractor), "Artwork");
+                generalSettings.Save();
+            }
         }
-
         public Stream GetDefaultSeasonArtwork()
         {
             return Assembly.GetExecutingAssembly().GetManifestResourceStream("ShowTractor.Assets.poster-placeholder.jpg")
@@ -48,11 +50,11 @@ namespace ShowTractor.Pages.Details
         }
         private string GetSeasonFilename(Guid seasonId)
         {
-            return Path.Combine(artworkDirectory, seasonId.ToString(), "poster.jpg");
+            return Path.Combine(generalSettings.ArtworkDirectoryName, seasonId.ToString(), "poster.jpg");
         }
         private string GetEpisodeFilename(Guid seasonId, int episodeNumber)
         {
-            return Path.Combine(artworkDirectory, seasonId.ToString(), episodeNumber.ToString() + ".jpg");
+            return Path.Combine(generalSettings.ArtworkDirectoryName, seasonId.ToString(), episodeNumber.ToString() + ".jpg");
         }
         public Task SaveArtwork(Uri artworkUri, Guid seasonId)
         {

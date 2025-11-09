@@ -16,7 +16,9 @@ namespace ShowTractor.Tests.Mocks
             if (Directory.Exists(directoryName))
                 Directory.Delete(directoryName, true);
             Directory.CreateDirectory(directoryName);
-            artworkService = new ArtworkService(new HttpClient(new TestHttpMessageHandler()), directoryName);
+            artworkService = new ArtworkService(
+                new HttpClient(new TestHttpMessageHandler()),
+                new GeneralSettings { ArtworkDirectoryName = directoryName });
         }
         public Task<Uri?> LoadAndSaveArtwork(Uri? artworkUri, Guid? seasonId)
         {

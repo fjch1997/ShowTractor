@@ -24,12 +24,11 @@ namespace ShowTractor
             services.AddSingleton(PluginSettings.Default);
             services.AddSingleton(GeneralSettings.Default);
             services.AddSingleton<IFactory<IMetadataProvider?>>(p => new MetadataProviderFactory(p.GetRequiredService<PluginSettings>(), p));
-            services.AddSingleton<IFactory<Database.ShowTractorDbContext>>(p => new DelegateFactory<Database.ShowTractorDbContext>(() => new Database.ShowTractorDbContext()));
+            services.AddSingleton<IFactory<Database.ShowTractorDbContext>>(p => new DelegateFactory<Database.ShowTractorDbContext>(() => new Database.ShowTractorDbContext(p.GetRequiredService<GeneralSettings>())));
             services.AddDbContext<Database.ShowTractorDbContext>();
             ConfigureViewModels(services);
-            var artworkService = new ArtworkService(httpClient);
-            services.AddSingleton((IArtworkService)artworkService);
-            services.AddSingleton<IAsyncInitializationService>(new AsyncInitializationService(new Database.ShowTractorDbContext(), artworkService));
+            services.AddSingleton<IArtworkService, ArtworkService>();
+            services.AddSingleton<IAsyncInitializationService>(p => new AsyncInitializationService(p.GetRequiredService<Database.ShowTractorDbContext>(), p.GetRequiredService<IArtworkService>()));
             ConfigureBackgroundWorker(services);
             provider = services.BuildServiceProvider();
         }
