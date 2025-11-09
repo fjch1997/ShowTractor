@@ -57,16 +57,16 @@ namespace ShowTractor.Mvvm
 
         public ICommand Command { get { return this; } }
 
-        public bool CanExecute(object parameter)
+        public bool CanExecute(object? parameter)
         {
             return !isExecuting;
         }
 
         public event EventHandler? CanExecuteChanged;
 
-        public async void Execute(object parameter)
+        public async void Execute(object? parameter)
         {
-            await ExecuteAsync((T)parameter);
+            await ExecuteAsync((T?)parameter);
         }
     }
 }
