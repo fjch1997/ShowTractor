@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using ShowTractor.Background;
 using ShowTractor.Interfaces;
 using ShowTractor.Pages;
@@ -24,8 +25,7 @@ namespace ShowTractor
             services.AddSingleton(PluginSettings.Default);
             services.AddSingleton(GeneralSettings.Default);
             services.AddSingleton<IFactory<IMetadataProvider?>>(p => new MetadataProviderFactory(p.GetRequiredService<PluginSettings>(), p));
-            services.AddSingleton<IFactory<Database.ShowTractorDbContext>>(p => new DelegateFactory<Database.ShowTractorDbContext>(() => new Database.ShowTractorDbContext(p.GetRequiredService<GeneralSettings>())));
-            services.AddDbContext<Database.ShowTractorDbContext>();
+            services.AddDbContextFactory<Database.ShowTractorDbContext>();
             ConfigureViewModels(services);
             services.AddSingleton<IArtworkService, ArtworkService>();
             services.AddSingleton<IAsyncInitializationService>(p => new AsyncInitializationService(p.GetRequiredService<Database.ShowTractorDbContext>(), p.GetRequiredService<IArtworkService>()));
@@ -40,19 +40,19 @@ namespace ShowTractor
             services.AddSingleton(new GeneralSettingsPageViewModel(GeneralSettings.Default));
             services.AddScoped(p => new TvSeasonPageViewModel(
                 p.GetRequiredService<IFactory<IMetadataProvider>>(),
-                p.GetRequiredService<IFactory<Database.ShowTractorDbContext>>(),
+                p.GetRequiredService<IDbContextFactory<Database.ShowTractorDbContext>>(),
                 p.GetRequiredService<IArtworkService>()));
             services.AddScoped(p => new MyShowsPageViewModel(
-                p.GetRequiredService<IFactory<Database.ShowTractorDbContext>>(),
+                p.GetRequiredService<IDbContextFactory<Database.ShowTractorDbContext>>(),
                 p.GetRequiredService<IArtworkService>()));
             services.AddScoped(
                 p => new CalendarPageViewModel(
-                    p.GetRequiredService<IFactory<Database.ShowTractorDbContext>>(),
+                    p.GetRequiredService<IDbContextFactory<Database.ShowTractorDbContext>>(),
                     p.GetRequiredService<IAsyncInitializationService>(),
                     p.GetRequiredService<GeneralSettings>()));
             services.AddScoped(
                 p => new UnwatchedPageViewModel(
-                    p.GetRequiredService<IFactory<Database.ShowTractorDbContext>>(),
+                    p.GetRequiredService<IDbContextFactory<Database.ShowTractorDbContext>>(),
                     p.GetRequiredService<GeneralSettings>(),
                     p.GetRequiredService<IArtworkService>()));
             services.AddScoped(
@@ -64,7 +64,7 @@ namespace ShowTractor
         {
             services.AddSingleton(p => new MetadataUpdateBackgroundWork(
                             GeneralSettings.Default,
-                            p.GetRequiredService<IFactory<Database.ShowTractorDbContext>>(),
+                            p.GetRequiredService<IDbContextFactory<Database.ShowTractorDbContext>>(),
                             p.GetRequiredService<IFactory<IMetadataProvider?>>()));
             services.AddSingleton(p =>
                 new ShowTractorBackgroundWorker(new BackgroundWorkCollection(

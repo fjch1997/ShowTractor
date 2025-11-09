@@ -14,11 +14,11 @@ namespace ShowTractor.Pages
 {
     public class UnwatchedPageViewModel : INotifyPropertyChanged
     {
-        private readonly IFactory<Database.ShowTractorDbContext> factory;
+        private readonly IDbContextFactory<Database.ShowTractorDbContext> factory;
         private readonly GeneralSettings settings;
         private readonly IArtworkService artworkService;
 
-        internal UnwatchedPageViewModel(IFactory<Database.ShowTractorDbContext> factory, GeneralSettings settings, IArtworkService artworkService)
+        internal UnwatchedPageViewModel(IDbContextFactory<Database.ShowTractorDbContext> factory, GeneralSettings settings, IArtworkService artworkService)
         {
             this.factory = factory;
             this.settings = settings;
@@ -30,7 +30,7 @@ namespace ShowTractor.Pages
         {
             TotalTimeUnwatched = await Task.Run(async () =>
             {
-                using var context = factory.Get();
+                using var context = await factory.CreateDbContextAsync();
                 var query = from e in (IQueryable<Database.TvEpisode>)context.TvEpisodes
                             where e.WatchProgress == TimeSpan.Zero && e.FirstAirDate <= DateTime.Today && e.TvSeason.Following
                             select new { e.WatchProgress, e.Runtime };
@@ -64,7 +64,7 @@ namespace ShowTractor.Pages
 
         private async IAsyncEnumerable<PosterViewModel> GetUnwatchedAsync()
         {
-            using var context = factory.Get();
+            using var context = await factory.CreateDbContextAsync();
             var query = from e in (IQueryable<Database.TvEpisode>)context.TvEpisodes
                         where e.WatchProgress == TimeSpan.Zero && e.FirstAirDate <= DateTime.Today && e.TvSeason.Following
                         orderby e.FirstAirDate

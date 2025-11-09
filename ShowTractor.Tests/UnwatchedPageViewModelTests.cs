@@ -44,7 +44,7 @@ namespace ShowTractor.Tests
             AddSeason(TestTvSeason4, 3);
             AddSeason(TestTvSeason5, 3);
             AddSeason(TestTvSeason6, 3);
-            subject = new UnwatchedPageViewModel(new DelegateFactory<Database.ShowTractorDbContext>(() => new InMemoryDbContext(connection)), new GeneralSettings(), artworkService);
+            subject = new UnwatchedPageViewModel(new DelegateDbContextFactory<Database.ShowTractorDbContext>(() => new InMemoryDbContext(connection)), new GeneralSettings(), artworkService);
         }
         [TearDown]
         public void TestCleanup()

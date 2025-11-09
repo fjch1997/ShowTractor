@@ -1,4 +1,5 @@
-﻿using ShowTractor.Database.Extensions;
+﻿using Microsoft.EntityFrameworkCore;
+using ShowTractor.Database.Extensions;
 using ShowTractor.Interfaces;
 using ShowTractor.Plugins.Interfaces;
 using System;
@@ -36,8 +37,8 @@ namespace ShowTractor.Pages.Details
     }
     public abstract class SavedPosterViewModel : PosterViewModel
     {
-        private readonly IFactory<Database.ShowTractorDbContext> contextFactory;
-        internal SavedPosterViewModel(Guid id, string showName, int season, DateTime firstEpisodeAirDate, IFactory<Database.ShowTractorDbContext> contextFactory) : base(showName, season, firstEpisodeAirDate)
+        private readonly IDbContextFactory<Database.ShowTractorDbContext> contextFactory;
+        internal SavedPosterViewModel(Guid id, string showName, int season, DateTime firstEpisodeAirDate, IDbContextFactory<Database.ShowTractorDbContext> contextFactory) : base(showName, season, firstEpisodeAirDate)
         {
             Id = id;
             this.contextFactory = contextFactory;
@@ -48,7 +49,7 @@ namespace ShowTractor.Pages.Details
     {
         private readonly IArtworkService artworkService;
 
-        internal LibraryPosterViewModel(Guid id, string showName, int season, DateTime firstEpisodeAirDate, IFactory<Database.ShowTractorDbContext> contextFactory, IArtworkService artworkService) : base(id, showName, season, firstEpisodeAirDate, contextFactory)
+        internal LibraryPosterViewModel(Guid id, string showName, int season, DateTime firstEpisodeAirDate, IDbContextFactory<Database.ShowTractorDbContext> contextFactory, IArtworkService artworkService) : base(id, showName, season, firstEpisodeAirDate, contextFactory)
         {
             this.artworkService = artworkService;
             artworkService.LoadAndSaveArtwork(null, id).ContinueWith(t =>
@@ -68,9 +69,9 @@ namespace ShowTractor.Pages.Details
     {
         private readonly GeneralSettings settings;
         private readonly DateTime airDate;
-        private readonly IFactory<Database.ShowTractorDbContext> contextFactory;
+        private readonly IDbContextFactory<Database.ShowTractorDbContext> contextFactory;
 
-        internal CalendarPosterViewModel(Guid id, string showName, int season, int episodeNumber, string episodeName, DateTime airDate, bool watched, IFactory<Database.ShowTractorDbContext> contextFactory, GeneralSettings settings) : base(id, showName, season, default, contextFactory)
+        internal CalendarPosterViewModel(Guid id, string showName, int season, int episodeNumber, string episodeName, DateTime airDate, bool watched, IDbContextFactory<Database.ShowTractorDbContext> contextFactory, GeneralSettings settings) : base(id, showName, season, default, contextFactory)
         {
             this.episodeName = episodeName;
             this.airDate = airDate;
@@ -109,7 +110,7 @@ namespace ShowTractor.Pages.Details
             Loading = true;
             try
             {
-                using (var context = contextFactory.Get())
+                using (var context = await contextFactory.CreateDbContextAsync())
                 {
                     await Task.Run(async () => await context.SetWatchProgressAsync(Id, episodeNumber, watched ? TimeSpan.MaxValue : TimeSpan.Zero));
                 }

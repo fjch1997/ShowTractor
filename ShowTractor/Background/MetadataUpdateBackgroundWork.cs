@@ -13,12 +13,12 @@ namespace ShowTractor.Background
 {
     internal class MetadataUpdateBackgroundWork : IBackgroundWork
     {
-        private readonly IFactory<Database.ShowTractorDbContext> factory;
+        private readonly IDbContextFactory<Database.ShowTractorDbContext> factory;
         private readonly IFactory<IMetadataProvider?> providerFactory;
         private readonly GeneralSettings generalSettings;
         private IMetadataProvider? provider;
 
-        internal MetadataUpdateBackgroundWork(GeneralSettings generalSettings, IFactory<Database.ShowTractorDbContext> factory, IFactory<IMetadataProvider?> providerFactory)
+        internal MetadataUpdateBackgroundWork(GeneralSettings generalSettings, IDbContextFactory<Database.ShowTractorDbContext> factory, IFactory<IMetadataProvider?> providerFactory)
         {
             this.factory = factory;
             this.providerFactory = providerFactory;
@@ -34,7 +34,7 @@ namespace ShowTractor.Background
             provider ??= providerFactory.Get();
             if (provider == null)
                 return;
-            using var context = factory.Get();
+            using var context = await factory.CreateDbContextAsync();
             var shows = context.TvSeasons
                 .Include(s => s.AdditionalAttributes)
                 .Include(s => s.Episodes).OrderBy(s => s.Season).AsAsyncEnumerable().GroupBy(s => s.ShowName);

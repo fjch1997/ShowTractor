@@ -1,4 +1,5 @@
-﻿using ShowTractor.Database.Extensions;
+﻿using Microsoft.EntityFrameworkCore;
+using ShowTractor.Database.Extensions;
 using ShowTractor.Interfaces;
 using ShowTractor.Mvvm;
 using ShowTractor.Plugins.Interfaces;
@@ -16,10 +17,10 @@ namespace ShowTractor.Pages.Details
     public class TvEpisodeViewModel : INotifyPropertyChanged
     {
         private TvEpisode data;
-        private readonly IFactory<Database.ShowTractorDbContext> factory;
+        private readonly IDbContextFactory<Database.ShowTractorDbContext> factory;
         private readonly IArtworkService artworkService;
 
-        internal TvEpisodeViewModel(TvSeasonPageViewModel parent, Guid? seasonId, TvEpisode data, TimeSpan? watchProgress, IFactory<Database.ShowTractorDbContext> factory, IArtworkService artworkService)
+        internal TvEpisodeViewModel(TvSeasonPageViewModel parent, Guid? seasonId, TvEpisode data, TimeSpan? watchProgress, IDbContextFactory<Database.ShowTractorDbContext> factory, IArtworkService artworkService)
         {
             Parent = parent;
             SeasonId = seasonId;
@@ -81,7 +82,7 @@ namespace ShowTractor.Pages.Details
         private async ValueTask MarkAsync(TimeSpan value)
         {
             if (SeasonId == null) throw new InvalidOperationException($"{nameof(SeasonId)} is null.");
-            using var context = factory.Get();
+            using var context = await factory.CreateDbContextAsync();
             await Task.Run(async () => await context.SetWatchProgressAsync(SeasonId.Value, EpisodeNumber, value));
             WatchProgress = value;
         }

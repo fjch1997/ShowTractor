@@ -45,7 +45,7 @@ namespace ShowTractor.Tests
         {
             var subject = new MetadataUpdateBackgroundWork(
                 new GeneralSettings(),
-                new DelegateFactory<Database.ShowTractorDbContext>(() => new InMemoryDbContext(connection)),
+                new DelegateDbContextFactory<Database.ShowTractorDbContext>(() => new InMemoryDbContext(connection)),
                 new DelegateFactory<IMetadataProvider?>(() => new TestMetadataProvider { TestTvSeason = TestTvSeason1Updated }));
             ClassicAssert.IsTrue(await subject.CanDoWorkAsync());
             await subject.DoWorkAsync();
@@ -59,7 +59,7 @@ namespace ShowTractor.Tests
         {
             var subject = new MetadataUpdateBackgroundWork(
                    new GeneralSettings(),
-                   new DelegateFactory<Database.ShowTractorDbContext>(() => new InMemoryDbContext(connection)),
+                   new DelegateDbContextFactory<Database.ShowTractorDbContext>(() => new InMemoryDbContext(connection)),
                    new DelegateFactory<IMetadataProvider?>(() => new TestMetadataProvider { TestTvSeason = TestTvSeason1, MoreTvSeasons = new[] { TestTvSeason1Updated, TestTvSeason1, TestTvSeason2, TestTvSeason3 } }));
             ClassicAssert.IsTrue(await subject.CanDoWorkAsync());
             await subject.DoWorkAsync();
