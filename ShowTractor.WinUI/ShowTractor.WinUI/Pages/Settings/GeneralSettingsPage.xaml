@@ -70,6 +70,28 @@
                     <ComboBoxItem>PowerDVD</ComboBoxItem>
                 </ComboBox>-->
 
+                <TextBlock Style="{StaticResource SettingsSubtitleStyle}" Text="Data"/>
+                <TextBlock TextWrapping="Wrap">
+                    Store application data on a cloud location to share between computers.
+                </TextBlock>
+                <StackPanel Width="480" HorizontalAlignment="Left" Margin="0 8">
+                    <TextBox Header="Episode database" HorizontalAlignment="Stretch" Text="{Binding Settings.DatabaseFilename}" IsReadOnly="True"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock VerticalAlignment="Center">Size: <Run Text="{Binding DatabaseSize}"/></TextBlock>
+                        <Button Grid.Column="1" Command="{Binding LoadCommand}" Margin="4">Load</Button>
+                        <Button Grid.Column="2" Command="{Binding MoveCommand}">Move</Button>
+                    </Grid>
+                </StackPanel>
+                <StackPanel Width="480" HorizontalAlignment="Left" Margin="0 8">
+                    <TextBox Header="Image cache" HorizontalAlignment="Stretch" Text="{Binding Settings.ArtworkDirectoryName}" IsReadOnly="True"/>
+                    <Button Grid.Column="1" Margin="0 4" Command="{Binding ChangeCommand}" HorizontalAlignment="Right">Change</Button>
+                </StackPanel>
+
                 <TextBlock Style="{StaticResource SettingsSubtitleStyle}" Text="{x:Bind p:Resources.About}"/>
                 <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{x:Bind ((vm:GeneralSettingsPageViewModel)DataContext).Version}"/>
                 <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{x:Bind ((vm:GeneralSettingsPageViewModel)DataContext).Author}"/>
