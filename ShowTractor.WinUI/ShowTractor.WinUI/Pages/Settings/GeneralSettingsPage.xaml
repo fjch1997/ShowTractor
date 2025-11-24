@@ -86,6 +86,7 @@
                         <Button Grid.Column="1" Command="{Binding LoadCommand}" Margin="4">Load</Button>
                         <Button Grid.Column="2" Command="{Binding MoveCommand}">Move</Button>
                     </Grid>
+                    <TextBlock Foreground="Red" Text="{Binding DatabaseErrorMessage}" />
                 </StackPanel>
                 <StackPanel Width="480" HorizontalAlignment="Left" Margin="0 8">
                     <TextBox Header="Image cache" HorizontalAlignment="Stretch" Text="{Binding Settings.ArtworkDirectoryName}" IsReadOnly="True"/>

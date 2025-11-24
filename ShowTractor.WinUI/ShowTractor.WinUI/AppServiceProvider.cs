@@ -16,7 +16,7 @@ namespace ShowTractor.WinUI
 
     public class OpenFileDialogService : IOpenFileDialogService
     {
-        public async Task<string?> OpenFileAsync(IEnumerable<string> filters)
+        public async Task<string> OpenFileAsync(IEnumerable<string> filters)
         {
             var picker = new FileOpenPicker();
             foreach (var filter in filters)
@@ -26,6 +26,26 @@ namespace ShowTractor.WinUI
             picker.As<IInitializeWithWindow>().Initialize(((App)Application.Current).MainWindow.As<IWindowNative>().WindowHandle);
             var file = await picker.PickSingleFileAsync();
             return file?.Path;
+        }
+        public async Task<string> SaveFileAsync(IDictionary<string, IList<string>> fileTypeChoices, string suggestedFileName, string defaultFileExtension)
+        {
+            var picker = new FileSavePicker();
+            picker.SuggestedFileName = suggestedFileName;
+            picker.DefaultFileExtension = defaultFileExtension;
+            foreach (var choice in fileTypeChoices)
+            {
+                picker.FileTypeChoices.Add(choice.Key, choice.Value);
+            }
+            picker.As<IInitializeWithWindow>().Initialize(((App)Application.Current).MainWindow.As<IWindowNative>().WindowHandle);
+            var file = await picker.PickSaveFileAsync();
+            return file?.Path;
+        }
+        public async Task<string> PickFolderAsync()
+        {
+            var picker = new FolderPicker();
+            picker.As<IInitializeWithWindow>().Initialize(((App)Application.Current).MainWindow.As<IWindowNative>().WindowHandle);
+            var folder = await picker.PickSingleFolderAsync();
+            return folder.Path;
         }
     }
 
