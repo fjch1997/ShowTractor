@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using Microsoft.EntityFrameworkCore;
+using NUnit.Framework;
 using NUnit.Framework.Legacy;
 using ShowTractor.Interfaces;
 using ShowTractor.Pages;
@@ -22,7 +23,7 @@ namespace ShowTractor.Tests
     {
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         private DbConnection connection;
-        private DelegateFactory<Database.ShowTractorDbContext> factory;
+        private IDbContextFactory<Database.ShowTractorDbContext> factory;
         private CalendarPageViewModel subject;
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
@@ -34,7 +35,7 @@ namespace ShowTractor.Tests
             connection = InMemoryDbContext.CreateConnection();
             using (var context = new InMemoryDbContext(connection))
                 context.Database.EnsureCreated();
-            factory = new DelegateFactory<Database.ShowTractorDbContext>(() => new InMemoryDbContext(connection));
+            factory = new DelegateDbContextFactory<Database.ShowTractorDbContext>(() => new InMemoryDbContext(connection));
             AddExistingDatabaseEntry(TestTvSeason1, true, true);
             AddExistingDatabaseEntry(TestTvSeason2, true, false);
             AddExistingDatabaseEntry(TestTvSeason3, true, false);
@@ -77,7 +78,7 @@ namespace ShowTractor.Tests
             episode.Watched = !watched;
             await ((Func<bool>)(() => !episode.Loading)).WaitForTrueAsync();
             ClassicAssert.That(episode.Watched, Is.EqualTo(!watched));
-            using var context = factory.Get();
+            using var context = factory.CreateDbContext();
             var dbEpisode = ((IQueryable<Database.TvEpisode>)context.TvEpisodes).First(e => e.TvSeason.Season == testSeason.Season && e.TvSeason.ShowName == testSeason.ShowName && e.EpisodeNumber == testSeason.Episodes[0].EpisodeNumber);
             if (watched)
                 ClassicAssert.That(dbEpisode.WatchProgress, Is.EqualTo(TimeSpan.Zero));
@@ -117,7 +118,7 @@ namespace ShowTractor.Tests
             var dbSeason = Database.TvSeason.FromRecord(testSeason, "ShowTractor.Tests");
             dbSeason.Following = following;
             dbSeason.Episodes = new List<Database.TvEpisode>();
-            using var context = factory.Get();
+            using var context = factory.CreateDbContext();
             context.TvSeasons.Add(dbSeason);
             foreach (var episode in testSeason.Episodes)
             {

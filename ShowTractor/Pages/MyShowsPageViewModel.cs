@@ -15,10 +15,10 @@ namespace ShowTractor.Pages
     public class MyShowsPageViewModel : INotifyPropertyChanged
     {
         private const SortBy AllSorts = SortBy.AToZ | SortBy.ReleaseDate | SortBy.TvSeries;
-        private readonly IFactory<Database.ShowTractorDbContext> factory;
+        private readonly IDbContextFactory<Database.ShowTractorDbContext> factory;
         private readonly IArtworkService artworkService;
 
-        internal MyShowsPageViewModel(IFactory<Database.ShowTractorDbContext> factory, IArtworkService artworkService)
+        internal MyShowsPageViewModel(IDbContextFactory<Database.ShowTractorDbContext> factory, IArtworkService artworkService)
         {
             this.factory = factory;
             this.artworkService = artworkService;
@@ -30,7 +30,7 @@ namespace ShowTractor.Pages
         public LibraryViewModel Unfollowed => new(GetShowsByIsFollowingAsync(false), AllSorts, SortBy.None, Resources.LibraryNoTvShows);
         private async IAsyncEnumerable<LibraryPosterViewModel> GetShowsByIsFollowingAsync(bool isFollowing)
         {
-            using var context = factory.Get();
+            using var context = await factory.CreateDbContextAsync();
             var data = await Task.Run(async () => await ((IQueryable<Database.TvSeason>)context.TvSeasons)
                 .Where(s => s.Following == isFollowing)
                 .SelectNoArtwork()
@@ -42,7 +42,7 @@ namespace ShowTractor.Pages
         }
         private async IAsyncEnumerable<LibraryPosterViewModel> GetCurrentShowsAsync()
         {
-            using var context = factory.Get();
+            using var context = await factory.CreateDbContextAsync();
             var today = DateTime.Today;
             var data = context.TvSeasons
             .Where(s => s.Episodes.Any(e => e.FirstAirDate < today.AddDays(7) && e.FirstAirDate > today.AddDays(-7) && s.Following))
@@ -62,7 +62,7 @@ namespace ShowTractor.Pages
         }
         private async IAsyncEnumerable<LibraryPosterViewModel> GetShowsByIsShowEndedAsync(bool isShowEnded)
         {
-            using var context = factory.Get();
+            using var context = await factory.CreateDbContextAsync();
             var data = await Task.Run(async () => await ((IQueryable<Database.TvSeason>)context.TvSeasons)
             .Where(s => s.ShowEnded == isShowEnded && s.Following)
             .SelectNoArtwork()

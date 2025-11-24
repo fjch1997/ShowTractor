@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
@@ -22,11 +23,14 @@ namespace ShowTractor.Tests
     [Apartment(ApartmentState.STA)]
     public class UnwatchedPageViewModelTests
     {
+        private static string directoryName = Path.Combine(Path.GetTempPath(), "ShowTractor", "MockArtworkService");
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         private UnwatchedPageViewModel subject;
         private DbConnection connection;
         private InMemoryDbContext context;
-        private ArtworkService artworkService = new ArtworkService(new HttpClient(new TestHttpMessageHandler()));
+        private ArtworkService artworkService = new ArtworkService(
+                new HttpClient(new TestHttpMessageHandler()),
+                new GeneralSettings { ArtworkDirectoryName = directoryName });
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         [SetUp]
         public void Setup()
@@ -40,7 +44,7 @@ namespace ShowTractor.Tests
             AddSeason(TestTvSeason4, 3);
             AddSeason(TestTvSeason5, 3);
             AddSeason(TestTvSeason6, 3);
-            subject = new UnwatchedPageViewModel(new DelegateFactory<Database.ShowTractorDbContext>(() => new InMemoryDbContext(connection)), new GeneralSettings(), artworkService);
+            subject = new UnwatchedPageViewModel(new DelegateDbContextFactory<Database.ShowTractorDbContext>(() => new InMemoryDbContext(connection)), new GeneralSettings(), artworkService);
         }
         [TearDown]
         public void TestCleanup()

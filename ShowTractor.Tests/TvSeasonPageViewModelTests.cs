@@ -26,7 +26,7 @@ namespace ShowTractor.Tests
         private static readonly string assemblyName = Assembly.GetExecutingAssembly().GetName().Name ?? string.Empty;
         private readonly HttpClient httpClient = new(new TestHttpMessageHandler());
         private DbConnection connection;
-        private DelegateFactory<Database.ShowTractorDbContext> factory;
+        private IDbContextFactory<Database.ShowTractorDbContext> factory;
         private TestMetadataProvider provider;
         private TvSeasonPageViewModel subject;
         private MockArtworkService artworkService;
@@ -44,7 +44,7 @@ namespace ShowTractor.Tests
             connection = InMemoryDbContext.CreateConnection();
             using (var context = new InMemoryDbContext(connection))
                 context.Database.EnsureCreated();
-            factory = new DelegateFactory<Database.ShowTractorDbContext>(() => new InMemoryDbContext(connection));
+            factory = new DelegateDbContextFactory<Database.ShowTractorDbContext>(() => new InMemoryDbContext(connection));
             provider = new TestMetadataProvider();
             subject = new TvSeasonPageViewModel(new DelegateFactory<IMetadataProvider>(() => provider), factory, artworkService);
         }
@@ -68,7 +68,7 @@ namespace ShowTractor.Tests
         {
             provider.ShouldFail = true;
             var testSeason = TestTvSeason1 with { UniqueId = uniqueId, ArtworkUri = artworkUrl != null ? new Uri(artworkUrl) : null };
-            AddExistingDatabaseEntry(testSeason, sameProvider, following);
+            await AddExistingDatabaseEntryAsync(testSeason, sameProvider, following);
             subject.Parameter = new SearchResultPosterViewModel(testSeason);
             await WaitForLoadingAsync();
             AssertTestTvSeason(testSeason);
@@ -80,11 +80,11 @@ namespace ShowTractor.Tests
         {
             provider.ShouldFail = true;
             var testSeason = TestTvSeason1Updated with { UniqueId = uniqueId, ArtworkUri = artworkUrl != null ? new Uri(artworkUrl) : null };
-            AddExistingDatabaseEntry(testSeason, sameProvider, following);
+            await AddExistingDatabaseEntryAsync(testSeason, sameProvider, following);
             subject.Parameter = new SearchResultPosterViewModel(testSeason);
             await WaitForLoadingAsync();
             AssertTestTvSeason(testSeason);
-            AssertDatabase(testSeason);
+            await AssertDatabaseAsync(testSeason);
             if (!following)
                 await TestFollowingAsync(testSeason);
         }
@@ -92,7 +92,7 @@ namespace ShowTractor.Tests
         public async Task Load_FromDatabase_WithUpdateTestAsync([Values("67198", null)] string uniqueId, [Values] bool withUpdate, [Values(TestHttpMessageHandler.ImageUrl, null)] string artworkUrl, [Values] bool following)
         {
             var testSeason = (withUpdate ? TestTvSeason1Updated : TestTvSeason1) with { UniqueId = uniqueId, ArtworkUri = artworkUrl != null ? new Uri(artworkUrl) : null };
-            var parameter = AddExistingDatabaseEntry(testSeason, true, following);
+            var parameter = await AddExistingDatabaseEntryAsync(testSeason, true, following);
             provider.TestTvSeason = testSeason;
             subject.Parameter = parameter;
             await WaitForLoadingAsync();
@@ -101,7 +101,7 @@ namespace ShowTractor.Tests
             else
                 Assert.That(subject.Artwork?.Scheme, Is.EqualTo("file"));
             AssertTestTvSeason(testSeason);
-            AssertDatabase(testSeason);
+            await AssertDatabaseAsync(testSeason);
             if (!following)
                 await TestFollowingAsync(testSeason);
         }
@@ -109,18 +109,18 @@ namespace ShowTractor.Tests
         public async Task MarkSeasonAsWatchedTestAsync([Values("67198", null)] string uniqueId, [Values(TestHttpMessageHandler.ImageUrl, null)] string artworkUrl)
         {
             var testSeason = TestTvSeason1 with { UniqueId = uniqueId, ArtworkUri = artworkUrl != null ? new Uri(artworkUrl) : null };
-            var parameter = AddExistingDatabaseEntry(testSeason, true, true);
+            var parameter = await AddExistingDatabaseEntryAsync(testSeason, true, true);
             provider.TestTvSeason = testSeason;
             subject.Parameter = parameter;
             await WaitForLoadingAsync();
             ClassicAssert.IsTrue(subject.MarkSeasonAsWatchedEnabled);
             ClassicAssert.IsFalse(subject.MarkSeasonAsUnwatchedEnabled);
             AssertTestTvSeason(testSeason);
-            AssertDatabase(testSeason);
+            await AssertDatabaseAsync(testSeason);
             await subject.MarkSeasonAsWatched.ExecuteAsync(null);
             ClassicAssert.IsFalse(subject.MarkSeasonAsWatchedEnabled);
             ClassicAssert.IsTrue(subject.MarkSeasonAsUnwatchedEnabled);
-            using var context = factory.Get();
+            using var context = await factory.CreateDbContextAsync();
             var dbSeason = GetTvSeasonFromDb(context, testSeason);
             for (int i = 0; i < subject.Episodes.Count; i++)
             {
@@ -136,9 +136,9 @@ namespace ShowTractor.Tests
         public async Task MarkSeasonAsUnwatchedTestAsync([Values("67198", null)] string uniqueId, [Values(TestHttpMessageHandler.ImageUrl, null)] string artworkUrl)
         {
             var testSeason = TestTvSeason1 with { UniqueId = uniqueId, ArtworkUri = artworkUrl != null ? new Uri(artworkUrl) : null };
-            var parameter = AddExistingDatabaseEntry(testSeason, true, true);
+            var parameter = await AddExistingDatabaseEntryAsync(testSeason, true, true);
             provider.TestTvSeason = testSeason;
-            using (var context = factory.Get())
+            using (var context = await factory.CreateDbContextAsync())
             {
                 var dbSeason = GetTvSeasonFromDb(context, testSeason);
                 foreach (var episode in dbSeason.Episodes ?? throw new Exception())
@@ -152,11 +152,11 @@ namespace ShowTractor.Tests
             ClassicAssert.IsFalse(subject.MarkSeasonAsWatchedEnabled);
             ClassicAssert.IsTrue(subject.MarkSeasonAsUnwatchedEnabled);
             AssertTestTvSeason(testSeason);
-            AssertDatabase(testSeason);
+            await AssertDatabaseAsync(testSeason);
             await subject.MarkSeasonAsUnwatched.ExecuteAsync(null);
             ClassicAssert.IsFalse(subject.MarkSeasonAsUnwatchedEnabled);
             ClassicAssert.IsTrue(subject.MarkSeasonAsWatchedEnabled);
-            using (var context = factory.Get())
+            using (var context = await factory.CreateDbContextAsync())
             {
                 var dbSeason = GetTvSeasonFromDb(context, testSeason);
                 for (int i = 0; i < subject.Episodes.Count; i++)
@@ -174,16 +174,16 @@ namespace ShowTractor.Tests
         public async Task MarkEpisodeAsWatchedTestAsync([Values("67198", null)] string uniqueId, [Values(TestHttpMessageHandler.ImageUrl, null)] string artworkUrl)
         {
             var testSeason = TestTvSeason1 with { UniqueId = uniqueId, ArtworkUri = artworkUrl != null ? new Uri(artworkUrl) : null };
-            var parameter = AddExistingDatabaseEntry(testSeason, true, true);
+            var parameter = await AddExistingDatabaseEntryAsync(testSeason, true, true);
             provider.TestTvSeason = testSeason;
             subject.Parameter = parameter;
             await WaitForLoadingAsync();
             ClassicAssert.IsTrue(subject.MarkSeasonAsWatchedEnabled);
             ClassicAssert.IsFalse(subject.MarkSeasonAsUnwatchedEnabled);
             AssertTestTvSeason(testSeason);
-            AssertDatabase(testSeason);
+            await AssertDatabaseAsync(testSeason);
             await subject.Episodes[0].MarkAsWatched.ExecuteAsync(null);
-            using var context = factory.Get();
+            using var context = await factory.CreateDbContextAsync();
             var dbSeason = GetTvSeasonFromDb(context, testSeason);
             ClassicAssert.AreEqual(100, subject.Episodes[0].WatchProgressPercentage);
             ClassicAssert.AreEqual(TimeSpan.MaxValue, subject.Episodes[0].WatchProgress);
@@ -195,9 +195,9 @@ namespace ShowTractor.Tests
         public async Task MarkEpisodeAsUnwatchedTestAsync([Values("67198", null)] string uniqueId, [Values(TestHttpMessageHandler.ImageUrl, null)] string artworkUrl)
         {
             var testSeason = TestTvSeason1 with { UniqueId = uniqueId, ArtworkUri = artworkUrl != null ? new Uri(artworkUrl) : null };
-            var parameter = AddExistingDatabaseEntry(testSeason, true, true);
+            var parameter = await AddExistingDatabaseEntryAsync(testSeason, true, true);
             provider.TestTvSeason = testSeason;
-            using (var context = factory.Get())
+            using (var context = await factory.CreateDbContextAsync())
             {
                 var dbSeason = GetTvSeasonFromDb(context, testSeason);
                 (dbSeason.Episodes ?? throw new Exception())[0].WatchProgress = TimeSpan.MaxValue;
@@ -208,9 +208,9 @@ namespace ShowTractor.Tests
             ClassicAssert.IsTrue(subject.MarkSeasonAsWatchedEnabled);
             ClassicAssert.IsTrue(subject.MarkSeasonAsUnwatchedEnabled);
             AssertTestTvSeason(testSeason);
-            AssertDatabase(testSeason);
+            await AssertDatabaseAsync(testSeason);
             await subject.Episodes[0].MarkAsUnwatched.ExecuteAsync(null);
-            using (var context = factory.Get())
+            using (var context = await factory.CreateDbContextAsync())
             {
                 var dbSeason = GetTvSeasonFromDb(context, testSeason);
                 ClassicAssert.AreEqual(0, subject.Episodes[0].WatchProgressPercentage);
@@ -223,19 +223,19 @@ namespace ShowTractor.Tests
         [Test]
         public async Task MarkAllSeasonsTestAsync([Values] bool watched)
         {
-            AddExistingDatabaseEntry(TestTvSeason1, true, true, watched);
-            AddExistingDatabaseEntry(TestTvSeason2, true, true, watched);
-            var parameter = AddExistingDatabaseEntry(TestTvSeason3, true, true, watched);
+            await AddExistingDatabaseEntryAsync(TestTvSeason1, true, true, watched);
+            await AddExistingDatabaseEntryAsync(TestTvSeason2, true, true, watched);
+            var parameter = await AddExistingDatabaseEntryAsync(TestTvSeason3, true, true, watched);
             provider.TestTvSeason = TestTvSeason3;
             subject.Parameter = parameter;
             await WaitForLoadingAsync();
             AssertTestTvSeason(TestTvSeason3);
-            AssertDatabase(TestTvSeason3);
+            await AssertDatabaseAsync(TestTvSeason3);
             if (watched)
                 await subject.MarkAllSeasonsAsUnwatched.ExecuteAsync(null);
             else
                 await subject.MarkAllSeasonsAsWatched.ExecuteAsync(null);
-            using var context = factory.Get();
+            using var context = await factory.CreateDbContextAsync();
             AssertSeason(GetTvSeasonFromDb(context, TestTvSeason1), false);
             AssertSeason(GetTvSeasonFromDb(context, TestTvSeason2), false);
             AssertSeason(GetTvSeasonFromDb(context, TestTvSeason3), true);
@@ -255,9 +255,9 @@ namespace ShowTractor.Tests
                 }
             }
         }
-        private void AssertDatabase(TvSeason tvSeason)
+        private async Task AssertDatabaseAsync(TvSeason tvSeason)
         {
-            using var context = factory.Get();
+            using var context = await factory.CreateDbContextAsync();
             var dbSeason = GetTvSeasonFromDb(context, tvSeason);
 
             ClassicAssert.AreEqual(tvSeason.Episodes.Count, (dbSeason.Episodes ?? throw new Exception()).Count);
@@ -270,12 +270,12 @@ namespace ShowTractor.Tests
         {
             return context.TvSeasons.Include(nameof(Database.TvSeason.Episodes)).Where(s => s.ShowName == tvSeason.ShowName && s.Season == tvSeason.Season).First();
         }
-        private SavedPosterViewModel AddExistingDatabaseEntry(TvSeason testSeason, bool sameProvider, bool following, bool watched = false)
+        private async Task<SavedPosterViewModel> AddExistingDatabaseEntryAsync(TvSeason testSeason, bool sameProvider, bool following, bool watched = false)
         {
             var dbSeason = Database.TvSeason.FromRecord(testSeason, sameProvider ? assemblyName : "ThirdParty.Plugin");
             dbSeason.Following = following;
             dbSeason.Episodes = new List<Database.TvEpisode>();
-            using (var context = factory.Get())
+            using (var context = await factory.CreateDbContextAsync())
             {
                 context.TvSeasons.Add(dbSeason);
                 foreach (var episode in testSeason.Episodes)
@@ -293,7 +293,7 @@ namespace ShowTractor.Tests
         {
             ClassicAssert.IsFalse(subject.Following);
             await subject.FollowCommand.ExecuteAsync(null);
-            using (var context = factory.Get())
+            using (var context = await factory.CreateDbContextAsync())
             {
                 var dbSeason = context.TvSeasons.First();
                 ClassicAssert.IsTrue(dbSeason.Following);
@@ -304,7 +304,7 @@ namespace ShowTractor.Tests
                 await WaitForPropertyAsync(nameof(subject.Following));
             }
             ClassicAssert.IsFalse(subject.Following);
-            using (var context = factory.Get())
+            using (var context = await factory.CreateDbContextAsync())
             {
                 ClassicAssert.IsFalse(context.TvSeasons.First().Following);
             }

@@ -3,6 +3,7 @@ using NUnit.Framework.Legacy;
 using ShowTractor.Interfaces;
 using ShowTractor.Pages.Settings;
 using ShowTractor.Plugins;
+using ShowTractor.Tests.Mocks;
 using ShowTractor.Tests.TestPlugins;
 using System;
 using System.Collections.Generic;
@@ -16,16 +17,20 @@ namespace ShowTractor.Tests
 {
     [TestFixture]
     [Apartment(ApartmentState.STA)]
-    public class PluginSettingsPageViewModelTests : IServiceProvider, IOpenFileDialogService
+    public class PluginSettingsPageViewModelTests : IServiceProvider
     {
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         private PluginSettingsPageViewModel subject;
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         private readonly PluginSettings settings = new();
+        private readonly MockOpenFileDialogService mockOpenFileDialogService = new MockOpenFileDialogService()
+        {
+            Filename = Assembly.GetExecutingAssembly().Location,
+        };
         [TestCase]
         public async Task LoadNewPluginTest()
         {
-            subject = new PluginSettingsPageViewModel(settings, this, this);
+            subject = new PluginSettingsPageViewModel(settings, mockOpenFileDialogService, this);
             var task = GetSettingsSavingTask();
             subject.LoadMetadataProviderCommand.Execute(null);
             await task;
@@ -35,8 +40,8 @@ namespace ShowTractor.Tests
         [TestCase]
         public async Task LoadSavedPluginTest()
         {
-            settings.MetadataProviders.Add(new PluginDefinition { Enabled = true, FileName = await OpenFileAsync(Enumerable.Empty<string>()) });
-            subject = new PluginSettingsPageViewModel(settings, this, this);
+            settings.MetadataProviders.Add(new PluginDefinition { Enabled = true, FileName = await mockOpenFileDialogService.OpenFileAsync(Enumerable.Empty<string>()) });
+            subject = new PluginSettingsPageViewModel(settings, mockOpenFileDialogService, this);
             await AssertTestMetadataProviderAsync(settings);
             await TestRemove();
         }
@@ -59,7 +64,7 @@ namespace ShowTractor.Tests
         private async Task AssertTestMetadataProviderAsync(PluginSettings settings)
         {
             ClassicAssert.AreEqual(1, settings.MetadataProviders.Count);
-            ClassicAssert.AreEqual(await OpenFileAsync(Enumerable.Empty<string>()), settings.MetadataProviders[0].FileName);
+            ClassicAssert.AreEqual(await mockOpenFileDialogService.OpenFileAsync(Enumerable.Empty<string>()), settings.MetadataProviders[0].FileName);
             ClassicAssert.AreEqual(1, subject.MetadataProviders.Count);
             ClassicAssert.AreEqual(nameof(TestMetadataProvider), subject.MetadataProviders[0].Name);
             ClassicAssert.AreEqual(true, subject.MetadataProviders[0].Enabled);
@@ -67,10 +72,6 @@ namespace ShowTractor.Tests
         public object? GetService(Type serviceType)
         {
             return null;
-        }
-        public Task<string?> OpenFileAsync(IEnumerable<string> filters)
-        {
-            return Task.FromResult<string?>(Assembly.GetExecutingAssembly().Location);
         }
     }
 }

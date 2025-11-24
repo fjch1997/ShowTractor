@@ -150,6 +150,12 @@
   <data name="GeneralSettingsCaptionShowCheckboxInCalendarPage" xml:space="preserve">
     <value>Show checkbox in calendar page</value>
   </data>
+  <data name="GeneralSettingsCouldNotLoadDatabaseFile" xml:space="preserve">
+    <value>Could not load database file.</value>
+  </data>
+  <data name="GeneralSettingsCouldNotMoveDatabaseFile" xml:space="preserve">
+    <value>Could not move database file.</value>
+  </data>
   <data name="GeneralSettingsSubtitleCalendar" xml:space="preserve">
     <value>Calendar</value>
   </data>

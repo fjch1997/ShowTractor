@@ -1,4 +1,4 @@
-﻿using ShowTractor.Interfaces;
+﻿using Microsoft.EntityFrameworkCore;
 using ShowTractor.Pages.Details;
 using System;
 using System.Collections.Generic;
@@ -11,14 +11,14 @@ namespace ShowTractor.Pages
 {
     public class CalendarPageViewModel : INotifyPropertyChanged
     {
-        private readonly IFactory<Database.ShowTractorDbContext> factory;
+        private readonly IDbContextFactory<Database.ShowTractorDbContext> factory;
         private readonly IAsyncInitializationService asyncInitializationService;
         private readonly GeneralSettings settings;
         private readonly Dictionary<(int year, int month), Task> tasks = new();
         private readonly Dictionary<DateTimeOffset, CalendarDayViewModel> days = new();
         private readonly Task<IDictionary<DateTime, IEnumerable<CalendarPosterViewModel>>> loadDataTask;
 
-        internal CalendarPageViewModel(IFactory<Database.ShowTractorDbContext> factory, IAsyncInitializationService asyncInitializationService, GeneralSettings settings)
+        internal CalendarPageViewModel(IDbContextFactory<Database.ShowTractorDbContext> factory, IAsyncInitializationService asyncInitializationService, GeneralSettings settings)
         {
             this.factory = factory;
             this.asyncInitializationService = asyncInitializationService;
@@ -45,8 +45,8 @@ namespace ShowTractor.Pages
 
         private async Task<IDictionary<DateTime, IEnumerable<CalendarPosterViewModel>>> LoadDataAsync()
         {
-            await asyncInitializationService.Task;
-            using var context = factory.Get();
+            await asyncInitializationService.Task.ContinueWith((t) => { });
+            using var context = await factory.CreateDbContextAsync();
             var query = from e in (IQueryable<Database.TvEpisode>)context.TvEpisodes
                         join s in context.TvSeasons on e.TvSeasonId equals s.Id
                         where s.Following == true

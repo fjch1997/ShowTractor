@@ -8,6 +8,17 @@ namespace ShowTractor.Database
 {
     class ShowTractorDbContext : DbContext
     {
+        private readonly GeneralSettings generalSettings;
+        public ShowTractorDbContext(GeneralSettings generalSettings)
+        {
+            if (string.IsNullOrEmpty(generalSettings.DatabaseFilename))
+            {
+                var directory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), nameof(ShowTractor));
+                generalSettings.DatabaseFilename = Path.Combine(directory, "data.sqlite");
+                generalSettings.Save();
+            }
+            this.generalSettings = generalSettings;
+        }
         internal DbSet<TvSeason> TvSeasons => Set<TvSeason>();
         internal DbSet<TvEpisode> TvEpisodes => Set<TvEpisode>();
         internal DbSet<AdditionalAttribute> AdditionalAttributes => Set<AdditionalAttribute>();
@@ -25,11 +36,10 @@ namespace ShowTractor.Database
 #endif
             if (!optionsBuilder.IsConfigured)
             {
-                var directory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), nameof(ShowTractor));
-                Directory.CreateDirectory(directory);
+                Directory.CreateDirectory(Path.GetDirectoryName(generalSettings.DatabaseFilename) ?? throw new NullReferenceException());
                 var builder = new SqliteConnectionStringBuilder
                 {
-                    DataSource = Path.Combine(directory, "data.sqlite"),
+                    DataSource = generalSettings.DatabaseFilename,
                     Cache = SqliteCacheMode.Shared
                 };
                 optionsBuilder.UseSqlite(builder.ToString());

@@ -20,13 +20,13 @@ namespace ShowTractor.Pages.Details
     public class TvSeasonPageViewModel : INotifyPropertyChanged, ISupportNavigationParameter
     {
         private readonly IFactory<IMetadataProvider> providerFactory;
-        private readonly IFactory<Database.ShowTractorDbContext> factory;
+        private readonly IDbContextFactory<Database.ShowTractorDbContext> factory;
         private readonly IArtworkService artworkService;
         private readonly CancellationTokenSource cts = new();
         private TvSeason? data;
         private Guid? Id;
 
-        internal TvSeasonPageViewModel(IFactory<IMetadataProvider> providerFactory, IFactory<Database.ShowTractorDbContext> factory, IArtworkService artworkService)
+        internal TvSeasonPageViewModel(IFactory<IMetadataProvider> providerFactory, IDbContextFactory<Database.ShowTractorDbContext> factory, IArtworkService artworkService)
         {
             this.providerFactory = providerFactory;
             this.factory = factory;
@@ -89,7 +89,7 @@ namespace ShowTractor.Pages.Details
         {
             Following = true;
             Database.TvSeason dbSeason;
-            using var context = factory.Get();
+            using var context = await factory.CreateDbContextAsync();
             if (Id == null)
             {
                 var provider = providerFactory.Get();
@@ -124,7 +124,7 @@ namespace ShowTractor.Pages.Details
         public IAsyncCommand UnfollowCommand => new AwaitableDelegateCommand(async () =>
         {
             if (Id == null) throw new ArgumentNullException(nameof(Id));
-            using var context = factory.Get();
+            using var context = await factory.CreateDbContextAsync();
             var dbSeason = new Database.TvSeason { Id = Id.Value, Following = false };
             context.TvSeasons.Attach(dbSeason);
             context.Entry(dbSeason).Property(s => s.Following).IsModified = true;
@@ -140,7 +140,7 @@ namespace ShowTractor.Pages.Details
         private async ValueTask MarkSeasonAsync(TimeSpan value)
         {
             if (Id == null) throw new InvalidOperationException($"{nameof(Id)} is null.");
-            using var context = factory.Get();
+            using var context = await factory.CreateDbContextAsync();
             var dbSeason = await Task.Run(async () =>
             {
                 var dbSeason = await ((IQueryable<Database.TvSeason>)context.TvSeasons).Where(s => s.Id == Id).SelectNoArtwork().FirstAsync();
@@ -161,7 +161,7 @@ namespace ShowTractor.Pages.Details
         private async ValueTask MarkAllSeasonsAsync(TimeSpan value)
         {
             if (Id == null) throw new InvalidOperationException($"{nameof(Id)} is null.");
-            using var context = factory.Get();
+            using var context = await factory.CreateDbContextAsync();
             var dbSeasons = await Task.Run(async () => await ((IQueryable<Database.TvSeason>)context.TvSeasons).Where(s => s.ShowName == ShowName && s.Following).Select(s => new Database.TvSeason
             {
                 Id = s.Id,
@@ -208,7 +208,7 @@ namespace ShowTractor.Pages.Details
                 }
                 var provider = providerFactory.Get();
                 var providerAssemblyName = provider?.GetAssemblyName();
-                using var context = factory.Get();
+                using var context = await factory.CreateDbContextAsync();
                 if (parameter is SearchResultPosterViewModel searchResult)
                 {
                     data = searchResult.Data;
