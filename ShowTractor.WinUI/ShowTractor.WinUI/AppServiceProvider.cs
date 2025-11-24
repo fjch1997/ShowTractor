@@ -45,7 +45,7 @@ namespace ShowTractor.WinUI
             var picker = new FolderPicker();
             picker.As<IInitializeWithWindow>().Initialize(((App)Application.Current).MainWindow.As<IWindowNative>().WindowHandle);
             var folder = await picker.PickSingleFolderAsync();
-            return folder.Path;
+            return folder?.Path;
         }
     }
 
