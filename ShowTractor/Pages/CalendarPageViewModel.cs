@@ -45,7 +45,7 @@ namespace ShowTractor.Pages
 
         private async Task<IDictionary<DateTime, IEnumerable<CalendarPosterViewModel>>> LoadDataAsync()
         {
-            await asyncInitializationService.Task;
+            await asyncInitializationService.Task.ContinueWith((t) => { });
             using var context = await factory.CreateDbContextAsync();
             var query = from e in (IQueryable<Database.TvEpisode>)context.TvEpisodes
                         join s in context.TvSeasons on e.TvSeasonId equals s.Id
