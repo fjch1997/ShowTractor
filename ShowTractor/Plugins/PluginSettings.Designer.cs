@@ -12,7 +12,7 @@ namespace ShowTractor.Plugins {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.8.1.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.14.0.0")]
     public sealed partial class PluginSettings : global::System.Configuration.ApplicationSettingsBase {
         
         private static PluginSettings defaultInstance = ((PluginSettings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new PluginSettings())));
@@ -34,6 +34,20 @@ namespace ShowTractor.Plugins {
             }
             set {
                 this["MetadataProviders"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("<?xml version=\"1.0\" encoding=\"utf-16\"?>\r\n<ArrayOfPluginDefinition xmlns:xsi=\"http" +
+            "://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSche" +
+            "ma\" />")]
+        public global::System.Collections.Generic.List<ShowTractor.Plugins.PluginDefinition> MediaSourceProviders {
+            get {
+                return ((global::System.Collections.Generic.List<ShowTractor.Plugins.PluginDefinition>)(this["MediaSourceProviders"]));
+            }
+            set {
+                this["MediaSourceProviders"] = value;
             }
         }
     }

@@ -6,5 +6,6 @@ namespace ShowTractor.Plugins.Interfaces
     public class ShowTractorPluginAssemblyAttribute : Attribute
     {
         public Type? MetadataProvider { get; set; }
+        public Type? MediaSourceProvider { get; set; }
     }
 }

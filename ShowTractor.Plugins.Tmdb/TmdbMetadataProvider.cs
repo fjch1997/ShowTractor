@@ -44,7 +44,8 @@ namespace ShowTractor.Plugins.Tmdb
                 }
             },
         };
-        public Stream GetIconStream() => Assembly.GetExecutingAssembly().GetManifestResourceStream($"{nameof(ShowTractor)}.{nameof(Plugins)}.{nameof(Tmdb)}.logo.png");
+        public Stream GetIconStream() => Assembly.GetExecutingAssembly().GetManifestResourceStream($"{nameof(ShowTractor)}.{nameof(Plugins)}.{nameof(Tmdb)}.logo.png")
+            ?? throw new Exception("Icon not found");
         private string GetApiKey()
         {
             var value = Settings.Default.ApiKey;
@@ -113,7 +114,7 @@ namespace ShowTractor.Plugins.Tmdb
                 }
                 yield break;
             }
-            return new (await LoadTvSeasonAsync(id, season.Season, season.ShowName, season.Genres, season.Ratings, season.ShowDescription,
+            return new(await LoadTvSeasonAsync(id, season.Season, season.ShowName, season.Genres, season.Ratings, season.ShowDescription,
                         showEnded, showEnded && season.Season == seasons.Last()), GetLatestSeasons);
         }
         private async Task<TvSeason> LoadTvSeasonAsync(int id, int seasonNumber, string showName, IList<string> genre, IList<string> ratings, string showDescriptions, bool showEnded, bool showFinale)

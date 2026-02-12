@@ -37,4 +37,10 @@ namespace ShowTractor.Pages.Settings
             : base(definition, definition.Load<IMetadataProvider>(serviceProvider)) { }
         public override IEnumerable<string> Descriptions => new string[] { GetVersionDescription() };
     }
+    public class MediaSourceProviderPluginViewModel : PluginViewModel
+    {
+        internal MediaSourceProviderPluginViewModel(PluginDefinition definition, IServiceProvider serviceProvider)
+            : base(definition, definition.Load<IMediaSourceProvider>(serviceProvider)) { }
+        public override IEnumerable<string> Descriptions => new string[] { GetVersionDescription() };
+    }
 }

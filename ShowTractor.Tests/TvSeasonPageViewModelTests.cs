@@ -24,7 +24,6 @@ namespace ShowTractor.Tests
     public class TvSeasonPageViewModelTests
     {
         private static readonly string assemblyName = Assembly.GetExecutingAssembly().GetName().Name ?? string.Empty;
-        private readonly HttpClient httpClient = new(new TestHttpMessageHandler());
         private DbConnection connection;
         private IDbContextFactory<Database.ShowTractorDbContext> factory;
         private TestMetadataProvider provider;
@@ -46,7 +45,7 @@ namespace ShowTractor.Tests
                 context.Database.EnsureCreated();
             factory = new DelegateDbContextFactory<Database.ShowTractorDbContext>(() => new InMemoryDbContext(connection));
             provider = new TestMetadataProvider();
-            subject = new TvSeasonPageViewModel(new DelegateFactory<IMetadataProvider>(() => provider), factory, artworkService);
+            subject = new TvSeasonPageViewModel(new DelegateFactory<IMetadataProvider>(() => provider), new TestMediaSourceProvider(), factory, artworkService);
         }
         [TearDown]
         public void TestCleanup()

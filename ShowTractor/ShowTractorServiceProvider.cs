@@ -25,6 +25,7 @@ namespace ShowTractor
             services.AddSingleton(PluginSettings.Default);
             services.AddSingleton(GeneralSettings.Default);
             services.AddSingleton<IFactory<IMetadataProvider?>>(p => new MetadataProviderFactory(p.GetRequiredService<PluginSettings>(), p));
+            services.AddSingleton<AggregateMediaSourceProvider>();
             services.AddDbContextFactory<Database.ShowTractorDbContext>();
             ConfigureViewModels(services);
             services.AddSingleton<IArtworkService, ArtworkService>();
@@ -40,6 +41,7 @@ namespace ShowTractor
             services.AddSingleton(p => new GeneralSettingsPageViewModel(GeneralSettings.Default, p.GetRequiredService<IOpenFileDialogService>()));
             services.AddScoped(p => new TvSeasonPageViewModel(
                 p.GetRequiredService<IFactory<IMetadataProvider>>(),
+                p.GetRequiredService<AggregateMediaSourceProvider>(),
                 p.GetRequiredService<IDbContextFactory<Database.ShowTractorDbContext>>(),
                 p.GetRequiredService<IArtworkService>()));
             services.AddScoped(p => new MyShowsPageViewModel(

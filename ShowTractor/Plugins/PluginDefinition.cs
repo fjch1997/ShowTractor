@@ -18,14 +18,24 @@ namespace ShowTractor.Plugins
             var attribute = (ShowTractorPluginAssemblyAttribute?)assembly.GetCustomAttributes(typeof(ShowTractorPluginAssemblyAttribute), false).FirstOrDefault();
             if (attribute == null)
                 throw new TypeLoadException($"Could not load plugin from assembly {assembly.FullName}. A {nameof(ShowTractorPluginAssemblyAttribute)} was not found.");
-            if (attribute.MetadataProvider == null)
-                throw new TypeLoadException($"Could not load plugin from assembly {assembly.FullName}. This plugin does not provide an {nameof(IMetadataProvider)}.");
             T obj;
             var requestedType = typeof(T);
             if (requestedType == typeof(IMetadataProvider))
+            {
+                if (attribute.MetadataProvider == null)
+                    throw new TypeLoadException($"Could not load plugin from assembly {assembly.FullName}. This plugin does not provide an {nameof(IMetadataProvider)}.");
                 obj = (T)CreateWithServiceProvider(attribute.MetadataProvider, provider ?? throw new ArgumentNullException(nameof(provider)));
+            }
+            else if (requestedType == typeof(IMediaSourceProvider))
+            {
+                if (attribute.MediaSourceProvider == null)
+                    throw new TypeLoadException($"Could not load plugin from assembly {assembly.FullName}. This plugin does not provide an {nameof(IMediaSourceProvider)}.");
+                obj = (T)CreateWithServiceProvider(attribute.MediaSourceProvider, provider ?? throw new ArgumentNullException(nameof(provider)));
+            }
             else
+            {
                 throw new NotSupportedException(requestedType.FullName + " is not supported as a plugin.");
+            }
             try
             {
                 return obj;

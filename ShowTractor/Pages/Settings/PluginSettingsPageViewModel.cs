@@ -1,6 +1,7 @@
 ﻿using ShowTractor.Interfaces;
 using ShowTractor.Mvvm;
 using ShowTractor.Plugins;
+using ShowTractor.Plugins.Interfaces;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -20,7 +21,6 @@ namespace ShowTractor.Pages.Settings
             this.settings = settings;
             this.openFileDialogService = openFileDialogService;
             this.serviceProvider = serviceProvider;
-            MetadataProviders = new ObservableCollection<PluginViewModel>();
             foreach (var definition in settings.MetadataProviders)
             {
                 try
@@ -34,9 +34,24 @@ namespace ShowTractor.Pages.Settings
                     ErrorMessage += ex.Message;
                 }
             }
+
+            foreach (var definition in settings.MediaSourceProviders)
+            {
+                try
+                {
+                    MediaSourceProviders.Add(new MediaSourceProviderPluginViewModel(definition, serviceProvider));
+                }
+                catch (Exception ex)
+                {
+                    if (ErrorMessage != string.Empty)
+                        ErrorMessage += Environment.NewLine;
+                    ErrorMessage += ex.Message;
+                }
+            }
         }
 
-        public ObservableCollection<PluginViewModel> MetadataProviders { get; private set; }
+        public ObservableCollection<MetadataProviderPluginViewModel> MetadataProviders { get; private set; } = new ObservableCollection<MetadataProviderPluginViewModel>();
+        public ObservableCollection<MediaSourceProviderPluginViewModel> MediaSourceProviders { get; private set; } = new ObservableCollection<MediaSourceProviderPluginViewModel>();
         public object? Parameter { get => null; set { } }
         public string ErrorMessage { get => errorMessage; set { errorMessage = value; OnPropertyChanged(); } }
         private string errorMessage = string.Empty;
@@ -60,11 +75,37 @@ namespace ShowTractor.Pages.Settings
             }
             settings.Save();
         });
-        public ICommand RemoveCommand => new DelegateCommand<PluginViewModel>(p =>
+        public ICommand LoadMediaSourceProviderCommand => new AwaitableDelegateCommand(async () =>
+        {
+            ErrorMessage = string.Empty;
+            try
+            {
+                var path = await openFileDialogService.OpenFileAsync(new string[] { ".dll" });
+                if (path != null)
+                {
+                    var definition = new PluginDefinition() { Enabled = true, FileName = path };
+                    var vm = new MediaSourceProviderPluginViewModel(definition, serviceProvider);
+                    MediaSourceProviders.Add(vm);
+                    settings.MediaSourceProviders.Add(definition);
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
+            }
+            settings.Save();
+        });
+        public ICommand RemoveMetadataProviderCommand => new DelegateCommand<MetadataProviderPluginViewModel>(p =>
         {
             settings.MetadataProviders.Remove(p.Definition);
             settings.Save();
             MetadataProviders.Remove(p);
+        });
+        public ICommand RemoveMediaSourceProviderCommand => new DelegateCommand<MediaSourceProviderPluginViewModel>(p =>
+        {
+            settings.MediaSourceProviders.Remove(p.Definition);
+            settings.Save();
+            MediaSourceProviders.Remove(p);
         });
 
         public bool OnNavigatingFrom()

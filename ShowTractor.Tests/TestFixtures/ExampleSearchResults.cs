@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace ShowTractor.Tests.TestFixtures
 {
-    class ExampleSearchResults
+    public class ExampleSearchResults
     {
         public static TvEpisode TestEpisode1 =>
             new(

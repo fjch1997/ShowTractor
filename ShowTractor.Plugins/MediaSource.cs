@@ -4,6 +4,7 @@ namespace ShowTractor.Plugins.Interfaces
 {
     public class MediaSource
     {
+        public string DisplayName { get; set; } = string.Empty;
         public string ShowName { get; set; } = string.Empty;
         public int Season { get; set; }
         public int EpisodeNumber { get; set; }

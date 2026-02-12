@@ -56,7 +56,7 @@ namespace ShowTractor.Tests
         private async Task TestRemove()
         {
             var task = GetSettingsSavingTask();
-            subject.RemoveCommand.Execute(subject.MetadataProviders.First());
+            subject.RemoveMetadataProviderCommand.Execute(subject.MetadataProviders.First());
             await task;
             ClassicAssert.AreEqual(0, subject.MetadataProviders.Count);
             ClassicAssert.AreEqual(0, settings.MetadataProviders.Count);
