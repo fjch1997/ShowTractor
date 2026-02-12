@@ -6,6 +6,7 @@
     xmlns:c="using:ShowTractor.WinUI.Controls"
     xmlns:e="using:ShowTractor.WinUI.Extensions"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:pi="using:ShowTractor.Plugins.Interfaces"
     xmlns:vm="using:ShowTractor.Pages.Details"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -56,7 +57,7 @@
                         <Image x:Name="headerImage" HorizontalAlignment="Center" Source="{x:Bind ((vm:TvSeasonPageViewModel)grid.DataContext).Artwork, Converter={StaticResource TvSeasonImageSourceConverter}, Mode=OneWay}" Stretch="UniformToFill" />
                     </ParallaxView.Child>
                 </ParallaxView>
-                <StackPanel Margin="24" MaxWidth="1600">
+                <StackPanel Margin="24" MaxWidth="1500">
                     <TextBlock Style="{StaticResource TitleTextBlockStyle}">Show Description</TextBlock>
                     <TextBlock Style="{StaticResource BodyTextBlockStyle}" Text="{x:Bind ((vm:TvSeasonPageViewModel)grid.DataContext).ShowDescription, Mode=OneWay}" MaxWidth="600" HorizontalAlignment="Left"/>
                     <TextBlock Style="{StaticResource TitleTextBlockStyle}">Episodes</TextBlock>
@@ -75,9 +76,6 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="vm:TvEpisodeViewModel">
                                 <Grid Background="White" MinHeight="120">
-                                    <Grid.Shadow>
-                                        <ThemeShadow/>
-                                    </Grid.Shadow>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="200"/>
                                         <ColumnDefinition Width="*"/>
@@ -87,6 +85,7 @@
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
                                     <Image Grid.RowSpan="2" Source="{x:Bind Artwork, Converter={StaticResource EpisodeImageSourceConverter}, Mode=OneWay}" Stretch="UniformToFill" />
                                     <StackPanel Grid.Column="1" Grid.RowSpan="2" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="12">
@@ -112,13 +111,54 @@
                                         <FontIcon Glyph="&#xE783;"/>
                                         <TextBlock LineHeight="22" Margin="3 0">Unavailable</TextBlock>
                                     </StackPanel>
-                                    <StackPanel Grid.Column="2" Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Visibility="Collapsed">
-                                        <Button HorizontalAlignment="Center" Margin="6 0">
-                                            <FontIcon Glyph="&#xE896;" ToolTipService.ToolTip="Download"/>
+                                    <StackPanel Grid.Column="2" Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Visibility="{x:Bind DownloadViewModel.CanDownload, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+                                        <Button HorizontalAlignment="Center" Margin="6 0" Command="{x:Bind DownloadViewModel.DownloadCommand}" IsEnabled="{x:Bind DownloadViewModel.ShowPopup, Converter={StaticResource InverseBooleanConverter}}">
+                                            <FontIcon Glyph="&#xE896;" ToolTipService.ToolTip="Download" FontSize="16"/>
                                         </Button>
+                                        <Popup 
+                                            IsOpen="{x:Bind DownloadViewModel.ShowPopup, Mode=TwoWay}" 
+                                            IsLightDismissEnabled="True" 
+                                            VerticalOffset="40"
+                                            HorizontalOffset="-600">
+                                            <Popup.Transitions>
+                                                <TransitionCollection>
+                                                    <RepositionThemeTransition/>
+                                                </TransitionCollection>
+                                            </Popup.Transitions>
+                                            <Border 
+                                            Width="600"
+                                            Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}" 
+                                            Visibility="{x:Bind DownloadViewModel.MediaSources, Mode=OneWay, Converter={StaticResource ObjectToVisibilityConverter}}"
+                                            CornerRadius="{StaticResource OverlayCornerRadius}"
+                                            BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}"
+                                            BorderThickness="1">
+                                                <StackPanel>
+                                                    <ListView
+                                                        MaxHeight="300"
+                                                        HorizontalAlignment="Right" 
+                                                        ItemsSource="{x:Bind DownloadViewModel.MediaSources, Mode=OneWay}"
+                                                        IsItemClickEnabled="True"
+                                                        ItemClick="ListView_ItemClick"
+                                                        SelectionMode="None">
+                                                        <ListView.ItemTemplate>
+                                                            <DataTemplate x:DataType="pi:MediaSource">
+                                                                <Grid>
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="*"/>
+                                                                        <ColumnDefinition Width="Auto"/>
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <TextBlock Text="{x:Bind DisplayName}"></TextBlock>
+                                                                    <TextBlock Grid.Column="1" Text="{x:Bind Bytes, Converter={StaticResource BytesToSizeStringConverter}}"></TextBlock>
+                                                                </Grid>
+                                                            </DataTemplate>
+                                                        </ListView.ItemTemplate>
+                                                    </ListView>
+                                                </StackPanel>
+                                            </Border>
+                                        </Popup>
                                     </StackPanel>
                                     <Button Grid.Column="3" Grid.Row="1" Visibility="{x:Bind ShowWatchProgress, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
-                                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE712;"/>
+                                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE712;" FontSize="16"/>
                                         <Button.Flyout>
                                             <MenuFlyout Placement="Bottom">
                                                 <MenuFlyoutItem 

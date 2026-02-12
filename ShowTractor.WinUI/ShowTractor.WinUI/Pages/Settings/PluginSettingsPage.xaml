@@ -109,9 +109,12 @@
 
                 <TextBlock Style="{StaticResource SettingsSubtitleStyle}">Media Source Providers</TextBlock>
                 <TextBlock Style="{StaticResource BodyStyle}">Media Source Providers search for ways to download or stream episodes, and pass them along to Download Managers (for downloads) or Vidoe Players (for streams). You may enable multiple providers and adjust their priority by reordering them in the list below.</TextBlock>
-                <ListView Style="{StaticResource PluginListViewStyle}">
+                <ListView 
+                    Style="{StaticResource PluginListViewStyle}"
+                    ItemsSource="{x:Bind ((vm:PluginSettingsPageViewModel)DataContext).MediaSourceProviders}"
+                    ItemTemplate="{StaticResource PluginTemplate}">
                 </ListView>
-                <Button>Load</Button>
+                <Button Command="{x:Bind ((vm:PluginSettingsPageViewModel)DataContext).LoadMediaSourceProviderCommand}">Load</Button>
 
                 <TextBlock Style="{StaticResource SettingsSubtitleStyle}">Download Managers</TextBlock>
                 <TextBlock Style="{StaticResource BodyStyle}">Download managers take media sources of a particular type, and download them. Each download manager support only certain types of sources(e.g. HTTP, SMB, Torrent). You may enable multiple providers and adjust their priority by reordering them in the list below.</TextBlock>

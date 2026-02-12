@@ -30,6 +30,7 @@
             <c:StreamToImageSourceConverter x:Key="StreamToImageSourceConverter"/>
             <c:ObjectToCollectionViewConverter x:Key="ObjectToCollectionViewConverter"/>
             <c:EnumToStringConverter x:Key="EnumToStringConverter"/>
+            <c:BytesToSizeStringConverter x:Key="BytesToSizeStringConverter"/>
             <c2:BoolToObjectConverter x:Key="InverseBooleanConverter">
                 <c2:BoolToObjectConverter.TrueValue>
                     <x:Boolean>False</x:Boolean>

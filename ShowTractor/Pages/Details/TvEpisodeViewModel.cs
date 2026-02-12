@@ -16,15 +16,14 @@ namespace ShowTractor.Pages.Details
 {
     public class TvEpisodeViewModel : INotifyPropertyChanged
     {
-        private TvEpisode data;
         private readonly IDbContextFactory<Database.ShowTractorDbContext> factory;
         private readonly IArtworkService artworkService;
 
-        internal TvEpisodeViewModel(TvSeasonPageViewModel parent, Guid? seasonId, TvEpisode data, TimeSpan? watchProgress, IDbContextFactory<Database.ShowTractorDbContext> factory, IArtworkService artworkService)
+        internal TvEpisodeViewModel(TvSeasonPageViewModel parent, Guid? seasonId, TvEpisode data, TimeSpan? watchProgress, IDbContextFactory<Database.ShowTractorDbContext> factory, IArtworkService artworkService, IMediaSourceProvider mediaSourceProvider)
         {
             Parent = parent;
             SeasonId = seasonId;
-            this.data = data;
+            Data = data;
             this.factory = factory;
             this.artworkService = artworkService;
             if (watchProgress != null)
@@ -34,17 +33,19 @@ namespace ShowTractor.Pages.Details
                 if (e.PropertyName == nameof(parent.Following))
                     OnPropertyChanged(nameof(ShowWatchProgress));
             };
+            DownloadViewModel = new TvEpisodeDownloadsViewModel(mediaSourceProvider, this);
         }
-
+        public TvEpisode Data { get; private set; }
         public Guid? SeasonId { get; set; }
         public TvSeasonPageViewModel Parent { get; private set; }
+        public TvEpisodeDownloadsViewModel DownloadViewModel { get; private set; }
 
-        public string Name { get => data.Name; set { data = data with { Name = value }; OnPropertyChanged(); } }
-        public int EpisodeNumber { get => data.EpisodeNumber; set { data = data with { EpisodeNumber = value }; OnPropertyChanged(); } }
-        public string Description { get => data.Description; set { data = data with { Description = value }; OnPropertyChanged(); } }
+        public string Name { get => Data.Name; set { Data = Data with { Name = value }; OnPropertyChanged(); } }
+        public int EpisodeNumber { get => Data.EpisodeNumber; set { Data = Data with { EpisodeNumber = value }; OnPropertyChanged(); } }
+        public string Description { get => Data.Description; set { Data = Data with { Description = value }; OnPropertyChanged(); } }
         public string D2Identifier => "S" + Parent.Season.GetValueOrDefault().ToString("D2") + "E" + EpisodeNumber.ToString("D2");
-        public DateTime FirstAirDate { get => data.FirstAirDate; set { data = data with { FirstAirDate = value }; OnPropertyChanged(); OnPropertyChanged(nameof(TagsDisplayText)); OnPropertyChanged(nameof(ShowWatchProgress)); OnPropertyChanged(nameof(Aired)); } }
-        public TimeSpan Runtime { get => data.Runtime; set { data = data with { Runtime = value }; OnPropertyChanged(); OnPropertyChanged(nameof(WatchProgressPercentage)); OnPropertyChanged(nameof(ShowWatchProgress)); OnPropertyChanged(nameof(TagsDisplayText)); OnPropertyChanged(nameof(MarkAsWatchedEnabled)); } }
+        public DateTime FirstAirDate { get => Data.FirstAirDate; set { Data = Data with { FirstAirDate = value }; OnPropertyChanged(); OnPropertyChanged(nameof(TagsDisplayText)); OnPropertyChanged(nameof(ShowWatchProgress)); OnPropertyChanged(nameof(Aired)); } }
+        public TimeSpan Runtime { get => Data.Runtime; set { Data = Data with { Runtime = value }; OnPropertyChanged(); OnPropertyChanged(nameof(WatchProgressPercentage)); OnPropertyChanged(nameof(ShowWatchProgress)); OnPropertyChanged(nameof(TagsDisplayText)); OnPropertyChanged(nameof(MarkAsWatchedEnabled)); } }
         public TimeSpan WatchProgress { get => watchProgress; set { watchProgress = value; OnPropertyChanged(); OnPropertyChanged(nameof(WatchProgressPercentage)); OnPropertyChanged(nameof(MarkAsWatchedEnabled)); } }
         private TimeSpan watchProgress;
         public Uri? Artwork
@@ -55,7 +56,7 @@ namespace ShowTractor.Pages.Details
                 {
                     artworkInitializingOrInitialized = true;
                     // Initialize artwork on first access.
-                    artworkService.LoadAndSaveArtwork(data.ArtworkUri, SeasonId, EpisodeNumber).ContinueWith(t =>
+                    artworkService.LoadAndSaveArtwork(Data.ArtworkUri, SeasonId, EpisodeNumber).ContinueWith(t =>
                     {
                         if (t.Exception == null)
                             Artwork = t.Result;
@@ -90,14 +91,14 @@ namespace ShowTractor.Pages.Details
         {
             if (seasonId != null)
                 SeasonId = seasonId;
-            this.data = data;
+            Data = data;
             OnPropertyChanged(string.Empty);
             if (updateInDatabase)
             {
                 if (context == null) throw new ArgumentNullException(nameof(context));
                 await CreateOrUpdateInDatabaseAsync(context);
             }
-            Artwork = await artworkService.LoadAndSaveArtwork(data.ArtworkUri, seasonId, EpisodeNumber);
+            Artwork = await artworkService.LoadAndSaveArtwork(Data.ArtworkUri, seasonId, EpisodeNumber);
         }
         private async ValueTask CreateOrUpdateInDatabaseAsync(Database.ShowTractorDbContext context)
         {
@@ -106,11 +107,11 @@ namespace ShowTractor.Pages.Details
                 var dbEpisode = await Task.Run(async () => await context.TvEpisodes.FindAsync(SeasonId, EpisodeNumber));
                 if (dbEpisode == null)
                 {
-                    dbEpisode = Database.TvEpisode.FromRecord(data);
+                    dbEpisode = Database.TvEpisode.FromRecord(Data);
                     dbEpisode.TvSeasonId = SeasonId.Value;
                     await context.TvEpisodes.AddAsync(dbEpisode);
                 }
-                await dbEpisode.UpdateAsync(data);
+                await dbEpisode.UpdateAsync(Data);
             }
         }
         public static int GetWatchPercentage(TimeSpan runtime, TimeSpan watchProgress)

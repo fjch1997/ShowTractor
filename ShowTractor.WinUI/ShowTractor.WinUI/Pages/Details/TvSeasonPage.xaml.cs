@@ -29,5 +29,11 @@ namespace ShowTractor.WinUI.Pages.Details
             var query = episode.Parent.ShowName + " " + episode.D2Identifier;
             var _ = Launcher.LaunchUriAsync(new Uri("https://thepiratebay.org/search.php?q=" + Uri.EscapeDataString(query)));
         }
+
+        private void ListView_ItemClick(object sender, Microsoft.UI.Xaml.Controls.ItemClickEventArgs e)
+        {
+            var episode = (TvEpisodeViewModel)((FrameworkElement)sender).DataContext;
+            episode.DownloadViewModel.DownloadCommand.Execute(e.ClickedItem);
+        }
     }
 }

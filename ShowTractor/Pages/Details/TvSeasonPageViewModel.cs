@@ -20,15 +20,19 @@ namespace ShowTractor.Pages.Details
     public class TvSeasonPageViewModel : INotifyPropertyChanged, ISupportNavigationParameter
     {
         private readonly IFactory<IMetadataProvider> providerFactory;
+        private readonly IMediaSourceProvider mediaSourceProvider;
         private readonly IDbContextFactory<Database.ShowTractorDbContext> factory;
         private readonly IArtworkService artworkService;
         private readonly CancellationTokenSource cts = new();
-        private TvSeason? data;
         private Guid? Id;
 
-        internal TvSeasonPageViewModel(IFactory<IMetadataProvider> providerFactory, IDbContextFactory<Database.ShowTractorDbContext> factory, IArtworkService artworkService)
+        internal TvSeasonPageViewModel(
+            IFactory<IMetadataProvider> providerFactory,
+            IMediaSourceProvider mediaSourceProvider,
+            IDbContextFactory<Database.ShowTractorDbContext> factory, IArtworkService artworkService)
         {
             this.providerFactory = providerFactory;
+            this.mediaSourceProvider = mediaSourceProvider;
             this.factory = factory;
             this.artworkService = artworkService;
         }
@@ -43,6 +47,9 @@ namespace ShowTractor.Pages.Details
                 _ = RefreshAsync();
             }
         }
+        
+        public TvSeason? Data { get => data; set => data = value; }
+        private TvSeason? data;
         public bool Loading { get => loading; set { loading = value; OnPropertyChanged(); } }
         private bool loading;
         public string ErrorMessage { get => errorMessage; set { errorMessage = value; OnPropertyChanged(); } }
@@ -264,7 +271,8 @@ namespace ShowTractor.Pages.Details
                     {
                         Artwork = parameter.Artwork;
                     }
-                    await LoadDataForDisplayAsync(dbSeason.ToRecord(providerAssemblyName, uniqueId), dbSeason.Episodes.Select(e => e.WatchProgress).ToArray(), false, context);
+                    data = dbSeason.ToRecord(providerAssemblyName, uniqueId);
+                    await LoadDataForDisplayAsync(data, dbSeason.Episodes.Select(e => e.WatchProgress).ToArray(), false, context);
                     // Update saved data from latest.
                     if (provider != null)
                     {
@@ -301,7 +309,7 @@ namespace ShowTractor.Pages.Details
             {
                 if (i >= Episodes.Count)
                 {
-                    var episodeVm = new TvEpisodeViewModel(this, Id, data.Episodes[i], episodeWatchProgresses?.Skip(i).FirstOrDefault(), factory, artworkService);
+                    var episodeVm = new TvEpisodeViewModel(this, Id, data.Episodes[i], episodeWatchProgresses?.Skip(i).FirstOrDefault(), factory, artworkService, mediaSourceProvider);
                     Episodes.Add(episodeVm);
                     AttachTvEpisodeEventListener(episodeVm);
                 }
